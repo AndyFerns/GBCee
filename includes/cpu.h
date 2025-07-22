@@ -11,12 +11,12 @@
  * Two 16-bit registers: SP, PC
  */
 typedef struct {
-    uint8_t A, F;
+    uint8_t A, F; // Accumulator and Flags
     uint8_t B, C;
     uint8_t D, E;
     uint8_t H, L;
-    uint16_t PC;
-    uint16_t SP;
+    uint16_t PC; // Program Counter
+    uint16_t SP; // Stack pointer
 } CPU;
 
 extern CPU cpu;
