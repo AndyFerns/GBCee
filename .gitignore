@@ -11,6 +11,9 @@
 *.obj
 *.elf
 
+# Rom testing suite
+test_roms
+
 # Linker output
 *.ilk
 *.map
