@@ -20,14 +20,15 @@ int load_rom(const char* path) {
     }
     // Pad memory up to 0x0100 with NOPs (0x00)
     //void *memset(void *_Dst, int _Val, size_t _Size)
-    memset(rom, 0x00, 0x0100);
+    // memset(rom, 0x00, 0x0100); // not needed for commercial roms 
 
     // Load actual ROM starting at 0x0100
-    size_t bytes_read = fread(&rom[0x0100], 1, 0x8000 - 0x0100, f);
+
+    size_t bytes_read = fread(rom, 1, 0x8000, f); // Full 32KB load
 
     // fread(rom, 1, 0x8000, f); // Load up to 32KB
     fclose(f);
 
-    printf("Loaded %zu bytes at 0x0100\n", bytes_read);
+    printf("Loaded %zu bytes at 0x0000\n", bytes_read);
     return 1;
 }
