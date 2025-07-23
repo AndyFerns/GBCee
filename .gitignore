@@ -13,6 +13,7 @@
 
 # Rom testing suite
 test_roms
+build.bat
 
 # Linker output
 *.ilk
