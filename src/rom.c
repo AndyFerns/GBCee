@@ -25,5 +25,7 @@ int load_rom(const char* path) {
 
     // fread(rom, 1, 0x8000, f); // Load up to 32KB
     fclose(f);
+
+    printf("Loaded %zu bytes at 0x0100\n", bytes_read);
     return 1;
 }
