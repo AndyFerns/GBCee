@@ -97,6 +97,10 @@ void cpu_step() {
             }
             break;
 
+        case 0x76: // HALT instruction
+            printf("[HALT] HALT instruction encountered at 0x%04X\n", pc);
+            return;
+
         default:
             printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, pc);
             cpu.PC--; // Rewind PC for debugging
