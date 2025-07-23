@@ -32,6 +32,10 @@ int main(int argc, char *argv[]) {
     cpu_reset();
 
     while (1) {
+        if (cpu.PC >= 0x8000) {  // Prevent out-of-ROM execution
+            printf("[HALT] PC out of ROM bounds: 0x%04X\n", cpu.PC);
+            break;
+        }
         // Execute one instruction per cycle
         cpu_step();
 
