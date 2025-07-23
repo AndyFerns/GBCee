@@ -98,6 +98,16 @@ void cpu_step() {
             }
             break;
 
+        case 0x23: // INC HL
+            //right shift H register
+            uint16_t hl = (cpu.H << 8) | cpu.L;
+            hl++;
+
+            cpu.H = (hl>>8) & 0xFF;
+            cpu.L = hl & 0xFF;
+
+            break;
+
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", pc);
             return;
