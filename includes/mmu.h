@@ -34,4 +34,6 @@ uint8_t mmu_read(uint16_t addr);
  */
 void mmu_write(uint16_t addr, uint8_t value);
 
+extern uint8_t rom[0x8000]; // exposing rom array to main memory
+
 #endif
