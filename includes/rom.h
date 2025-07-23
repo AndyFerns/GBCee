@@ -1,6 +1,15 @@
 #ifndef ROM_H
 #define ROM_H
 
+/*
+* Gameboy Rom Architecture understanding: 
+
+* Address Range         Purpose
+* 0x0000–0x00FF	        Optional BIOS/boot ROM      (intercepted by bootloader)
+* 0x0100–0x014F	        Game Boy cartridge          header
+* 0x0150+	            Start of game code          (entry point)
+*/
+
 /**
  * load_rom - Loads a Game Boy ROM into memory.
  * 
