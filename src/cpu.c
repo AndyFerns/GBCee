@@ -1,6 +1,8 @@
 #include "cpu.h"
 #include "mmu.h"
 #include "rom.h"
+
+#include <stdbool.h>
 #include <stdio.h>
 
 CPU cpu;
@@ -31,11 +33,11 @@ void cpu_reset() {
 /**
  * cpu_step - See header.
  */
-void cpu_step() {
+bool cpu_step() {
     // Halt if PC goes beyond 64KB or ROM loaded range
     if (cpu.PC == 0xFFFF) { // ((uint32_t)cpu.PC >= 0x10000)
         printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
-        return;
+        return false;
     }
 
     uint16_t pc = cpu.PC;
@@ -110,11 +112,12 @@ void cpu_step() {
 
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", pc);
-            return;
+            return false;
 
         default:
             printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, pc);
             cpu.PC--; // Rewind PC for debugging
-            return;   // Safely halt on unknown opcode
+            return false;   // Safely halt on unknown opcode
     }
+    return true;
 }
