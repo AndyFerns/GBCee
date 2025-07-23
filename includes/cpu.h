@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /** 
  * struct CPU:
@@ -34,8 +35,12 @@ void cpu_reset();
  *
  * Fetches, decodes, and executes one instruction at PC.
  * May modify CPU registers and memory.
- * No parameters, no return value.
+ * No parameters 
+ * 
+ * Return Value: 
+ * True if cpu requires to run another cycle 
+ * False if cpu halts/is forcefully stopped
  */
-void cpu_step();
+bool cpu_step();
 
 #endif
