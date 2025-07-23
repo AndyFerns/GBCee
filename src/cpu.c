@@ -39,7 +39,56 @@ void cpu_step() {
     );
 
     switch (opcode) {
-        case 0x00: // NOP
+        case 0x00: // No Operation
+            break;
+            
+        case 0x3E: // LD A,n
+            cpu.A = mmu_read(cpu.PC++);
+            break;
+
+        case 0x06: // LD, B, n
+            cpu.B = mmu_read(cpu.PC++);
+            break;
+
+        case 0x0E: // LD, C, n
+            cpu.C = mmu_read(cpu.PC++);
+            break;
+
+        case 0x16: // LD D, n
+            cpu.D = mmu_read(cpu.PC++);
+            break;
+
+        case 0x1E: // LD E, n
+            cpu.E = mmu_read(cpu.PC++);
+            break;
+
+        case 0x04: // INC B
+            cpu.B++;
+            // Flags:
+            // Z set if result is zero
+            // N reset
+            // H set if overflow from bit 3
+            cpu.F &= 0x10; //preserve carry
+            
+            if (cpu.B == 0) {
+                cpu.F |= 0x80; //Z
+            }
+            if ((cpu.B & 0x0F) == 0x00) {
+                cpu.F != 0x20; //H
+            }
+
+            break;
+
+        case 0x05: //DEC B
+            if ((cpu.B & 0x0F) == 0) {
+                cpu.F |= 0x20; //H
+            }
+            cpu.B--;
+            cpu.F |= 0x40; // N
+
+            if (cpu.B == 0) {
+                cpu.F |= 0x80;
+            }
             break;
 
         default:
