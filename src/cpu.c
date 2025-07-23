@@ -31,10 +31,16 @@ void cpu_reset() {
  * cpu_step - See header.
  */
 void cpu_step() {
+    // Halt if PC goes beyond 64KB or ROM loaded range
+    if (cpu.PC >= 0x10000) {
+        printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
+        return;
+    }
+
     uint16_t pc = cpu.PC;
     uint8_t opcode = mmu_read(cpu.PC++);
     
-    printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x04X\n", 
+    printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
         pc, opcode, cpu.A, cpu.F, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
     );
 
@@ -92,7 +98,8 @@ void cpu_step() {
             break;
 
         default:
-            printf("Unimplemented opcode: 0x%02X\n", opcode);
-            break;
+            printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, pc);
+            cpu.PC--; // Rewind PC for debugging
+            return;   // Safely halt on unknown opcode
     }
 }
