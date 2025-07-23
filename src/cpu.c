@@ -49,6 +49,7 @@ bool cpu_step() {
 
     switch (opcode) {
         case 0x00: // No Operation
+            // cpu.PC++;
             break;
             
         case 0x3E: // LD A,n
