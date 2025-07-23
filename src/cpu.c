@@ -28,6 +28,7 @@ void cpu_reset() {
     cpu.SP = 0xFFFE; //int 65534
     // Program counter
     cpu.PC = 0x0100; // int 256
+    cpu.halted = false;
 }
 
 /**
@@ -37,6 +38,10 @@ bool cpu_step() {
     // Halt if PC goes beyond 64KB or ROM loaded range
     if (cpu.PC == 0xFFFF) { // ((uint32_t)cpu.PC >= 0x10000)
         printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
+        return false;
+    }
+
+    if (cpu.halted) {
         return false;
     }
 
@@ -113,11 +118,14 @@ bool cpu_step() {
 
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", pc);
+            cpu.halted = true;
             return false;
 
         default:
             printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, pc);
             cpu.PC--; // Rewind PC for debugging
+
+            cpu.halted = true;
             return false;   // Safely halt on unknown opcode
     }
     return true;

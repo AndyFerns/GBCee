@@ -11,13 +11,14 @@
  * Eight 8-bit registers: A, B, C, D, E, F, H, L
  * Two 16-bit registers: SP, PC
  */
-typedef struct {
+typedef struct CPU {
     uint8_t A, F; // Accumulator and Flags
     uint8_t B, C;
     uint8_t D, E;
     uint8_t H, L;
     uint16_t PC; // Program Counter
     uint16_t SP; // Stack pointer
+    bool halted; // halted flag
 } CPU;
 
 extern CPU cpu;

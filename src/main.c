@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     cpu_reset();
 
-    while (cpu_step()) {
+    while (!cpu.halted) { // initially false hence !false = true
         if (cpu.PC >= 0x8000) {  // Prevent out-of-ROM execution
             printf("[HALT] PC out of ROM bounds: 0x%04X\n", cpu.PC);
             break;
