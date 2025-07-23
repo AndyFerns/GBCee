@@ -1,7 +1,9 @@
 #include "mmu.h"
 #include <string.h>
 
-static uint8_t rom[0x8000]; // Cartridge ROM region
+// Cartridge ROM region
+// DONT KEEP STATIC FOR THE LOVE OF ALL THATS GOOD
+uint8_t rom[0x8000]; 
 static uint8_t ram[0x10000]; // Full 64KB memory space (simplified)
 
 /**
