@@ -1,6 +1,7 @@
 #include "rom.h"
 #include "mmu.h"
 #include <stdio.h>
+#include <string.h> //for memset()
 
 extern uint8_t rom[0x8000]; // Access the ROM array defined in mmu.c
 
@@ -18,6 +19,7 @@ int load_rom(const char* path) {
         return 0;
     }
     // Pad memory up to 0x0100 with NOPs (0x00)
+    //void *memset(void *_Dst, int _Val, size_t _Size)
     memset(rom, 0x00, 0x0100);
 
     // Load actual ROM starting at 0x0100
