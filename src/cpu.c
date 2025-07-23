@@ -34,7 +34,7 @@ void cpu_step() {
     uint16_t pc = cpu.PC;
     uint8_t opcode = mmu_read(cpu.PC++);
     
-    printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
+    printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x04X\n", 
         pc, opcode, cpu.A, cpu.F, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
     );
 
@@ -74,7 +74,7 @@ void cpu_step() {
                 cpu.F |= 0x80; //Z
             }
             if ((cpu.B & 0x0F) == 0x00) {
-                cpu.F != 0x20; //H
+                cpu.F |= 0x20; //H
             }
 
             break;
