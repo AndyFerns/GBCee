@@ -41,7 +41,7 @@ void cpu_reset();
  * Return Value: 
  * Returns cycle count
  */
-int cpu_step();
+bool cpu_step();
 
 /**
  * execute_opcode: Execution suite for an opcode
@@ -52,6 +52,6 @@ int cpu_step();
  * Return:
  * int
  */
-int execute_opcode(uint8_t opcode);
+bool execute_opcode(uint8_t opcode);
 
 #endif
