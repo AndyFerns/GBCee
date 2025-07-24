@@ -34,7 +34,7 @@ void cpu_reset() {
 /**
  * cpu_step - See header.
  */
-int cpu_step() {
+bool cpu_step() {
     // Halt if PC goes beyond 64KB or ROM loaded range
     if (cpu.PC == 0xFFFF) { // ((uint32_t)cpu.PC >= 0x10000)
         printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
@@ -55,7 +55,15 @@ int cpu_step() {
     return execute_opcode(opcode);
 }
 
-int execute_opcode(uint8_t opcode) {
+/**
+ * execute_opcode()-
+ * Decodes and executes the given 8-bit opcode 
+ *
+ * @return  int    
+ * returns true on success
+ * false on halt/unknown instruction
+ */
+bool execute_opcode(uint8_t opcode) {
     switch (opcode) {
         case 0x00: // No Operation
             // cpu.PC++;
@@ -123,13 +131,14 @@ int execute_opcode(uint8_t opcode) {
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
             cpu.halted = true;
-            return false;
+            return 0;
 
         default:
             printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, cpu.PC);
             cpu.PC--; // Rewind PC for debugging
 
             cpu.halted = true;
-            return false;   // Safely halt on unknown opcode
+            return false; // Safely halt on unknown opcode   
     }   
+    return true;
 }
