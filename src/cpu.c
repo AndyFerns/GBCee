@@ -167,9 +167,9 @@ bool execute_opcode(uint8_t opcode) {
 
         // LD SP (Stack pointer), nn
         case 0x31:
-            uint16_t nn = mmu_read(cpu.PC++);
-            nn |= mmu_read(cpu.PC++) << 8;
-            cpu.SP = nn; 
+            uint16_t mm = mmu_read(cpu.PC++);
+            mm |= mmu_read(cpu.PC++) << 8;
+            cpu.SP = mm; 
             break;
 
         // LD SP, HL ooooo la laa
@@ -240,6 +240,19 @@ bool execute_opcode(uint8_t opcode) {
             cpu.H = (hl>>8) & 0xFF;
             cpu.L = hl & 0xFF;
 
+            break;
+
+        /* Stack Operations*/
+        // PUSH B, C
+        case 0xC5:
+            mmu_write(--cpu.SP, cpu.B);
+            mmu_write(--cpu.SP, cpu.C);
+            break;
+
+        // POP B, C
+        case 0xC1:
+            cpu.C = mmu_read(cpu.SP++);
+            cpu.B = mmu_read(cpu.SP++);
             break;
 
         /* Load - Store Instructions */
