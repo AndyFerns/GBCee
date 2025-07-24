@@ -78,34 +78,16 @@ bool execute_opcode(uint8_t opcode) {
         case 0x00: // No Operation
             // cpu.PC++;
             break;
-            
-        case 0x3E: // LD A,n
-            cpu.A = mmu_read(cpu.PC++);
-            break;
+        
+        // Resistor Load operations
+        case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
+        case 0x06: cpu.B = mmu_read(cpu.PC++); break; // LD B, n
+        case 0x0E: cpu.C = mmu_read(cpu.PC++); break; // LD C, n
+        case 0x16: cpu.D = mmu_read(cpu.PC++); break; // LD D, n
+        case 0x1E: cpu.E = mmu_read(cpu.PC++); break; // LD E,n
+        case 0x26: cpu.H = mmu_read(cpu.PC++); break; // LD H, n
+        case 0x2E: cpu.L = mmu_read(cpu.PC++); break; // LD L, n
 
-        case 0x06: // LD B, n
-            cpu.B = mmu_read(cpu.PC++);
-            break;
-
-        case 0x0E: // LD C, n
-            cpu.C = mmu_read(cpu.PC++);
-            break;
-
-        case 0x16: // LD D, n
-            cpu.D = mmu_read(cpu.PC++);
-            break;
-
-        case 0x1E: // LD E, n
-            cpu.E = mmu_read(cpu.PC++);
-            break;
-
-        case 0x26: // LD H, n
-            cpu.F = mmu_read(cpu.PC++);
-            break;
-
-        case 0x2E: // LD L, n
-            cpu.L = mmu_read(cpu.PC++);
-            break;
 
         case 0x04: // INC B
             cpu.B++;
