@@ -156,6 +156,17 @@ bool execute_opcode(uint8_t opcode) {
         case 0x40: break; // (NOP Equivalent)
 
 
+        // 16-bit load ooperations
+        // LD HL, nn
+        case 0x21:
+            uint16_t nn = mmu_read(cpu.PC++);
+            nn |= mmu_read(cpu.PC++) << 8; // logical OR + right shift by 8 bits
+            cpu.H = (nn >> 8) & 0xFF;
+            cpu.L = nn & 0xFF;
+            break;
+
+            
+
         // Flags:
         // Z set if result is zero
         // N reset
@@ -251,10 +262,11 @@ bool execute_opcode(uint8_t opcode) {
 
         case 0x90: SUB_A(cpu.B); break;     // SUB B from A
 
-        case 0xA0: AND_A(cpu.B); break;     // ADD B and A
-        case 0xB0: OR_A(cpu.B); break;     // OR B and A
-        case 0xB8: XOR_A(cpu.B); break;     // XOR B, A
-        case 0xA8: CP_A(cpu.B); break;     // Compare CP B, A
+        case 0xA0: AND_A(cpu.B); break;     // AND A, B
+        case 0xB0: OR_A(cpu.B); break;     // OR A, B
+        case 0xB8: XOR_A(cpu.B); break;     // XOR A, B
+
+        case 0xA8: CP_A(cpu.B); break;     // Compare CP A, B
 
         default:
             printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, cpu.PC);
