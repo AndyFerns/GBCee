@@ -34,7 +34,7 @@ void cpu_reset() {
 /**
  * cpu_step - See header.
  */
-bool cpu_step() {
+int cpu_step() {
     // Halt if PC goes beyond 64KB or ROM loaded range
     if (cpu.PC == 0xFFFF) { // ((uint32_t)cpu.PC >= 0x10000)
         printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
@@ -52,7 +52,7 @@ bool cpu_step() {
            pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
     );
 
-    return true;
+    return execute_opcode(opcode);
 }
 
 int execute_opcode(uint8_t opcode) {
