@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 // Arithmeticv operations 
+
 void ADD_A(uint8_t val);
 void SUB_A(uint8_t val);
 void AND_A(uint8_t val);
