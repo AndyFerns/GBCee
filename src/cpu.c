@@ -85,7 +85,7 @@ bool execute_opcode(uint8_t opcode) {
             cpu.PC = addr;
             break;
         }
-        
+
         // Resistor Load operations
         case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
         case 0x06: cpu.B = mmu_read(cpu.PC++); break; // LD B, n
@@ -179,6 +179,16 @@ bool execute_opcode(uint8_t opcode) {
 
             break;
 
+        /* Load - Store Instructions */
+        // LD n, (HL)
+        case 0x7E: cpu.A = mmu_read(REG_HL); break;
+        case 0x46: cpu.B = mmu_read(REG_HL); break;
+        case 0x4E: cpu.C = mmu_read(REG_HL); break;
+        case 0x56: cpu.D = mmu_read(REG_HL); break;
+        case 0x5E: cpu.E = mmu_read(REG_HL); break;
+        case 0x66: cpu.H = mmu_read(REG_HL); break;
+        case 0x6E: cpu.L = mmu_read(REG_HL); break;
+        
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
             cpu.halted = true;
