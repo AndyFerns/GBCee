@@ -101,13 +101,14 @@ bool execute_opcode(uint8_t opcode) {
 
         // Branching Instructions
         // JR n (signed offset)
-        case 0x18: 
+        case 0x18: {
             int8_t offset = (int8_t)mmu_read(cpu.PC++);
             cpu.PC += offset;
             break;
+        }
 
         // CALL nn
-        case 0xCD:
+        case 0xCD:{
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
             cpu.PC += 2;
             cpu.SP -= 2;
@@ -115,15 +116,16 @@ bool execute_opcode(uint8_t opcode) {
             mmu_write(cpu.SP + 1, cpu.PC >> 8); 
             cpu.PC = addr;
             break;
+        }
 
         // RET 
-        case 0xC9:
+        case 0xC9:{
             uint8_t lo = mmu_read(cpu.SP);
             uint8_t hi = mmu_read(cpu.SP + 1);
             cpu.SP += 2;
             cpu.PC = (hi << 8) | lo;
             break;
-        
+        }
 
         // Resistor Load operations
         case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
@@ -158,25 +160,27 @@ bool execute_opcode(uint8_t opcode) {
 
         // 16-bit load ooperations
         // LD HL, nn
-        case 0x21:
+        case 0x21: {    
             uint16_t nn = mmu_read(cpu.PC++);
             nn |= mmu_read(cpu.PC++) << 8; // logical OR + right shift by 8 bits
             cpu.H = (nn >> 8) & 0xFF;
             cpu.L = nn & 0xFF;
             break;
+        } 
 
         // LD SP (Stack pointer), nn
-        case 0x31:
-            uint16_t mm = mmu_read(cpu.PC++);
-            mm |= mmu_read(cpu.PC++) << 8;
-            cpu.SP = mm; 
+        case 0x31:{
+            uint16_t nn = mmu_read(cpu.PC++);
+            nn |= mmu_read(cpu.PC++) << 8;
+            cpu.SP = nn; 
             break;
+        }
 
         // LD SP, HL ooooo la laa
-        case 0xF9:
+        case 0xF9:{
             cpu.SP = (cpu.H << 8) | cpu.L;
             break;
-
+        }
         // Flags:
         // Z set if result is zero
         // N reset
@@ -187,7 +191,7 @@ bool execute_opcode(uint8_t opcode) {
 
         /* INCREMENT OPERATIONS*/
         // INCB
-        case 0x04:
+        case 0x04:{
             uint8_t prev = cpu.B;
             cpu.B++; // increment step
 
@@ -199,9 +203,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
 
         // INC C
-        case 0x0C: 
+        case 0x0C: {
             uint8_t prev = cpu.C;
             cpu.C++;
 
@@ -213,9 +218,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break; 
+        }
 
         // INC D
-        case 0x14: 
+        case 0x14: {
             uint8_t prev = cpu.D;
             cpu.D++;
 
@@ -227,9 +233,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break; 
-        
+        }
+
         // INC E
-        case 0x1C: 
+        case 0x1C: {
             uint8_t prev = cpu.E;
             cpu.E++;
 
@@ -241,9 +248,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break; 
-
+        }
+        
         // INC H
-        case 0x24:
+        case 0x24:{
             uint8_t prev = cpu.H;
             cpu.H++;
 
@@ -255,9 +263,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
 
         // INC L
-        case 0x2C:
+        case 0x2C:{
             uint8_t prev = cpu.L;
             cpu.L++;
 
@@ -269,9 +278,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
 
         // INC A
-        case 0x3C:
+        case 0x3C:{    
             uint8_t prev = cpu.A;
             cpu.A++;
 
@@ -283,9 +293,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break; 
+        }
 
-        
-        case 0x23: // INC HL
+        // INC HL
+        case 0x23: {
             //right shift H register
             uint16_t hl = (cpu.H << 8) | cpu.L;
             hl++;
@@ -294,11 +305,11 @@ bool execute_opcode(uint8_t opcode) {
             cpu.L = hl & 0xFF;
 
             break;
-
+        }
         
         /* DECREMENT OPERATIONS */
         //DEC B
-        case 0x05: 
+        case 0x05: {
             uint8_t prev = cpu.B;
             cpu.B--;
 
@@ -313,9 +324,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
 
         // DEC C
-        case 0x0D: 
+        case 0x0D: {
             uint8_t prev = cpu.C;
             cpu.C--;
 
@@ -329,9 +341,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
 
         //DEC D
-        case 0x15: 
+        case 0x15: {
             uint8_t prev = cpu.D;
             cpu.D--;
 
@@ -346,9 +359,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
             
         //DEC E
-        case 0x1D: 
+        case 0x1D: {
             uint8_t prev = cpu.E;
             cpu.E--;
 
@@ -363,9 +377,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
 
         //DEC H
-        case 0x25: 
+        case 0x25: {
             uint8_t prev = cpu.H;
             cpu.H--;
 
@@ -380,9 +395,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
 
         //DEC L
-        case 0x2D:
+        case 0x2D:{
             uint8_t prev = cpu.L;
             cpu.L--;
 
@@ -397,16 +413,17 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
+        }
 
         //DEC A
-        case 0x3D: 
-            uint8_t prev = cpu.B;
-            cpu.B--;
+        case 0x3D: {
+            uint8_t prev = cpu.A;
+            cpu.A--;
 
             cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
             cpu.F |= FLAG_N;
 
-            if (cpu.B == 0) {
+            if (cpu.A == 0) {
                 cpu.F |= FLAG_Z;
             }
 
@@ -414,10 +431,10 @@ bool execute_opcode(uint8_t opcode) {
                 cpu.F |= FLAG_H;
             }
             break;
-
+        }
 
         // DEC HL
-        case 0x35: 
+        case 0x35: {
             //right shift H register
             uint16_t hl = (cpu.H << 8) | cpu.L;
             hl--;
@@ -426,6 +443,7 @@ bool execute_opcode(uint8_t opcode) {
             cpu.L = hl & 0xFF;
 
             break;
+        }
 
         /* Stack Operations*/
         // PUSH B, C
