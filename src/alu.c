@@ -71,11 +71,24 @@ void SUB_A(uint8_t val) {
  * @return void
  */
 void AND_A(uint8_t val) {
-    cpu.A &= val;
+    cpu.A &= val; //apply logical AND
     cpu.F = FLAG_H; // half-carry is ALWAYS set
     if (cpu.A == 0) {
         cpu.F |= FLAG_Z;
     }
 }
 
-// OR r, XOR r, CP r yet to be implemented
+/** 
+ * @brief Applying logical OR between A and val
+ *
+ * @param val:uint8_t 8-bit value to OR A with
+ * 
+ * @return void
+ */
+void OR_A(uint8_t val) {
+    cpu.A |= val; //apply logical OR
+    cpu.F = 0; // set half carry to 0
+    if (cpu.A == 0) {
+        cpu.F |= FLAG_Z;
+    }
+}
