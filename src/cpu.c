@@ -107,6 +107,7 @@ bool execute_opcode(uint8_t opcode) {
         // LD B, B
         case 0x40: break; // (NOP Equivalent)
 
+        // INC/DEC B
         case 0x04: // INC B
             // Flags:
             // Z set if result is zero
@@ -130,9 +131,21 @@ bool execute_opcode(uint8_t opcode) {
             cpu.F |= 0x40; // N
 
             if (cpu.B == 0) {
-                cpu.F |= 0x80;
+                cpu.F |= 0x80; // Z
             }
             break;
+
+        // INC / DEC C
+        case 0x0C: // INC C
+            cpu.C++;
+            cpu.F &= 0x10;
+            if (cpu.C == 0) {
+                cpu.F |= 0x80;
+            }
+            if ((cpu.C & 0x0F) == 0x00) {
+                cpu.F |= 0x80; // N
+            }
+            break; // Z
 
         case 0x23: // INC HL
             //right shift H register
