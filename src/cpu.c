@@ -117,9 +117,8 @@ bool execute_opcode(uint8_t opcode) {
         case 0xCD:{
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
             cpu.PC += 2;
-            cpu.SP -= 2;
-            mmu_write(cpu.SP + 1, cpu.PC >> 8); // upper
-            mmu_write(cpu.SP, cpu.PC & 0xFF);
+            mmu_write(--cpu.SP, (cpu.PC >> 8));
+            mmu_write(--cpu.SP, (cpu.PC & 0xFF));
             cpu.PC = addr;
             break;
         }
@@ -594,10 +593,11 @@ bool execute_cb_opcode(uint8_t opcode) {
                 cpu.F &= ~FLAG_Z;
             break;
 
-        // BIT 0, (HL)
-        case 0x46:
-            printf("Not implemented");
-            break;
+        // // BIT 0, (HL)
+        // case 0x46:
+        //     printf("Not implemented");
+        //     return false;
+        //     break;
 
         // BIT 0, A
         case 0x47:
