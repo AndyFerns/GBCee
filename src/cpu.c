@@ -78,6 +78,13 @@ bool execute_opcode(uint8_t opcode) {
         case 0x00: // No Operation
             // cpu.PC++;
             break;
+
+        // program execution flow transferred to new memory address "n n"       
+        case 0xC3: { // JP nn
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC = addr;
+            break;
+        }
         
         // Resistor Load operations
         case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
