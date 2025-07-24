@@ -86,6 +86,12 @@ bool cpu_step() {
  * @return  returns true on success and false on halt/unknown instruction
  */
 bool execute_opcode(uint8_t opcode) {
+    /*
+        Flags:
+        Z set if result is zero
+        N reset
+        H set if overflow from bit 3
+    */
     switch (opcode) {
         case 0x00: // No Operation
             // cpu.PC++;
@@ -182,11 +188,6 @@ bool execute_opcode(uint8_t opcode) {
             cpu.SP = REG_HL; // macro predefined for consistency
             break;
         }
-        // Flags:
-        // Z set if result is zero
-        // N reset
-        // H set if overflow from bit 3
-
 
         // Increment and Decrement operators;
 
@@ -615,7 +616,7 @@ bool execute_cb_opcode(uint8_t opcode) {
 
         // RES 
         // yet to be implemented
-        
+
         default: 
             printf("[CB] Unimplemented opcode: 0x%02X\n", opcode);
             cpu.halted = true;
