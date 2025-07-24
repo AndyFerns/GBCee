@@ -108,3 +108,25 @@ void XOR_A(uint8_t val) {
         cpu.F |= FLAG_Z;
     }
 }
+
+/**
+ * simple comparison between A and val.
+ * 
+ * result is not stored.
+ * 
+ * @param val 8-bit integer to compare A with
+ * 
+ * @return void
+ */
+void CP_A(uint8_t val) {
+    cpu.F = FLAG_N;
+    if ((cpu.A & 0x0F) < (val & 0x0F)) {
+        cpu.F |= FLAG_H; //preserve half carry
+    }
+    if (cpu.A < val) {
+        cpu.F |= FLAG_C; //preserve carry
+    }
+    if (cpu.A == 0) {
+        cpu.F |= FLAG_Z; //set to 0
+    }
+}
