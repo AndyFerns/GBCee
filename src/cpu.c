@@ -52,6 +52,10 @@ bool cpu_step() {
            pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
     );
 
+    return true;
+}
+
+int execute_opcode(uint8_t opcode) {
     switch (opcode) {
         case 0x00: // No Operation
             // cpu.PC++;
@@ -117,16 +121,15 @@ bool cpu_step() {
             break;
 
         case 0x76: // HALT instruction
-            printf("[HALT] HALT instruction encountered at 0x%04X\n", pc);
+            printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
             cpu.halted = true;
             return false;
 
         default:
-            printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, pc);
+            printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, cpu.PC);
             cpu.PC--; // Rewind PC for debugging
 
             cpu.halted = true;
             return false;   // Safely halt on unknown opcode
-    }
-    return true;
+    }   
 }

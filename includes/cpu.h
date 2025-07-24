@@ -39,9 +39,19 @@ void cpu_reset();
  * No parameters 
  * 
  * Return Value: 
- * True if cpu requires to run another cycle 
- * False if cpu halts/is forcefully stopped
+ * Returns cycle count
  */
 bool cpu_step();
+
+/**
+ * execute_opcode: Execution suite for an opcode
+ * 
+ * Parameters: 
+ * @opcode: 8-bit opcode
+ *
+ * Return:
+ * int
+ */
+int execute_opcode(uint8_t opcode);
 
 #endif
