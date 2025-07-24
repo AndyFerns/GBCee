@@ -200,7 +200,7 @@ bool execute_opcode(uint8_t opcode) {
             uint8_t prev = cpu.B;
             cpu.B--;
 
-            cpu.F &= FLAG_C;    //preserve C (carry) always, clear other flags
+            cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
             cpu.F |= FLAG_N;
 
             if (cpu.B == 0) {
@@ -214,13 +214,17 @@ bool execute_opcode(uint8_t opcode) {
 
         // INC / DEC C
         case 0x0C: // INC C
-            cpu.C++;
-            cpu.F &= 0x10;
+            uint8_t prev = cpu.C;
+            cpu.C--;
+
+            cpu.F &= FLAG_C;        // preserve C, clear others
+            cpu.F |= FLAG_N;
+
             if (cpu.C == 0) {
-                cpu.F |= 0x80; // Z
+                cpu.F |= FLAG_Z;
             }
-            if ((cpu.C & 0x0F) == 0x00) {
-                cpu.F |= 0x20; // H
+            if ((prev & 0x0F) == 0x00) {
+                cpu.F |= FLAG_H;
             }
             break; 
         
