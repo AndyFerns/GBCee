@@ -67,7 +67,7 @@ bool cpu_step() {
 
 /**
  * execute_opcode()-
- * Decodes and executes the given 8-bit opcode 
+ * Decodes and executes given 8-bit opcode 
  *
  * Return value: int  
  * returns true on success
@@ -88,22 +88,38 @@ bool execute_opcode(uint8_t opcode) {
         case 0x26: cpu.H = mmu_read(cpu.PC++); break; // LD H, n
         case 0x2E: cpu.L = mmu_read(cpu.PC++); break; // LD L, n
 
+        // LD r1, r2 : Copy between two 8-bit resistors
+        case 0x78: cpu.A = cpu.B; break; // LD A, B
+        case 0x79: cpu.A = cpu.C; break; // LD A, C
+        case 0x7A: cpu.A = cpu.D; break; // LD A, D
+        case 0x7B: cpu.A = cpu.E; break; // LD A, E
+        case 0x7C: cpu.A = cpu.F; break; // LD A, H
+        case 0x7D: cpu.A = cpu.L; break; // LD A, L
+        // LD A, A 
+        case 0x7F: break; //(NOP Equivalent) 
+
+        case 0x47: cpu.B = cpu.A; break; // LD B, A
+        case 0x41: cpu.B = cpu.C; break; // LD B, C
+        case 0x42: cpu.B = cpu.D; break;// LD B, D
+        case 0x43: cpu.B = cpu.E; break;// LD B, E
+        case 0x44: cpu.B = cpu.H; break;// LD B, H
+        case 0x45: cpu.B = cpu.L; break;// LD B, L
+        // LD B, B
+        case 0x40: break; // (NOP Equivalent)
 
         case 0x04: // INC B
-            cpu.B++;
             // Flags:
             // Z set if result is zero
             // N reset
             // H set if overflow from bit 3
+            cpu.B++;
             cpu.F &= 0x10; //preserve carry
-            
             if (cpu.B == 0) {
                 cpu.F |= 0x80; //Z
             }
             if ((cpu.B & 0x0F) == 0x00) {
                 cpu.F |= 0x20; //H
             }
-
             break;
 
         case 0x05: //DEC B
