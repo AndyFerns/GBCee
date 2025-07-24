@@ -80,11 +80,20 @@ bool execute_opcode(uint8_t opcode) {
             break;
 
         // program execution flow transferred to new memory address "n n"       
-        case 0xC3: { // JP nn
+        // JP nn
+        case 0xC3: {
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
             cpu.PC = addr;
             break;
         }
+
+        // Branching Instructions
+        // JR n (signed offset)
+        case 0x18: 
+            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            cpu.PC += offset;
+            break;
+
 
         // Resistor Load operations
         case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
@@ -95,6 +104,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x26: cpu.H = mmu_read(cpu.PC++); break; // LD H, n
         case 0x2E: cpu.L = mmu_read(cpu.PC++); break; // LD L, n
 
+
         // LD r1, r2 : Copy between two 8-bit resistors
         case 0x78: cpu.A = cpu.B; break; // LD A, B
         case 0x79: cpu.A = cpu.C; break; // LD A, C
@@ -104,6 +114,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x7D: cpu.A = cpu.L; break; // LD A, L
         // LD A, A 
         case 0x7F: break; //(NOP Equivalent) 
+
 
         case 0x47: cpu.B = cpu.A; break; // LD B, A
         case 0x41: cpu.B = cpu.C; break; // LD B, C
@@ -121,6 +132,7 @@ bool execute_opcode(uint8_t opcode) {
         // H set if overflow from bit 3
 
 
+        // Increment and Decrement operators;
         // INC/DEC B
         case 0x04: // INC B
             cpu.B++;
