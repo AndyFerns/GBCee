@@ -157,8 +157,7 @@ bool execute_opcode(uint8_t opcode) {
             }
             cpu.C--; // Decrement step
             cpu.F |= 0x40; // N
-
-            if (cpu.C == 0x40) {
+            if (cpu.C == 0x00) {
                 cpu.F |= 0x80;
             } // Z
             break;
