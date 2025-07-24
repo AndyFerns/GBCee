@@ -83,11 +83,11 @@ bool execute_opcode(uint8_t opcode) {
             cpu.A = mmu_read(cpu.PC++);
             break;
 
-        case 0x06: // LD, B, n
+        case 0x06: // LD B, n
             cpu.B = mmu_read(cpu.PC++);
             break;
 
-        case 0x0E: // LD, C, n
+        case 0x0E: // LD C, n
             cpu.C = mmu_read(cpu.PC++);
             break;
 
@@ -97,6 +97,14 @@ bool execute_opcode(uint8_t opcode) {
 
         case 0x1E: // LD E, n
             cpu.E = mmu_read(cpu.PC++);
+            break;
+
+        case 0x26: // LD H, n
+            cpu.F = mmu_read(cpu.PC++);
+            break;
+
+        case 0x2E: // LD L, n
+            cpu.L = mmu_read(cpu.PC++);
             break;
 
         case 0x04: // INC B
