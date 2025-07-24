@@ -186,13 +186,15 @@ bool execute_opcode(uint8_t opcode) {
         // Increment and Decrement operators;
         // INC/DEC B
         case 0x04: // INC B
-            cpu.B++;
-            cpu.F &= 0x10; //preserve carry
+            uint8_t prev = cpu.B;
+            cpu.B++; // increment step
+
+            cpu.F &= FLAG_C;    // preserver C (carry), clear thhe other flags
             if (cpu.B == 0) {
-                cpu.F |= 0x80; //Z
-            }
-            if ((cpu.B & 0x0F) == 0x00) {
-                cpu.F |= 0x20; //H
+                cpu.F |= FLAG_Z;
+            } 
+            if ((prev & 0x0F) == 0x0F) {
+                cpu.F |= FLAG_H;
             }
             break;
 
@@ -215,6 +217,19 @@ bool execute_opcode(uint8_t opcode) {
         // INC / DEC C
         case 0x0C: // INC C
             uint8_t prev = cpu.C;
+            cpu.C++;
+
+            cpu.F &= FLAG_C;
+            if (cpu.C == 0) {
+                cpu.F |= FLAG_Z;
+            }
+            if ((prev & 0x0F) == 0x0F) {
+                cpu.F |= FLAG_H;
+            }
+            break; 
+        
+        case 0x0D: // DEC C
+            uint8_t prev = cpu.C;
             cpu.C--;
 
             cpu.F &= FLAG_C;        // preserve C, clear others
@@ -226,18 +241,6 @@ bool execute_opcode(uint8_t opcode) {
             if ((prev & 0x0F) == 0x00) {
                 cpu.F |= FLAG_H;
             }
-            break; 
-        
-        case 0x0D: // DEC C
-            cpu.F &= 0x10; // Preserve Carry
-            if ((cpu.C & 0x0F) == 0) {
-                cpu.F |= 0x20; // H
-            }
-            cpu.C--; // Decrement step
-            cpu.F |= 0x40; // N
-            if (cpu.C == 0x00) {
-                cpu.F |= 0x80;
-            } // Z
             break;
 
         case 0x23: // INC HL
