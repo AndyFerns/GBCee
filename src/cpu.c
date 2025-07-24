@@ -47,7 +47,7 @@ void cpu_reset() {
  * May modify CPU registers and memory.
  * No parameters 
  * 
- * Return Value: 
+ * @returns 
  * Returns cycle count
  */
 bool cpu_step() {
@@ -80,10 +80,10 @@ bool cpu_step() {
 /**
  * execute_opcode()-
  * Decodes and executes given 8-bit opcode 
+ * 
+ * @param opcode 8-bit operation code to be executed
  *
- * Return value: int  
- * returns true on success
- * false on halt/unknown instruction
+ * @return  returns true on success and false on halt/unknown instruction
  */
 bool execute_opcode(uint8_t opcode) {
     switch (opcode) {
