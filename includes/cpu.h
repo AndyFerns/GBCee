@@ -54,4 +54,14 @@ bool cpu_step();
  */
 bool execute_opcode(uint8_t opcode);
 
+/**
+ * Executes CB Opcodes
+ * Separated from execute_opcode for logic
+ *
+ * @return  bool    
+ * returns true if CB opcode is succesfully executed
+ * returns false otherwise
+ */
+bool execute_cb_opcode(uint8_t opcode); 
+
 #endif
