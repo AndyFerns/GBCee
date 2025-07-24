@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "mmu.h"
 #include "rom.h"
+#include "alu.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -243,6 +244,17 @@ bool execute_opcode(uint8_t opcode) {
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
             cpu.halted = true;
             return 0;
+
+        // Arithmetic Logic Unit Operations (ALU Ops)
+        case 0x80: ADD_A(cpu.B); break;     // ADD A, B
+        case 0x81: ADD_A(cpu.C); break;     // ADD A, C
+
+        case 0x90: SUB_A(cpu.B); break;     // SUB B from A
+
+        case 0xA0: AND_A(cpu.B); break;     // ADD B and A
+        case 0xB0: OR_A(cpu.B); break;     // OR B and A
+        case 0xB8: XOR_A(cpu.B); break;     // XOR B, A
+        case 0xA8: CP_A(cpu.B); break;     // Compare CP B, A
 
         default:
             printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, cpu.PC);
