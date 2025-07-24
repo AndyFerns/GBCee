@@ -178,7 +178,8 @@ bool execute_opcode(uint8_t opcode) {
 
         // LD SP, HL ooooo la laa
         case 0xF9:{
-            cpu.SP = (cpu.H << 8) | cpu.L;
+            // cpu.SP = (cpu.H << 8) | cpu.L; 
+            cpu.SP = REG_HL; // macro predefined for consistency
             break;
         }
         // Flags:
@@ -513,18 +514,108 @@ bool execute_opcode(uint8_t opcode) {
  * returns false otherwise
  */
 bool execute_cb_opcode(uint8_t opcode) {
+    /*  Set Z if bit is clear
+        Clear N
+        Set H
+        Preserve C
+        According to gameboy spec BIT instructions
+    */
     switch(opcode) {
         // BIT 0, B
         case 0x40: 
-            cpu.F = (cpu.B & (1 << 0)) ? (cpu.F & FLAG_C) : (FLAG_H | FLAG_Z);
+            cpu.F &= FLAG_C; // preserve C
+            cpu.F |= FLAG_H; // always set H
+            cpu.F &= ~FLAG_N; // clear N
+
+            if ((cpu.B & (1 << 0)) == 0)
+                cpu.F |= FLAG_Z;
+            else
+                cpu.F &= ~FLAG_Z;
             break;
 
         // BIT 0, C
         case 0x41:
-            cpu.F = (cpu.C & (1 << 0)) ? (cpu.F & FLAG_C) : (FLAG_H | FLAG_Z);
+            cpu.F &= FLAG_C; // preserve C
+            cpu.F |= FLAG_H; // always set H
+            cpu.F &= ~FLAG_N; // clear N
+
+            if ((cpu.C & (1 << 0)) == 0)
+                cpu.F |= FLAG_Z;
+            else
+                cpu.F &= ~FLAG_Z;
+            break;
+
+        // BIT 0, D
+        case 0x42:
+            cpu.F &= FLAG_C; // preserve C
+            cpu.F |= FLAG_H; // always set H
+            cpu.F &= ~FLAG_N; // clear N
+
+            if ((cpu.D & (1 << 0)) == 0)
+                cpu.F |= FLAG_Z;
+            else
+                cpu.F &= ~FLAG_Z;
+            break;
+        
+        // BIT 0, E
+        case 0x43:
+            cpu.F &= FLAG_C; // preserve C
+            cpu.F |= FLAG_H; // always set H
+            cpu.F &= ~FLAG_N; // clear N
+
+            if ((cpu.E & (1 << 0)) == 0)
+                cpu.F |= FLAG_Z;
+            else
+                cpu.F &= ~FLAG_Z;
+            break;
+
+        // BIT 0, H
+        case 0x44:
+            cpu.F &= FLAG_C; // preserve C
+            cpu.F |= FLAG_H; // always set H
+            cpu.F &= ~FLAG_N; // clear N
+
+            if ((cpu.H & (1 << 0)) == 0)
+                cpu.F |= FLAG_Z;
+            else
+                cpu.F &= ~FLAG_Z;
+            break;
+
+        // BIT 0, L
+        case 0x45:
+            cpu.F &= FLAG_C; // preserve C
+            cpu.F |= FLAG_H; // always set H
+            cpu.F &= ~FLAG_N; // clear N
+
+            if ((cpu.L & (1 << 0)) == 0)
+                cpu.F |= FLAG_Z;
+            else
+                cpu.F &= ~FLAG_Z;
+            break;
+
+        // BIT 0, (HL)
+        case 0x46:
+            printf("Not implemented");
+            break;
+
+        // BIT 0, A
+        case 0x47:
+            cpu.F &= FLAG_C; // preserve C
+            cpu.F |= FLAG_H; // always set H
+            cpu.F &= ~FLAG_N; // clear N
+
+            if ((cpu.A & (1 << 0)) == 0)
+                cpu.F |= FLAG_Z;
+            else
+                cpu.F &= ~FLAG_Z;
             break;
 
         // SET
+        // yet to be implemented
+
+        // RES 
+        // yet to be implemented
+        
         default: 
             printf("[CB] Unimplemented opcode: 0x%02X\n", opcode);
             cpu.halted = true;
