@@ -132,8 +132,23 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
-        // Resistor Load operations
-        case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
+        /* 8-bit Load operations */
+
+        /** 
+         * 1. LD nn, n
+         * 
+         * Description: Puts value nn into n
+         * 
+         * Use With: B,C,D,E,H,L,BC,DE,HL,SP
+         *
+         * LD B,n  06  
+         * LD C,n  0E  
+         * LD D,n  16  
+         * LD E,n  1E  
+         * LD H,n  26   
+         * LD L,n  2E 
+         */
+        // case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
         case 0x06: cpu.B = mmu_read(cpu.PC++); break; // LD B, n
         case 0x0E: cpu.C = mmu_read(cpu.PC++); break; // LD C, n
         case 0x16: cpu.D = mmu_read(cpu.PC++); break; // LD D, n
@@ -141,28 +156,102 @@ bool execute_opcode(uint8_t opcode) {
         case 0x26: cpu.H = mmu_read(cpu.PC++); break; // LD H, n
         case 0x2E: cpu.L = mmu_read(cpu.PC++); break; // LD L, n
 
-
+        /** 
+         * 2. LD r1, r2
+         * 
+         * Description: Puts value r2 into r1
+         * 
+         * Use With: 
+         * r1,r2 = A,B,C,D,E,H,L,(HL)
+         */
+        
         // LD r1, r2 : Copy between two 8-bit resistors
+        // for register A
+        case 0x7F: break;               //(NOP Equivalent) LD A, A
         case 0x78: cpu.A = cpu.B; break; // LD A, B
         case 0x79: cpu.A = cpu.C; break; // LD A, C
         case 0x7A: cpu.A = cpu.D; break; // LD A, D
         case 0x7B: cpu.A = cpu.E; break; // LD A, E
         case 0x7C: cpu.A = cpu.H; break; // LD A, H
         case 0x7D: cpu.A = cpu.L; break; // LD A, L
-        // LD A, A 
-        case 0x7F: break; //(NOP Equivalent) 
-
-
-        case 0x47: cpu.B = cpu.A; break; // LD B, A
+        
+        // for register B
+        case 0x40: break;               // LC B, B(NOP Equivalent)
         case 0x41: cpu.B = cpu.C; break; // LD B, C
         case 0x42: cpu.B = cpu.D; break;// LD B, D
         case 0x43: cpu.B = cpu.E; break;// LD B, E
         case 0x44: cpu.B = cpu.H; break;// LD B, H
         case 0x45: cpu.B = cpu.L; break;// LD B, L
-        // LD B, B
-        case 0x40: break; // (NOP Equivalent)
+        case 0x47: cpu.B = cpu.A; break; // LD B, A
+        // case 0x7F is already implemented 
 
+        //for register C
+        case 0x48: cpu.C = cpu.B; break; // LD C, B
+        case 0x49: break;               // LC C, C (NOP Equivalent)
+        case 0x4A: cpu.C = cpu.D; break;// LD C, D
+        case 0x4B: cpu.C = cpu.E; break;// LD C, E
+        case 0x4C: cpu.C = cpu.H; break;// LD C, H
+        case 0x4D: cpu.C = cpu.L; break;// LD C, L
+        // case 0x4E: cpu.C = cpu.A; break; // LD C, (HL)
+        //case 0x4F already implemented
 
+        //for register D
+        case 0x50: cpu.D = cpu.B; break; // LD D, B
+        case 0x51: cpu.D = cpu.C; break;// LD D, C
+        case 0x52: break;               // LC D, D (NOP Equivalent)
+        case 0x53: cpu.D = cpu.E; break;// LD D, E
+        case 0x54: cpu.D = cpu.H; break;// LD D, H
+        case 0x55: cpu.D = cpu.L; break;// LD D, L
+        // case 0x56: cpu.D = cpu.A; break; // LD D, (HL)
+
+        //for register E
+        case 0x58: cpu.E = cpu.B; break; // LC E, B
+        case 0x59: cpu.E = cpu.C; break; // LD E, C
+        case 0x5A: cpu.E = cpu.D; break;// LD E, D
+        case 0x5B: break;               // LD E, E (NOP Equivalent)
+        case 0x5C: cpu.E = cpu.H; break;// LD E, H
+        case 0x5D: cpu.E = cpu.L; break;// LD E, L
+        // case 0x5E: LD E, (HL)
+
+        //for register H
+        case 0x60: cpu.H = cpu.B; break; // LC H, B
+        case 0x61: cpu.H = cpu.C; break; // LD H, C
+        case 0x62: cpu.H = cpu.D; break;// LD H, D
+        case 0x63: cpu.H = cpu.E; break;// LD H, E
+        case 0x64: break;               // LD H, H (NOP Equivalent)
+        case 0x65: cpu.H = cpu.L; break;// LD H, L
+        // case 0x66: LD H, (HL)
+
+        //for register L
+        case 0x68: cpu.L = cpu.B; break;// LC L, B
+        case 0x69: cpu.L = cpu.C; break; // LD L, C
+        case 0x6A: cpu.L = cpu.D; break;// LD L, D
+        case 0x6B: cpu.L = cpu.E; break;// LD L, E
+        case 0x6C: cpu.L = cpu.H; break;// LD L, H
+        case 0x6D: break;               // LD L, L (NOP Equivalent)
+        // case 0x6E:  LD L, (HL)
+        
+        // LD (HL), n
+        case 0x77: mmu_write(REG_HL, cpu.A); break; // LD (HL), A
+        case 0x70: mmu_write(REG_HL, cpu.B); break; // LD (HL), B
+        case 0x71: mmu_write(REG_HL, cpu.C); break; // LD (HL), C
+        case 0x72: mmu_write(REG_HL, cpu.D); break; // LD (HL), D
+        case 0x73: mmu_write(REG_HL, cpu.E); break; // LD (HL), E
+        case 0x74: mmu_write(REG_HL, cpu.H); break; // LD (HL), H
+        case 0x75: mmu_write(REG_HL, cpu.L); break; // LD (HL), L
+
+        // LD (HL), n-- 12 cycle count
+        case 0x36: {
+            uint8_t val = mmu_read(cpu.PC++);
+            uint16_t addr = (cpu.H << 8) | cpu.L;
+
+            mmu_write(addr, val);
+            cpu.PC += 2;
+            break;
+        }
+
+        
+        
         // 16-bit load ooperations
         // LD HL, nn
         case 0x21: {    
@@ -172,7 +261,7 @@ bool execute_opcode(uint8_t opcode) {
             cpu.L = nn & 0xFF;
             break;
         } 
-
+        
         // LD SP (Stack pointer), nn
         case 0x31:{
             uint16_t nn = mmu_read(cpu.PC++);
@@ -180,16 +269,26 @@ bool execute_opcode(uint8_t opcode) {
             cpu.SP = nn; 
             break;
         }
-
+        
         // LD SP, HL 
         case 0xF9:{
             // cpu.SP = (cpu.H << 8) | cpu.L; 
             cpu.SP = REG_HL; // macro predefined for consistency
             break;
         }
-
+        
+        /* Load - Store Instructions */
+        // LD n, (HL)
+        case 0x7E: cpu.A = mmu_read(REG_HL); break; // LD A (HL)    
+        case 0x46: cpu.B = mmu_read(REG_HL); break;
+        case 0x4E: cpu.C = mmu_read(REG_HL); break;
+        case 0x56: cpu.D = mmu_read(REG_HL); break;
+        case 0x5E: cpu.E = mmu_read(REG_HL); break;
+        case 0x66: cpu.H = mmu_read(REG_HL); break;
+        case 0x6E: cpu.L = mmu_read(REG_HL); break;
+        
         // Increment and Decrement operators;
-
+        
         /* INCREMENT OPERATIONS*/
         // INCB
         case 0x04:{
@@ -265,12 +364,12 @@ bool execute_opcode(uint8_t opcode) {
             }
             break;
         }
-
+        
         // INC L
         case 0x2C:{
             uint8_t prev = cpu.L;
             cpu.L++;
-
+            
             cpu.F &= FLAG_C;
             if (cpu.L == 0) {
                 cpu.F |= FLAG_Z;
@@ -301,7 +400,7 @@ bool execute_opcode(uint8_t opcode) {
             //right shift H register
             uint16_t hl = (cpu.H << 8) | cpu.L;
             hl++;
-
+            
             cpu.H = (hl>>8) & 0xFF;
             cpu.L = hl & 0xFF;
 
@@ -316,11 +415,11 @@ bool execute_opcode(uint8_t opcode) {
 
             cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
             cpu.F |= FLAG_N;
-
+            
             if (cpu.B == 0) {
                 cpu.F |= FLAG_Z;
             }
-
+            
             if ((prev & 0x0F) == 0x00) {
                 cpu.F |= FLAG_H;
             }
@@ -331,7 +430,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x0D: {
             uint8_t prev = cpu.C;
             cpu.C--;
-
+            
             cpu.F &= FLAG_C;        // preserve C, clear others
             cpu.F |= FLAG_N;
 
@@ -361,12 +460,12 @@ bool execute_opcode(uint8_t opcode) {
             }
             break;
         }
-            
+        
         //DEC E
         case 0x1D: {
             uint8_t prev = cpu.E;
             cpu.E--;
-
+            
             cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
             cpu.F |= FLAG_N;
 
@@ -384,7 +483,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x25: {
             uint8_t prev = cpu.H;
             cpu.H--;
-
+            
             cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
             cpu.F |= FLAG_N;
 
@@ -402,7 +501,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x2D:{
             uint8_t prev = cpu.L;
             cpu.L--;
-
+            
             cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
             cpu.F |= FLAG_N;
 
@@ -439,7 +538,7 @@ bool execute_opcode(uint8_t opcode) {
             //right shift H register
             uint16_t hl = (cpu.H << 8) | cpu.L;
             hl--;
-
+            
             cpu.H = (hl>>8) & 0xFF;
             cpu.L = hl & 0xFF;
 
@@ -458,25 +557,6 @@ bool execute_opcode(uint8_t opcode) {
             cpu.C = mmu_read(cpu.SP++);
             cpu.B = mmu_read(cpu.SP++);
             break;
-
-        /* Load - Store Instructions */
-        // LD n, (HL)
-        case 0x7E: cpu.A = mmu_read(REG_HL); break;
-        case 0x46: cpu.B = mmu_read(REG_HL); break;
-        case 0x4E: cpu.C = mmu_read(REG_HL); break;
-        case 0x56: cpu.D = mmu_read(REG_HL); break;
-        case 0x5E: cpu.E = mmu_read(REG_HL); break;
-        case 0x66: cpu.H = mmu_read(REG_HL); break;
-        case 0x6E: cpu.L = mmu_read(REG_HL); break;
-
-        // LD (HL), n
-        case 0x77: mmu_write(REG_HL, cpu.A); break;
-        case 0x70: mmu_write(REG_HL, cpu.B); break;
-        case 0x71: mmu_write(REG_HL, cpu.C); break;
-        case 0x72: mmu_write(REG_HL, cpu.D); break;
-        case 0x73: mmu_write(REG_HL, cpu.E); break;
-        case 0x74: mmu_write(REG_HL, cpu.H); break;
-        case 0x75: mmu_write(REG_HL, cpu.L); break;
         
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
