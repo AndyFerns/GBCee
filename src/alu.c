@@ -20,8 +20,9 @@
 /**
  * ADD_A - Adds val to register A.
  * 
- * Parameters:
- *  @val: 8-bit value to add to A
+ * @param  val:uint8_t 8-bit value to add to A
+ * 
+ * @return  void
  */
 void ADD_A(uint8_t val) {
     uint16_t result = cpu.A + val;
@@ -39,27 +40,29 @@ void ADD_A(uint8_t val) {
 }
 
 // SUB r
-void SUB_A_R(R) { 
-    do { 
-        uint8_t val = cpu.R; 
-        cpu.F = FLAG_N; 
-        if ((cpu.A & 0x0F) < (val & 0x0F)) cpu.F |= FLAG_H; 
-        if (cpu.A < val) cpu.F |= FLAG_C; 
-        cpu.A -= val; 
-        if (cpu.A == 0) cpu.F |= FLAG_Z; 
-    } while (0);
+/**
+ * @brief SUB_A - Subtracts value from register A
+ *
+ * @param @val: 8-bit value to sub from A
+ * 
+ * @return  void    
+ */
+void SUB_A(uint8_t val) { 
+    cpu.F = FLAG_N;
+    if ((cpu.A & 0x0F) < (val & 0x0F)) {
+        cpu.F |= FLAG_H;
+    }
+    if (cpu.A < val) {
+        cpu.F |= FLAG_C; 
+    }
+    cpu.A -= val;
+
+    if (cpu.A == 0) {
+        cpu.F |= FLAG_Z;
+    }
 }
 
 // AND r
-void SUB_A_R(R) { 
-    do {
-        uint8_t val = cpu.R; 
-        cpu.F = FLAG_N; 
-        if ((cpu.A & 0x0F) < (val & 0x0F)) cpu.F |= FLAG_H; 
-        if (cpu.A < val) cpu.F |= FLAG_C; 
-        cpu.A -= val; 
-        if (cpu.A == 0) cpu.F |= FLAG_Z; 
-    } while (0);
-}
+
 
 // OR r, XOR r, CP r yet to be implemented
