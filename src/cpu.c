@@ -269,6 +269,13 @@ bool execute_cb_opcode(uint8_t opcode) {
             cpu.F = (cpu.B & (1 << 0)) ? (cpu.F & FLAG_C) : (FLAG_H | FLAG_Z);
             break;
 
+        // BIT 0, C
+        case 0x41:
+            cpu.F = (cpu.C & (1 << 0)) ? (cpu.F & FLAG_C) : (FLAG_H | FLAG_Z);
+            break;
+
+        // SET
+
     }
     return true;
 }
