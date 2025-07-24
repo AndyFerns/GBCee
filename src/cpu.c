@@ -104,6 +104,14 @@ bool execute_opcode(uint8_t opcode) {
             cpu.PC = addr;
             break;
 
+        // RET 
+        case 0xC9:
+            uint8_t lo = mmu_read(cpu.SP);
+            uint8_t hi = mmu_read(cpu.SP + 1);
+            cpu.SP += 2;
+            cpu.PC = (hi << 8) | lo;
+            break;
+        
 
         // Resistor Load operations
         case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
