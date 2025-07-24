@@ -63,6 +63,19 @@ void SUB_A(uint8_t val) {
 }
 
 // AND r
-
+/**
+ * @brief AND_R- applying logical AND between A and val
+ * 
+ * @param val:uint8_t 8-bit value to AND A with
+ * 
+ * @return void
+ */
+void AND_A(uint8_t val) {
+    cpu.A &= val;
+    cpu.F = FLAG_H; // half-carry is ALWAYS set
+    if (cpu.A == 0) {
+        cpu.F |= FLAG_Z;
+    }
+}
 
 // OR r, XOR r, CP r yet to be implemented
