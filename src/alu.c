@@ -92,3 +92,19 @@ void OR_A(uint8_t val) {
         cpu.F |= FLAG_Z;
     }
 }
+
+
+/**
+ * @brief XOR_A Logical XOR betn A and val
+ * 
+ * @param val:uint8_t 8-bit unsigned integer value to XOR A with
+ *
+ * @return  void
+ */
+void XOR_A(uint8_t val) {
+    cpu.A ^= val; // XOR setting step
+    cpu.F = 0; //set half carry to 0
+    if (cpu.A == 0) {
+        cpu.F |= FLAG_Z;
+    }
+}
