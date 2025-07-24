@@ -182,7 +182,7 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
-        // LD SP, HL ooooo la laa
+        // LD SP, HL 
         case 0xF9:{
             // cpu.SP = (cpu.H << 8) | cpu.L; 
             cpu.SP = REG_HL; // macro predefined for consistency
@@ -482,7 +482,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
             cpu.halted = true;
-            return 0;
+            return false; // indicate that cpu is halted
 
         // Arithmetic Logic Unit Operations (ALU Ops)
         case 0x80: ADD_A(cpu.B); break;     // ADD A, B
