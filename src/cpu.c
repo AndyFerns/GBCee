@@ -107,12 +107,15 @@ bool execute_opcode(uint8_t opcode) {
         // LD B, B
         case 0x40: break; // (NOP Equivalent)
 
+
+        // Flags:
+        // Z set if result is zero
+        // N reset
+        // H set if overflow from bit 3
+
+
         // INC/DEC B
         case 0x04: // INC B
-            // Flags:
-            // Z set if result is zero
-            // N reset
-            // H set if overflow from bit 3
             cpu.B++;
             cpu.F &= 0x10; //preserve carry
             if (cpu.B == 0) {
@@ -127,7 +130,7 @@ bool execute_opcode(uint8_t opcode) {
             if ((cpu.B & 0x0F) == 0) {
                 cpu.F |= 0x20; //H
             }
-            cpu.B--;
+            cpu.B--; // decrement step
             cpu.F |= 0x40; // N
 
             if (cpu.B == 0) {
@@ -140,12 +143,25 @@ bool execute_opcode(uint8_t opcode) {
             cpu.C++;
             cpu.F &= 0x10;
             if (cpu.C == 0) {
-                cpu.F |= 0x80;
+                cpu.F |= 0x80; // Z
             }
             if ((cpu.C & 0x0F) == 0x00) {
-                cpu.F |= 0x80; // N
+                cpu.F |= 0x20; // H
             }
-            break; // Z
+            break; 
+        
+        case 0x0D: // DEC C
+            cpu.F &= 0x10; // Preserve Carry
+            if ((cpu.C & 0x0F) == 0) {
+                cpu.F |= 0x20; // H
+            }
+            cpu.C--; // Decrement step
+            cpu.F |= 0x40; // N
+
+            if (cpu.C == 0x40) {
+                cpu.F |= 0x80;
+            } // Z
+            break;
 
         case 0x23: // INC HL
             //right shift H register
