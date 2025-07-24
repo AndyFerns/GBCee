@@ -94,6 +94,16 @@ bool execute_opcode(uint8_t opcode) {
             cpu.PC += offset;
             break;
 
+        // CALL nn
+        case 0xCD:
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC += 2;
+            cpu.SP -= 2;
+            mmu_write(cpu.SP, cpu.PC & 0xFF);
+            mmu_write(cpu.SP + 1, cpu.PC >> 8); 
+            cpu.PC = addr;
+            break;
+
 
         // Resistor Load operations
         case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
