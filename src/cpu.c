@@ -118,8 +118,8 @@ bool execute_opcode(uint8_t opcode) {
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
             cpu.PC += 2;
             cpu.SP -= 2;
+            mmu_write(cpu.SP + 1, cpu.PC >> 8); // upper
             mmu_write(cpu.SP, cpu.PC & 0xFF);
-            mmu_write(cpu.SP + 1, cpu.PC >> 8); 
             cpu.PC = addr;
             break;
         }
@@ -450,8 +450,8 @@ bool execute_opcode(uint8_t opcode) {
         /* Stack Operations*/
         // PUSH B, C
         case 0xC5:
-            mmu_write(--cpu.SP, cpu.B);
             mmu_write(--cpu.SP, cpu.C);
+            mmu_write(--cpu.SP, cpu.B);
             break;
 
         // POP B, C
