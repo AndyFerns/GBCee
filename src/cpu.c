@@ -197,14 +197,18 @@ bool execute_opcode(uint8_t opcode) {
             break;
 
         case 0x05: //DEC B
-            if ((cpu.B & 0x0F) == 0) {
-                cpu.F |= 0x20; //H
-            }
-            cpu.B--; // decrement step
-            cpu.F |= 0x40; // N
+            uint8_t prev = cpu.B;
+            cpu.B--;
+
+            cpu.F &= FLAG_C;    //preserve C (carry) always, clear other flags
+            cpu.F |= FLAG_N;
 
             if (cpu.B == 0) {
-                cpu.F |= 0x80; // Z
+                cpu.F |= FLAG_Z;
+            }
+
+            if ((prev & 0x0F) == 0x00) {
+                cpu.F |= FLAG_H;
             }
             break;
 
