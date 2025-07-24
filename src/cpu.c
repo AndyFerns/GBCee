@@ -275,7 +275,10 @@ bool execute_cb_opcode(uint8_t opcode) {
             break;
 
         // SET
-
+        default: 
+            printf("[CB] Unimplemented opcode: 0x%02X\n", opcode);
+            cpu.halted = true;
+            return false;
     }
     return true;
 }
