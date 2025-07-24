@@ -140,7 +140,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x79: cpu.A = cpu.C; break; // LD A, C
         case 0x7A: cpu.A = cpu.D; break; // LD A, D
         case 0x7B: cpu.A = cpu.E; break; // LD A, E
-        case 0x7C: cpu.A = cpu.F; break; // LD A, H
+        case 0x7C: cpu.A = cpu.H; break; // LD A, H
         case 0x7D: cpu.A = cpu.L; break; // LD A, L
         // LD A, A 
         case 0x7F: break; //(NOP Equivalent) 
