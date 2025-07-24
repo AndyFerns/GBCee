@@ -188,6 +188,15 @@ bool execute_opcode(uint8_t opcode) {
         case 0x5E: cpu.E = mmu_read(REG_HL); break;
         case 0x66: cpu.H = mmu_read(REG_HL); break;
         case 0x6E: cpu.L = mmu_read(REG_HL); break;
+
+        // LD (HL), n
+        case 0x77: mmu_write(REG_HL, cpu.A); break;
+        case 0x70: mmu_write(REG_HL, cpu.B); break;
+        case 0x71: mmu_write(REG_HL, cpu.C); break;
+        case 0x72: mmu_write(REG_HL, cpu.D); break;
+        case 0x73: mmu_write(REG_HL, cpu.E); break;
+        case 0x74: mmu_write(REG_HL, cpu.H); break;
+        case 0x75: mmu_write(REG_HL, cpu.L); break;
         
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
