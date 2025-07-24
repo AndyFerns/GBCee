@@ -12,6 +12,11 @@ CPU cpu;
 #define REG_DE ((cpu.D << 8) | cpu.E)
 #define REG_HL ((cpu.H << 8) | cpu.L)
 
+#define FLAG_Z 0x80
+#define FLAG_N 0x40
+#define FLAG_H 0x20
+#define FLAG_C 0x10
+
 /**
  * cpu_reset - Resets the CPU to its post-BIOS state.
  *
@@ -61,6 +66,12 @@ bool cpu_step() {
     printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
            pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
     );
+
+    // CB - Prefixed Bit operations 
+    if (opcode == 0xCB) {
+        uint8_t cb_opcode = mmu_read(cpu.PC++);
+        
+    }
 
     return execute_opcode(opcode);
 }
@@ -240,5 +251,24 @@ bool execute_opcode(uint8_t opcode) {
             cpu.halted = true;
             return false; // Safely halt on unknown opcode   
     }   
+    return true;
+}
+
+/**
+ * Executes CB Opcodes
+ * Separated from execute_opcode for logic
+ *
+ * @return  bool    
+ * returns true if CB opcode is succesfully executed
+ * returns false otherwise
+ */
+bool execute_cb_opcode(uint8_t opcode) {
+    switch(opcode) {
+        // BIT 0, B
+        case 0x40: 
+            cpu.F = (cpu.B & (1 << 0)) ? (cpu.F & FLAG_C) : (FLAG_H | FLAG_Z);
+            break;
+
+    }
     return true;
 }
