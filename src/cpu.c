@@ -165,7 +165,17 @@ bool execute_opcode(uint8_t opcode) {
             cpu.L = nn & 0xFF;
             break;
 
-            
+        // LD SP (Stack pointer), nn
+        case 0x31:
+            uint16_t nn = mmu_read(cpu.PC++);
+            nn |= mmu_read(cpu.PC++) << 8;
+            cpu.SP = nn; 
+            break;
+
+        // LD SP, HL ooooo la laa
+        case 0xF9:
+            cpu.SP = (cpu.H << 8) | cpu.L;
+            break;
 
         // Flags:
         // Z set if result is zero
