@@ -13,7 +13,10 @@ CPU cpu;
 #define REG_HL ((cpu.H << 8) | cpu.L)
 
 /**
- * cpu_reset - See header.
+ * cpu_reset - Resets the CPU to its post-BIOS state.
+ *
+ * Initializes registers and sets PC to 0x0100.
+ * No parameters, no return value.
  */
 void cpu_reset() {
     cpu.A = 0x01; // int 1
@@ -32,7 +35,14 @@ void cpu_reset() {
 }
 
 /**
- * cpu_step - See header.
+ * cpu_step - Executes a single CPU instruction.
+ *
+ * Fetches, decodes, and executes one instruction at PC.
+ * May modify CPU registers and memory.
+ * No parameters 
+ * 
+ * Return Value: 
+ * Returns cycle count
  */
 bool cpu_step() {
     // Halt if PC goes beyond 64KB or ROM loaded range
@@ -59,7 +69,7 @@ bool cpu_step() {
  * execute_opcode()-
  * Decodes and executes the given 8-bit opcode 
  *
- * @return  int    
+ * Return value: int  
  * returns true on success
  * false on halt/unknown instruction
  */
