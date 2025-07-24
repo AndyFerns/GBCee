@@ -70,7 +70,7 @@ bool cpu_step() {
     // CB - Prefixed Bit operations 
     if (opcode == 0xCB) {
         uint8_t cb_opcode = mmu_read(cpu.PC++);
-        
+        return execute_cb_opcode(cb_opcode);
     }
 
     return execute_opcode(opcode);
