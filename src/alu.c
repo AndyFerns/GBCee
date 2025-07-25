@@ -210,6 +210,8 @@ void XOR_A(uint8_t val) {
 
 /**
  * SWAP n
+ * INC()
+ * DEC()
  * DAA()
  * CPL()
  */
@@ -217,6 +219,66 @@ void XOR_A(uint8_t val) {
 /**
  *  1. SWAP n -TBD
  */
+
+
+/**
+ * @brief INC - Increments 8-bit register
+ * 
+ * increments the given value and updates Z,H,N flags. Preserves the C flag
+ * 
+ * @param val: 8-bit register value to increment
+ * 
+ * @return uint8_t: incremented value
+ */
+uint8_t INC(uint8_t val) {
+    uint8_t result = val + 1;
+
+    // clear Z, H, N flags
+    // preserve carry flag
+    cpu.F &= FLAG_C;
+
+    if (result == 0) {
+        cpu.F |= FLAG_Z;
+    }
+    // half carry if lower nible overflows
+    if ((val & 0x0F) == 0x0F) {
+        cpu.F |= FLAG_H;
+    }
+    // N cleared already by &= FLAG_C
+    return result;
+}
+
+
+
+/**
+ * @brief DEC- Decrement an 8-bit resistor
+ * 
+ * Decrements the given value and updates Z, H, N flags. Preserves C Flag
+ * 
+ * @param val 8-bit resistor value to decrement
+ * 
+ * @return uint8_t decremented value
+ */
+uint8_t DEC(uint8_t val) {
+    uint8_t result = val - 1;
+
+    // clear z, h
+    // set n
+    // preserve C
+    cpu.F &= FLAG_C;
+    cpu.F |= FLAG_N;
+
+    if (result == 0) {
+        cpu.F |= FLAG_Z;
+    }
+    // half borrow:
+    // if lower nibble borrows (0x10 -> 0x0F)
+    if ((val & 0x0F) == 0x00) {
+        cpu.F |= FLAG_H;
+    }
+    return result;
+}
+
 
 /**
  * @brief DAA
