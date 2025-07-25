@@ -867,7 +867,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // SUB #, A
         case 0xD6: {
-            int8_t val = mmu_read(cpu.PC++);
+            uint8_t val = mmu_read(cpu.PC++);
             SUB_A(val);
             break;
         }
@@ -899,6 +899,10 @@ bool execute_opcode(uint8_t opcode) {
 
         // SBC #, A
         // not in the gameboy manual ?!?!?!
+        case 0xDE:{
+
+            break;
+        }
 
 
 
