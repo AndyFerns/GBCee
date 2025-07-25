@@ -402,15 +402,16 @@ bool execute_opcode(uint8_t opcode) {
          * 7. LD A, (HLD)
          * 
          * same as LDD A, (HL)
-         */
-        /**
+         * 
+         * 
          * 8. LD A, (HL-)
          * 
          * same as LDD A, (HL)
-         */
-        /**
+         * 
+         * 
          * 9. LDD A, (HL)
          * 
+         * --- all 3 aliases: 
          * put value of HL into A
          * Decrement HL
          * 
@@ -428,7 +429,90 @@ bool execute_opcode(uint8_t opcode) {
             cpu.L = hl &0xFF;
             break;
         }
+
+
+        /**
+         * 10. LD (HLD), A
+         * same as LDD (HL), A
+         * 
+         * 11. LD (HL-), A
+         * same as LDD (HL), A
+         * 
+         * 12. LDD (HL), A
+         * puts A into memory address (HL)
+         * reverse of 
+         * decrement HL
+         * 
+         * same as LD (HL), A  -  DEC HL 
+         */
          
+        case 0x32:{
+            uint16_t hl = REG_HL;
+            mmu_write(hl, cpu.A);
+            hl--; //decrement step
+
+            cpu.H = (hl << 8) & 0xFF; 
+            cpu.L = hl & 0xFF;
+            break;
+        }
+
+        /**
+         * 13. LD A, (HLI) --- HL increment
+         * same as LDI A, (HL)
+         * 
+         * 14. LD A, (HL+)
+         * same as LDI A, (HL)
+         * 
+         * 15. LDI A, (HL)
+         * put value at address HL into A
+         * increment HL
+         * 
+         * same as LD A, (HL)  -  INC HL
+         * 
+         */
+
+        case 0x2A:{
+            uint16_t hl = REG_HL;
+            cpu.A = mmu_read(hl);
+
+            hl++; //increment step
+
+            cpu.H = (hl >> 8) & 0xFF;
+            cpu.L = hl & 0xFF;
+
+            break;
+        }
+
+        /**
+         * 16. LD (HLI), A
+         * same as LDI (HL), A
+         * 
+         * 17. LD (HL+), A
+         * same as LDI (HL), A 
+         * 
+         * 18. LDI (HL), A
+         * puts A into memory address HL
+         * increment HL
+         * 
+         * same as LD (HL), A --- INC HL
+         * 
+         */
+
+        case 0x22:{
+            uint16_t hl = REG_HL;
+            mmu_write(hl, cpu.A);
+
+            hl++; //increment step
+
+            cpu.H = (hl >> 8) & 0xFF;
+            cpu.L = hl & 0xFF;
+
+            break;
+        }
+
+
+
+
         // 16-bit load ooperations
         // LD HL, nn
         case 0x21: {    
