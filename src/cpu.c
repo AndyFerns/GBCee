@@ -511,6 +511,38 @@ bool execute_opcode(uint8_t opcode) {
         }
 
 
+        /**
+         * 19. LDH (n), A
+         * puts A into memory address $FF00 + n
+         * 
+         * use with: 
+         * n = one byte immediate
+         */
+
+        case 0xE0:{
+            uint16_t n = mmu_read(cpu.PC++); // taking n as offset
+            uint16_t addr = 0xFF00 + n; 
+
+            mmu_write(addr, cpu.A);
+            break;
+        }
+
+        /**
+         * 20. LDH A, (n)
+         * put memory address $FF00 + n into A
+         * reverse of instruction 19
+         * 
+         * use with:
+         * n = one byte immediate value
+         */
+
+        case 0xF0:{
+            uint16_t n = mmu_read(cpu.PC++);
+            uint16_t addr = 0xFF00 + n;
+
+            cpu.A = mmu_read(addr);
+            break;
+        }
 
 
         // 16-bit load ooperations
