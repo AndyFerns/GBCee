@@ -65,7 +65,7 @@ void ADC_A(uint8_t val) {
     if ((result & 0xFF) == 0) {
         cpu.F |= FLAG_Z;
     }
-    if ((cpu.A & 0x0F) + (val & 0x0F) + carry > 0x0F) {
+    if (((cpu.A & 0x0F) + (val & 0x0F) + carry) & 0x10) {
         cpu.F |= FLAG_H;
     }
     if (result > 0xFF) {
@@ -116,7 +116,7 @@ void SBC_A(uint8_t val) {
     if ((result & 0xFF) == 0) {
         cpu.F |= FLAG_Z;
     }
-    if ((cpu.A & 0xFF) < (val & 0x0F) + carry) {
+    if ((cpu.A & 0x0F) < ((val & 0x0F) + carry)) {
         cpu.F |= FLAG_H;
     }
     if (cpu.A < (val + carry)) {
