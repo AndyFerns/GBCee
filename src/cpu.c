@@ -770,115 +770,34 @@ bool execute_opcode(uint8_t opcode) {
         }
 
 
-        // Increment and Decrement operators;
+        /* INCREMENT AND DECREMENT OPERATORS*/
         
-        /* INCREMENT OPERATIONS*/
-        // INCB
-        case 0x04:{
-            uint8_t prev = cpu.B;
-            cpu.B++; // increment step
+        /* 8-BIT INCREMENT OPERATIONS*/
 
-            cpu.F &= FLAG_C;    // preserver C (carry), clear thhe other flags
-            if (cpu.B == 0) {
-                cpu.F |= FLAG_Z;
-            } 
-            if ((prev & 0x0F) == 0x0F) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
+        // older logic: 
+        // case 0x04:{
+        //     uint8_t prev = cpu.B;
+        //     cpu.B++; // increment step
 
-        // INC C
-        case 0x0C: {
-            uint8_t prev = cpu.C;
-            cpu.C++;
+        //     cpu.F &= FLAG_C;    // preserver C (carry), clear thhe other flags
+        //     if (cpu.B == 0) {
+        //         cpu.F |= FLAG_Z;
+        //     } 
+        //     if ((prev & 0x0F) == 0x0F) {
+        //         cpu.F |= FLAG_H;
+        //     }
+        //     break;
+        // }
 
-            cpu.F &= FLAG_C;
-            if (cpu.C == 0) {
-                cpu.F |= FLAG_Z;
-            }
-            if ((prev & 0x0F) == 0x0F) {
-                cpu.F |= FLAG_H;
-            }
-            break; 
-        }
+        case 0x3C: cpu.A = INC(cpu.A); break;  // INC A
+        case 0x04: cpu.B = INC(cpu.B); break;   // INC B
+        case 0x0C: cpu.C = INC(cpu.C); break;   // INC C
+        case 0x14: cpu.D = INC(cpu.D); break;   // INC D
+        case 0x1C: cpu.E = INC(cpu.E); break;   // INC e
+        case 0x24: cpu.H = INC(cpu.H); break;   // INC F
+        case 0x2C: cpu.L = INC(cpu.L); break;  //INC L
 
-        // INC D
-        case 0x14: {
-            uint8_t prev = cpu.D;
-            cpu.D++;
-
-            cpu.F &= FLAG_C;
-            if (cpu.D == 0) {
-                cpu.F |= FLAG_Z;
-            }
-            if ((prev & 0x0F) == 0x0F) {
-                cpu.F |= FLAG_H;
-            }
-            break; 
-        }
-
-        // INC E
-        case 0x1C: {
-            uint8_t prev = cpu.E;
-            cpu.E++;
-
-            cpu.F &= FLAG_C;
-            if (cpu.E == 0) {
-                cpu.F |= FLAG_Z;
-            }
-            if ((prev & 0x0F) == 0x0F) {
-                cpu.F |= FLAG_H;
-            }
-            break; 
-        }
-        
-        // INC H
-        case 0x24:{
-            uint8_t prev = cpu.H;
-            cpu.H++;
-
-            cpu.F &= FLAG_C;
-            if (cpu.H == 0) {
-                cpu.F |= FLAG_Z;
-            }
-            if ((prev & 0x0F) == 0x0F) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
-        
-        // INC L
-        case 0x2C:{
-            uint8_t prev = cpu.L;
-            cpu.L++;
-            
-            cpu.F &= FLAG_C;
-            if (cpu.L == 0) {
-                cpu.F |= FLAG_Z;
-            }
-            if ((prev & 0x0F) == 0x0F) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
-
-        // INC A
-        case 0x3C:{    
-            uint8_t prev = cpu.A;
-            cpu.A++;
-
-            cpu.F &= FLAG_C;
-            if (cpu.A == 0) {
-                cpu.F |= FLAG_Z;
-            }
-            if ((prev & 0x0F) == 0x0F) {
-                cpu.F |= FLAG_H;
-            }
-            break; 
-        }
-
-        // INC HL
+        // INC (HL)
         case 0x23: {
             //right shift H register
             uint16_t hl = (cpu.H << 8) | cpu.L;
@@ -889,6 +808,7 @@ bool execute_opcode(uint8_t opcode) {
 
             break;
         }
+        
         
         /* DECREMENT OPERATIONS */
         //DEC B
