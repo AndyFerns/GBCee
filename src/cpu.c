@@ -940,12 +940,39 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
+
+        /**
+         * 6. OR n
+         * logical OR with register A
+         * 
+         * result is stored in A
+         * 
+         * use with:
+         * n =  A,B,C,D,E,H,L,(HL),#
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Rese
+         */
         
+        case 0xB7: OR_A(cpu.A); break;          //OR A, A
+        case 0xB0: OR_A(cpu.B); break;          //OR A, B
+        case 0xB1: OR_A(cpu.C); break;          //OR A, C
+        case 0xB2: OR_A(cpu.D); break;          //OR A, D
+        case 0xB3: OR_A(cpu.E); break;          //OR A, E
+        case 0xB4: OR_A(cpu.H); break;          //OR A, H
+        case 0xB5: OR_A(cpu.L); break;          //OR A, L
+        
+        case 0xB6: OR_A(mmu_read(REG_HL)); break;          //OR A, (HL)
+        
+        case 0xF6: OR_A(mmu_read(cpu.PC++)); break;          //OR A, (HL)
 
 
 
         // case 0xA0: AND_A(cpu.B); break;     // AND A, B
-        case 0xB0: OR_A(cpu.B); break;     // OR A, B
+        // case 0xB0: OR_A(cpu.B); break;     // OR A, B
         case 0xB8: XOR_A(cpu.B); break;     // XOR A, B
 
         case 0xA8: CP_A(cpu.B); break;     // Compare CP A, B
