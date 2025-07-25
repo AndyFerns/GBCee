@@ -641,7 +641,7 @@ bool execute_opcode(uint8_t opcode) {
 
             //set Half carry (H) and carry (c) flags based on lower byte addition
             // use same logic to add signed int to unsigned int
-            uint8_t temp = (sp ^ n ^ result) & 0xFFFF;
+            uint16_t temp = (sp ^ n ^ result) & 0xFFFF;
 
             if ((temp & 0x10) != 0) {
                 cpu.F |= FLAG_H;
