@@ -366,7 +366,37 @@ bool execute_opcode(uint8_t opcode) {
         case 0x6E: cpu.L = mmu_read(REG_HL); break; // LD L (HL)
 
         
+        /**
+         * 5. LD A, (C)
+         * 
+         * put value at address $FF00 + register C into A
+         * same as LD A, ($FF00 + C) 
+         */
+
+        case 0xF2:
+            uint16_t addr = 0xFF00 + cpu.C;
+            cpu.A = mmu_read(addr);
+
+            cpu.PC++;
+            break;
+
+        /**
+         * 6. LD (C), A
+         * 
+         * put value of A into address $FF00 + register C
+         * opposite to that of LD A, C
+         *   
+         */
         
+        case 0xE2:
+            uint16_t addr = 0xFF00 + cpu.C;
+            mmu_write(addr, cpu.A);
+
+            cpu.PC++;
+            break;
+
+
+         
         // 16-bit load ooperations
         // LD HL, nn
         case 0x21: {    
