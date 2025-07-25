@@ -122,6 +122,7 @@ void SBC_A(uint8_t val) {
     if (cpu.A < (val + carry)) {
         cpu.F |= FLAG_C;
     }
+    cpu.A = result & 0xFF;
 }
 
 /**
@@ -255,6 +256,12 @@ void DAA() {
         }
         a -= adjust;
     }
+    //  FLAGS UPDATE (Z, C), and update A
+    cpu.F &= ~(FLAG_Z | FLAG_H); // clear Z and H
+    if (a == 0) cpu.F |= FLAG_Z;
+    if (carry || (cpu.F & FLAG_C)) cpu.F |= FLAG_C;
+
+    cpu.A = a;
 }
 
 
