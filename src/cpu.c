@@ -148,7 +148,8 @@ bool execute_opcode(uint8_t opcode) {
          * LD H,n  26   
          * LD L,n  2E 
          */
-        // case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,n
+        // case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,#
+        // case 0x3E implemented further
         case 0x06: cpu.B = mmu_read(cpu.PC++); break; // LD B, n
         case 0x0E: cpu.C = mmu_read(cpu.PC++); break; // LD C, n
         case 0x16: cpu.D = mmu_read(cpu.PC++); break; // LD D, n
@@ -250,7 +251,71 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
-        
+        /**
+         * 3. LD A, n
+         * 
+         * Put value of n into A
+         * 
+         * use with: 
+         * n = A,B,C,D,E,H,L,(BC),(DE),(HL),(nn),#
+         * nn = two byte immediate value. (LS byte first.)
+         * 
+         */
+
+        // 0x7F - 0x7D already implemented
+
+        // A, (BC)
+        // case 0x0A:
+        //     // load from memory address pointed by BC into A
+        //     uint16_t addr = ((uint8_t)cpu.B << 8) | cpu.C;
+        //     cpu.A = mmu_read(addr);
+
+        //     cpu.PC++;
+        //     break;
+
+        case 0x0A: cpu.A = mmu_read(REG_BC); break;
+
+        // A, (DE)
+        // case 0x1A:
+        //     // load from memory address pointed by DE into A
+        //     uint16_t addr = ((uint8_t)cpu.D << 8) | cpu.E;
+        //     cpu.A = mmu_read(addr);
+
+        //     cpu.PC++;
+        //     break;
+
+        case 0x1A: cpu.A = mmu_read(REG_DE); break;
+
+
+        // A, (HL)
+        // case 0x7E:
+        //     // load from memory address pointed by HL into A
+        //     uint16_t addr = ((uint8_t)cpu.H << 8) | cpu.L;
+        //     cpu.A = mmu_read(addr);
+
+        //     cpu.PC++;
+        //     break;
+
+        // case 0x7E: cpu.A = mmu_read(REG_HL); break;
+
+        // A, (nn)
+        case 0xFA:
+            // load from absolute 16-bit address into A
+            uint8_t low = mmu_read(cpu.PC+ 1);
+            uint8_t high = mmu_read(cpu.PC + 2);
+            uint16_t addr = ((uint16_t)high << 8) | low;
+
+            cpu.A = mmu_read(addr);
+            cpu.PC += 3;
+            break;
+
+        // A, # case 0x3E
+        // Load immediate 8-bit value int A
+        case 0x3E:
+            cpu.A = mmu_read(cpu.PC + 1); // read the immediate value
+            cpu.PC += 2; // move pc past opcode and operand
+
+            break;
         
         // 16-bit load ooperations
         // LD HL, nn
@@ -280,12 +345,12 @@ bool execute_opcode(uint8_t opcode) {
         /* Load - Store Instructions */
         // LD n, (HL)
         case 0x7E: cpu.A = mmu_read(REG_HL); break; // LD A (HL)    
-        case 0x46: cpu.B = mmu_read(REG_HL); break;
-        case 0x4E: cpu.C = mmu_read(REG_HL); break;
-        case 0x56: cpu.D = mmu_read(REG_HL); break;
-        case 0x5E: cpu.E = mmu_read(REG_HL); break;
-        case 0x66: cpu.H = mmu_read(REG_HL); break;
-        case 0x6E: cpu.L = mmu_read(REG_HL); break;
+        case 0x46: cpu.B = mmu_read(REG_HL); break; // LD B (HL)
+        case 0x4E: cpu.C = mmu_read(REG_HL); break; // LD C (HL)
+        case 0x56: cpu.D = mmu_read(REG_HL); break; // LD D (HL)
+        case 0x5E: cpu.E = mmu_read(REG_HL); break; // LD E (HL)
+        case 0x66: cpu.H = mmu_read(REG_HL); break; // LD H (HL)
+        case 0x6E: cpu.L = mmu_read(REG_HL); break; // LD L (HL)
         
         // Increment and Decrement operators;
         
