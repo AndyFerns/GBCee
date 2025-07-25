@@ -592,6 +592,14 @@ bool execute_opcode(uint8_t opcode) {
             cpu.SP = nn; 
             break;
         }
+
+
+        /**
+         * 2. LD SP, HL
+         * puts value at HL into SP (stack Pointer)
+         * 
+         * 8 cycles
+         */
         
         // LD SP, HL 
         case 0xF9:{
@@ -599,7 +607,58 @@ bool execute_opcode(uint8_t opcode) {
             cpu.SP = REG_HL; // macro predefined for consistency
             break;
         }
-        
+
+
+        /**
+         * 3. LD HL, SP + n
+         * same as LDHL SP, n
+         * 
+         * 4. LDHL SP, n
+         * Puts SP + n effective address into HL
+         *
+         * use with:
+         * n = one byte signed immediate value
+         * 
+         * flags affected:
+         * Z = Reset
+         * N = Reset
+         * H = Set or reset according to operation
+         * C = Set or reset acc to op
+         */
+
+        // signed offset arithmetic !!!
+        case 0xF8: {
+            int16_t n = (int8_t)mmu_read(cpu.PC++); // cast to signed int8 first!
+            uint16_t sp = cpu.SP;
+            uint16_t result = sp + n;
+
+            // set HL to result
+            cpu.H = (result >> 8) & 0xFF;
+            cpu.L = result & 0xFF;
+
+            //clear Z and N flags
+            cpu.F &= ~(FLAG_Z | FLAG_N);
+
+            //set Half carry (H) and carry (c) flags based on lower byte addition
+            // use same logic to add signed int to unsigned int
+            uint8_t temp = (sp ^ n ^ result) & 0xFFFF;
+
+            if ((temp & 0x10) != 0) {
+                cpu.F |= FLAG_H;
+            } else {
+                cpu.F &= ~FLAG_H;
+            }
+            if ((temp & 0x100) != 0) {
+                cpu.F |= FLAG_C;
+            } else {
+                cpu.F &= ~FLAG_C;
+            }
+
+            break;
+        }
+
+
+
         // Increment and Decrement operators;
         
         /* INCREMENT OPERATIONS*/
