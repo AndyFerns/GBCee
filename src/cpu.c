@@ -183,7 +183,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x43: cpu.B = cpu.E; break;// LD B, E
         case 0x44: cpu.B = cpu.H; break;// LD B, H
         case 0x45: cpu.B = cpu.L; break;// LD B, L
-        case 0x47: cpu.B = cpu.A; break; // LD B, A
+        // case 0x47: cpu.B = cpu.A; break; // LD B, A ---- implemented later in the module
         // case 0x7F is already implemented 
 
         //for register C
@@ -194,7 +194,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x4C: cpu.C = cpu.H; break;// LD C, H
         case 0x4D: cpu.C = cpu.L; break;// LD C, L
         // case 0x4E: cpu.C = cpu.A; break; // LD C, (HL)
-        //case 0x4F already implemented
+        // case 0x4F: cpu.C = cpu.A; break;
 
         //for register D
         case 0x50: cpu.D = cpu.B; break; // LD D, B
@@ -204,6 +204,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x54: cpu.D = cpu.H; break;// LD D, H
         case 0x55: cpu.D = cpu.L; break;// LD D, L
         // case 0x56: cpu.D = cpu.A; break; // LD D, (HL)
+
 
         //for register E
         case 0x58: cpu.E = cpu.B; break; // LC E, B
@@ -233,7 +234,7 @@ bool execute_opcode(uint8_t opcode) {
         // case 0x6E:  LD L, (HL)
         
         // LD (HL), n
-        case 0x77: mmu_write(REG_HL, cpu.A); break; // LD (HL), A
+        case 0x77: mmu_write(REG_HL, cpu.A); break; // LD (HL), A --- implemented later as well
         case 0x70: mmu_write(REG_HL, cpu.B); break; // LD (HL), B
         case 0x71: mmu_write(REG_HL, cpu.C); break; // LD (HL), C
         case 0x72: mmu_write(REG_HL, cpu.D); break; // LD (HL), D
@@ -316,6 +317,55 @@ bool execute_opcode(uint8_t opcode) {
             cpu.PC += 2; // move pc past opcode and operand
 
             break;
+
+
+        /**
+         * 4. LD n, A
+         * Put value A into n
+         * 
+         * Use with:
+         * 
+         * n = A,B,C,D,E,H,L,(BC),(DE),(HL),(nn)
+         * nn = two byte immediate value. (LS byte first.)
+         */
+
+        
+        // case 0x7F: // Already implemented cpu.A = cpu.A   // LD A, A
+        case 0x47: cpu.B = cpu.A; break;                     // LD B, A
+        case 0x4F: cpu.C = cpu.A; break;                     // LD C, A
+        case 0x57: cpu.D = cpu.A; break;                     // LD D, A
+        case 0x5F: cpu.E = cpu.A; break;                     // LD E, A
+        case 0x67: cpu.H = cpu.A; break;                     // LD H, A
+        case 0x6F: cpu.L = cpu.A; break;                     // LD L, A
+
+        case 0x02: mmu_write(REG_BC, cpu.A); break; // LD (BC), A
+        case 0x12: mmu_write(REG_DE, cpu.A) ;break; // LD (DE), A
+        // case 0x77: ;break; // LD (HL), A -- already implemented as mmu_write(REG_HL, cpu.A)
+
+        // LD (nn = 16 bit immediate address), A 
+        case 0xEA: {
+            uint8_t low = mmu_read(cpu.PC + 1);
+            uint8_t high = mmu_read(cpu.PC  + 2);
+            uint16_t addr = ((uint16_t)high << 8) | low;
+
+            mmu_write(addr, cpu.A);
+            cpu.PC += 3; //opcode +2 byte address
+
+            break;
+        }
+
+                
+        /* Load - Store Instructions */
+        // LD n, (HL)
+        case 0x7E: cpu.A = mmu_read(REG_HL); break; // LD A (HL)    
+        case 0x46: cpu.B = mmu_read(REG_HL); break; // LD B (HL)
+        case 0x4E: cpu.C = mmu_read(REG_HL); break; // LD C (HL)
+        case 0x56: cpu.D = mmu_read(REG_HL); break; // LD D (HL)
+        case 0x5E: cpu.E = mmu_read(REG_HL); break; // LD E (HL)
+        case 0x66: cpu.H = mmu_read(REG_HL); break; // LD H (HL)
+        case 0x6E: cpu.L = mmu_read(REG_HL); break; // LD L (HL)
+
+        
         
         // 16-bit load ooperations
         // LD HL, nn
@@ -341,16 +391,6 @@ bool execute_opcode(uint8_t opcode) {
             cpu.SP = REG_HL; // macro predefined for consistency
             break;
         }
-        
-        /* Load - Store Instructions */
-        // LD n, (HL)
-        case 0x7E: cpu.A = mmu_read(REG_HL); break; // LD A (HL)    
-        case 0x46: cpu.B = mmu_read(REG_HL); break; // LD B (HL)
-        case 0x4E: cpu.C = mmu_read(REG_HL); break; // LD C (HL)
-        case 0x56: cpu.D = mmu_read(REG_HL); break; // LD D (HL)
-        case 0x5E: cpu.E = mmu_read(REG_HL); break; // LD E (HL)
-        case 0x66: cpu.H = mmu_read(REG_HL); break; // LD H (HL)
-        case 0x6E: cpu.L = mmu_read(REG_HL); break; // LD L (HL)
         
         // Increment and Decrement operators;
         
