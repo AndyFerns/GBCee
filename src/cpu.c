@@ -682,6 +682,50 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
+        // STACK OPERATIONS PUSH AND POP
+        
+        /**
+         * 6. PUSH nn
+         * 
+         *  push register pair nn onto stack
+         * decrement SP (Stack Pointer) twice
+         * 
+         * use with:
+         * nn = AF, BC, DE, HL
+         * 
+         */
+
+        // PUSH AF
+        case 0xF5: {
+            mmu_write(--cpu.SP, cpu.A);
+            mmu_write(--cpu.SP, cpu.F & 0xF0);  // mask off lower 4 bits (always 0 on hardware)
+            break;
+        }
+
+        // PUSH BC
+        case 0xC5:{
+            mmu_write(--cpu.SP, cpu.B);
+            mmu_write(--cpu.SP, cpu.C);
+            break;
+        }
+
+        // PUSH DE
+        case 0xD5:{
+            mmu_write(--cpu.SP, cpu.D);
+            mmu_write(--cpu.SP, cpu.E);
+            break;
+        }
+
+        // PUSH HL
+        case 0xE5:{
+            mmu_write(--cpu.SP, cpu.H);
+            mmu_write(--cpu.SP, cpu.L);
+            break;
+        }
+
+
+
+
         // Increment and Decrement operators;
         
         /* INCREMENT OPERATIONS*/
@@ -941,11 +985,6 @@ bool execute_opcode(uint8_t opcode) {
         }
 
         /* Stack Operations*/
-        // PUSH B, C
-        case 0xC5:
-            mmu_write(--cpu.SP, cpu.C);
-            mmu_write(--cpu.SP, cpu.B);
-            break;
 
         // POP B, C
         case 0xC1:
