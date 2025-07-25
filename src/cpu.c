@@ -769,6 +769,146 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
+        // -------------------------------- //
+        /* ARITHMETIC LOGIC UNIT OPERATIONS */
+        // -------------------------------- //
+
+        /* 8-BIT ARITHMETIC LOGIC OPERATIONS*/
+        /**
+         * 1. ADD A, n
+         * add n to A
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL),#
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Set if carry from bit 3.
+            C - Set if car
+         */
+
+        case 0x87: ADD_A(cpu.A); break;     // ADD A, A
+        case 0x80: ADD_A(cpu.B); break;     // ADD A, B
+        case 0x81: ADD_A(cpu.C); break;     // ADD A, C
+        case 0x82: ADD_A(cpu.D); break;     // ADD A, D
+        case 0x83: ADD_A(cpu.E); break;     // ADD A, E
+        case 0x84: ADD_A(cpu.H); break;     // ADD A, H
+        case 0x85: ADD_A(cpu.L); break;     // ADD A, L
+
+        case 0x86: ADD_A(mmu_read(REG_HL)); break;     // ADD A, (HL)
+        
+        // ADD A, #
+        case 0xC6:{ 
+            uint8_t val = mmu_read(cpu.PC++);
+            ADD_A(val);
+            break; 
+        }
+
+
+        /**
+         * 2. ADC A, n
+         * add n + carry flag to A
+         * 
+         * use with:
+         * n = A,B, C,D,E,H,L,(HL),#
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Set if carry from bit 3.
+            C - Set if carry from bit 7.
+         */
+
+        case 0x8F:ADC_A(cpu.A); break;      // ADC A, A
+        case 0x88:ADC_A(cpu.B); break;      // ADC A, B
+        case 0x89:ADC_A(cpu.C); break;      // ADC A, C
+        case 0x8A:ADC_A(cpu.D); break;      // ADC A, D
+        case 0x8B:ADC_A(cpu.E); break;      // ADC A, E
+        case 0x8C:ADC_A(cpu.H); break;      // ADC A, H
+        case 0x8D:ADC_A(cpu.L); break;      // ADC A, L
+
+        case 0x8E:ADC_A(mmu_read(REG_HL)); break;      // ADC A, (HL)
+        
+        // ADC A, #
+        case 0xCE: {
+            uint8_t val = mmu_read(cpu.PC++);
+            ADC_A(val);
+            break;
+        }    
+
+
+
+        /**
+         * 3. SUB n
+         * subtract n from A
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL),#
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Set.
+            H - Set if no borrow from bit 4.
+            C - Set if no borrow
+
+         * SUB B, A  ==  Subtract B from A
+         */
+        
+        case 0x97: SUB_A(cpu.A); break;     // SUB A, A
+        case 0x90: SUB_A(cpu.B); break;     // SUB B, A
+        case 0x91: SUB_A(cpu.C); break;     // SUB C, A
+        case 0x92: SUB_A(cpu.D); break;     // SUB D, A
+        case 0x93: SUB_A(cpu.E); break;     // SUB E, A
+        case 0x94: SUB_A(cpu.H); break;     // SUB H, A
+        case 0x95: SUB_A(cpu.L); break;     // SUB L, A
+
+        case 0x96: SUB_A(mmu_read(REG_HL)); break;     // SUB (HL), A
+
+        // SUB #, A
+        case 0xD6: {
+            int8_t val = mmu_read(cpu.PC++);
+            SUB_A(val);
+            break;
+        }
+
+
+        /**
+         * 4. SBC_A
+         * subtract n + carry flag from A
+         * 
+         * use with: 
+         * n = A,B,C,D,E,H,L,(HL),#
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Set.
+            H - Set if no borrow from bit 4.
+            C - Set if no borro
+         */
+
+        case 0x9F: SBC_A(cpu.A); break;     //SBC A, A
+        case 0x98: SBC_A(cpu.B); break;     //SBC A, B
+        case 0x99: SBC_A(cpu.C); break;     //SBC A, C
+        case 0x9A: SBC_A(cpu.D); break;     //SBC A, D
+        case 0x9B: SBC_A(cpu.E); break;     //SBC A, E
+        case 0x9C: SBC_A(cpu.H); break;     //SBC A, H
+        case 0x9D: SBC_A(cpu.L); break;     //SBC A, L
+
+        case 0x9E: SBC_A(mmu_read(REG_HL)); break;     //SBC A, (HL)
+
+        // SBC #, A
+        // not in the gameboy manual ?!?!?!
+
+
+
+        case 0xA0: AND_A(cpu.B); break;     // AND A, B
+        case 0xB0: OR_A(cpu.B); break;     // OR A, B
+        case 0xB8: XOR_A(cpu.B); break;     // XOR A, B
+
+        case 0xA8: CP_A(cpu.B); break;     // Compare CP A, B
+
+
 
         /* INCREMENT AND DECREMENT OPERATORS*/
         
@@ -808,7 +948,7 @@ bool execute_opcode(uint8_t opcode) {
 
             break;
         }
-        
+
         
         /* DECREMENT OPERATIONS */
         //DEC B
@@ -953,17 +1093,6 @@ bool execute_opcode(uint8_t opcode) {
             cpu.halted = true;
             return false; // indicate that cpu is halted
 
-        // Arithmetic Logic Unit Operations (ALU Ops)
-        case 0x80: ADD_A(cpu.B); break;     // ADD A, B
-        case 0x81: ADD_A(cpu.C); break;     // ADD A, C
-
-        case 0x90: SUB_A(cpu.B); break;     // SUB B from A
-
-        case 0xA0: AND_A(cpu.B); break;     // AND A, B
-        case 0xB0: OR_A(cpu.B); break;     // OR A, B
-        case 0xB8: XOR_A(cpu.B); break;     // XOR A, B
-
-        case 0xA8: CP_A(cpu.B); break;     // Compare CP A, B
 
         default:
             printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, cpu.PC);
