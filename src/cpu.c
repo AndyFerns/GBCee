@@ -683,7 +683,7 @@ bool execute_opcode(uint8_t opcode) {
         }
 
         // STACK OPERATIONS PUSH AND POP
-        
+
         /**
          * 6. PUSH nn
          * 
@@ -693,6 +693,8 @@ bool execute_opcode(uint8_t opcode) {
          * use with:
          * nn = AF, BC, DE, HL
          * 
+         * HIGH BYTE FIRST
+         * LOW BYTE NEXT
          */
 
         // PUSH AF
@@ -724,6 +726,48 @@ bool execute_opcode(uint8_t opcode) {
         }
 
 
+        /**
+         * 7. POP nn
+         * 
+         * pop off two bytes off stack into register pair nn
+         * increment stack pointer SP twice every iteration
+         * 
+         * use with:
+         * nn = AF, BC, DE, HL
+         * 
+         *  LOW BYTE FIRST
+         *  HIGH BYTE NEXT
+         * 
+         */
+
+        // POP AF
+        case 0xF1: {
+            cpu.F = mmu_read(cpu.SP++) & 0xF0;
+            cpu.A = mmu_read(cpu.SP++);
+            break;
+        }
+
+
+        // POP BC
+        case 0xC1:{
+            cpu.C = mmu_read(cpu.SP++);
+            cpu.B = mmu_read(cpu.SP++);
+            break;
+        }
+
+        // POP DE
+        case 0xD1:{
+            cpu.E = mmu_read(cpu.SP++);
+            cpu.D = mmu_read(cpu.SP++);
+            break;
+        }
+
+        // POP HL   
+        case 0xE1:{
+            cpu.L = mmu_read(cpu.SP++);
+            cpu.H = mmu_read(cpu.SP++);
+            break;
+        }
 
 
         // Increment and Decrement operators;
@@ -983,14 +1027,6 @@ bool execute_opcode(uint8_t opcode) {
 
             break;
         }
-
-        /* Stack Operations*/
-
-        // POP B, C
-        case 0xC1:
-            cpu.C = mmu_read(cpu.SP++);
-            cpu.B = mmu_read(cpu.SP++);
-            break;
         
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
