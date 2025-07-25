@@ -657,7 +657,30 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
+        /**
+         * 5. LD (nn), SP
+         * put stack pointer (SP) at addr n
+         * 
+         * use with:
+         * nn = two byte immediate address
+         * 
+         * 20 cycles
+         */
 
+
+        case 0x08: {
+            // read immediate 16-bit address nn
+            // it is a littl;e endian
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC += 2;
+
+            // store stack pointer val at addr nn
+            // little endian -- low byte first
+            mmu_write(addr, cpu.SP & 0xFF);     // SP Low byte
+            mmu_write(addr + 1, (cpu.SP >> 8) & 0xFF); // SP high byte
+
+            break;
+        }
 
         // Increment and Decrement operators;
         
