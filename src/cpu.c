@@ -897,16 +897,54 @@ bool execute_opcode(uint8_t opcode) {
 
         case 0x9E: SBC_A(mmu_read(REG_HL)); break;     //SBC A, (HL)
 
-        // SBC #, A
+        // SBC A, #
         // not in the gameboy manual ?!?!?!
         case 0xDE:{
-
+            uint8_t val = mmu_read(cpu.PC++);
+            SBC_A(val);
             break;
         }
 
 
+        /**
+         * 5. AND n
+         * logically AND n with A 
+         * 
+         * result in A register
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL),# 
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Set.
+            C - Reset.
+         * 
+         */
 
-        case 0xA0: AND_A(cpu.B); break;     // AND A, B
+        case 0xA7: AND_A(cpu.A); break;    // AND A 
+        case 0xA0: AND_A(cpu.B); break;    // AND B 
+        case 0xA1: AND_A(cpu.C); break;    // AND C 
+        case 0xA2: AND_A(cpu.D); break;    // AND D 
+        case 0xA3: AND_A(cpu.E); break;    // AND E 
+        case 0xA4: AND_A(cpu.H); break;    // AND H 
+        case 0xA5: AND_A(cpu.L); break;    // AND L 
+
+        case 0xA6: AND_A(mmu_read(REG_HL)); break;    // AND (HL) 
+
+        // AND A, #
+        case 0xE6: {
+            uint8_t val = mmu_read(cpu.PC++);
+            AND_A(val);
+            break;
+        }
+
+        
+
+
+
+        // case 0xA0: AND_A(cpu.B); break;     // AND A, B
         case 0xB0: OR_A(cpu.B); break;     // OR A, B
         case 0xB8: XOR_A(cpu.B); break;     // XOR A, B
 
