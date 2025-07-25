@@ -157,8 +157,6 @@ void CP_A(uint8_t val) {
  * XOR r
  */
 
-
-// AND r
 /**
  * @brief AND_R- applying logical AND between A and val
  * 
@@ -172,6 +170,7 @@ void AND_A(uint8_t val) {
     if (cpu.A == 0) {
         cpu.F |= FLAG_Z;
     }
+    // N and C are implicitly reset by setting F = FLAG_H | FLAG_Z
 }
 
 /** 
