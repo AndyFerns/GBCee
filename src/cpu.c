@@ -205,7 +205,6 @@ bool execute_opcode(uint8_t opcode) {
         case 0x55: cpu.D = cpu.L; break;// LD D, L
         // case 0x56: cpu.D = cpu.A; break; // LD D, (HL)
 
-
         //for register E
         case 0x58: cpu.E = cpu.B; break; // LC E, B
         case 0x59: cpu.E = cpu.C; break; // LD E, C
@@ -287,7 +286,6 @@ bool execute_opcode(uint8_t opcode) {
 
         case 0x1A: cpu.A = mmu_read(REG_DE); break;
 
-
         // A, (HL)
         // case 0x7E:
         //     // load from memory address pointed by HL into A
@@ -300,7 +298,7 @@ bool execute_opcode(uint8_t opcode) {
         // case 0x7E: cpu.A = mmu_read(REG_HL); break;
 
         // A, (nn)
-        case 0xFA:
+        case 0xFA:{
             // load from absolute 16-bit address into A
             uint8_t low = mmu_read(cpu.PC+ 1);
             uint8_t high = mmu_read(cpu.PC + 2);
@@ -309,14 +307,17 @@ bool execute_opcode(uint8_t opcode) {
             cpu.A = mmu_read(addr);
             cpu.PC += 3;
             break;
+        }
 
         // A, # case 0x3E
         // Load immediate 8-bit value int A
-        case 0x3E:
+        case 0x3E:{
             cpu.A = mmu_read(cpu.PC + 1); // read the immediate value
             cpu.PC += 2; // move pc past opcode and operand
 
             break;
+        }
+
 
 
         /**
@@ -373,12 +374,13 @@ bool execute_opcode(uint8_t opcode) {
          * same as LD A, ($FF00 + C) 
          */
 
-        case 0xF2:
+        case 0xF2:{
             uint16_t addr = 0xFF00 + cpu.C;
             cpu.A = mmu_read(addr);
 
             cpu.PC++;
             break;
+        }
 
         /**
          * 6. LD (C), A
@@ -388,14 +390,44 @@ bool execute_opcode(uint8_t opcode) {
          *   
          */
         
-        case 0xE2:
+        case 0xE2:{
             uint16_t addr = 0xFF00 + cpu.C;
             mmu_write(addr, cpu.A);
 
             cpu.PC++;
             break;
+        }
 
+        /**
+         * 7. LD A, (HLD)
+         * 
+         * same as LDD A, (HL)
+         */
+        /**
+         * 8. LD A, (HL-)
+         * 
+         * same as LDD A, (HL)
+         */
+        /**
+         * 9. LDD A, (HL)
+         * 
+         * put value of HL into A
+         * Decrement HL
+         * 
+         * same as: LD A, (HL)  -  DEC HL
+         */
 
+        case 0x3A: {
+            //LD A, (HL-)
+            //LDD A, (HL)
+            uint16_t hl = REG_HL;
+            cpu.A = mmu_read(hl);
+            hl--; //decrement
+
+            cpu.H = (hl >> 8) &0xFF;
+            cpu.L = hl &0xFF;
+            break;
+        }
          
         // 16-bit load ooperations
         // LD HL, nn
