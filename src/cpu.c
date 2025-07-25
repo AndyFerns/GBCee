@@ -545,7 +545,37 @@ bool execute_opcode(uint8_t opcode) {
         }
 
 
-        // 16-bit load ooperations
+        
+        /* 16-bit load ooperations */
+        
+        /**
+         * 1. LD n, nn
+         * put value nn into n
+         * 
+         * use with:
+         * n = BC,DE,HL,SP
+         * nn = 16 bit immediate value
+         * 
+         */
+
+        // LD BC, nn
+        case 0x01:{ 
+            uint16_t nn = mmu_read(cpu.PC++);
+            nn |= mmu_read(cpu.PC++) << 8;
+            cpu.B = (nn >> 8) & 0xFF;
+            cpu.C = nn & 0xFF;
+            break;
+        }
+
+        // LD DE, nn
+        case 0x11:{
+            uint16_t nn = mmu_read(cpu.PC++);
+            nn |= mmu_read(cpu.PC++) << 8;
+            cpu.D = (nn >> 8) & 0xFF;
+            cpu.E = nn & 0xFF;
+            break;
+        }    
+        
         // LD HL, nn
         case 0x21: {    
             uint16_t nn = mmu_read(cpu.PC++);
