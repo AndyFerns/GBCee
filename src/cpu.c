@@ -971,11 +971,69 @@ bool execute_opcode(uint8_t opcode) {
 
 
 
+        /**
+         * 7. XOR n
+         * logical exclusive OR n with register A
+         * 
+         * store result in A
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL),#
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Reset.
+         */
+
+        case 0xAF: XOR_A(cpu.A); break;     // XOR A, A
+        case 0xA8: XOR_A(cpu.B); break;     // XOR A, B
+        case 0xA9: XOR_A(cpu.C); break;     // XOR A, C
+        case 0xAA: XOR_A(cpu.D); break;     // XOR A, D
+        case 0xAB: XOR_A(cpu.E); break;     // XOR A, E
+        case 0xAC: XOR_A(cpu.H); break;     // XOR A, H
+        case 0xAD: XOR_A(cpu.L); break;     // XOR A, L
+        
+        case 0xAE: XOR_A(mmu_read(REG_HL)); break;     // XOR A, (HL)
+
+        //XOR A, *
+        case 0xEE: XOR_A(mmu_read(cpu.PC++)); break;
+
+
+        /**
+         * 8. CP n
+         *  compare A with n. 
+         * 
+         * this is basically an A - n subtraction instruction but the results
+         * are not stored and discarded instead
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL),#
+         * 
+         * Flags affected:
+            Z - Set if result is zero. (Set if A = n.)
+            N - Set.
+            H - Set if no borrow from bit 4.
+            C - Set for no borrow. (Set if A < n.)
+         */
+        case 0xBF: CP_A(cpu.A); break;      // CP A, A
+        case 0xB8: CP_A(cpu.B); break;      // CP A, B
+        case 0xB9: CP_A(cpu.C); break;      // CP A, C
+        case 0xBA: CP_A(cpu.D); break;      // CP A, D
+        case 0xBB: CP_A(cpu.E); break;      // CP A, E
+        case 0xBC: CP_A(cpu.H); break;      // CP A, H
+        case 0xBD: CP_A(cpu.L); break;      // CP A, L
+        
+        case 0xBE: CP_A(mmu_read(REG_HL)); break;      // CP A, (HL)
+        
+        case 0xFE: CP_A(mmu_read(cpu.PC++)); break;      // CP A, #
+
         // case 0xA0: AND_A(cpu.B); break;     // AND A, B
         // case 0xB0: OR_A(cpu.B); break;     // OR A, B
-        case 0xB8: XOR_A(cpu.B); break;     // XOR A, B
+        // case 0xB8: XOR_A(cpu.B); break;     // XOR A, B
 
-        case 0xA8: CP_A(cpu.B); break;     // Compare CP A, B
+        // case 0xB8: CP_A(cpu.B); break;     // Compare CP A, B
 
 
 
