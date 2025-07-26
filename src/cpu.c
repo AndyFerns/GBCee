@@ -1034,20 +1034,19 @@ bool execute_opcode(uint8_t opcode) {
         
         /* 8-BIT INCREMENT OPERATIONS*/
 
-        // older logic: 
-        // case 0x04:{
-        //     uint8_t prev = cpu.B;
-        //     cpu.B++; // increment step
-
-        //     cpu.F &= FLAG_C;    // preserver C (carry), clear thhe other flags
-        //     if (cpu.B == 0) {
-        //         cpu.F |= FLAG_Z;
-        //     } 
-        //     if ((prev & 0x0F) == 0x0F) {
-        //         cpu.F |= FLAG_H;
-        //     }
-        //     break;
-        // }
+        /**
+         * 9. INC n
+         * increment register n
+         * 
+         * use with:
+         *  n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Set if carry from bit 3.
+            C - Not affected
+         */
 
         case 0x3C: cpu.A = INC(cpu.A); break;  // INC A
         case 0x04: cpu.B = INC(cpu.B); break;   // INC B
@@ -1059,37 +1058,41 @@ bool execute_opcode(uint8_t opcode) {
 
         // INC (HL)
         case 0x23: {
-            //right shift H register
-            uint16_t hl = REG_HL;
-            hl++;
-            
-            cpu.H = (hl>>8) & 0xFF;
-            cpu.L = hl & 0xFF;
-
+            uint8_t val = mmu_read(REG_HL);
+            val = INC(val);
+            mmu_write(REG_HL, val);
             break;
         }
 
         
         /* DECREMENT OPERATIONS */
-        //DEC B
+        /**
+         * 10. DEC n
+         * decrement register n
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if reselt is zero.
+            N - Set.
+            H - Set if no borrow from bit 4.
+            C - Not affect
+         */
 
-        case 0x3D: DEC(cpu.A); break;       // DEC A, A
-        case 0x05: DEC(cpu.B); break;       // DEC A, B
-        case 0x0D: DEC(cpu.C); break;       // DEC A, C
-        case 0x15: DEC(cpu.D); break;       // DEC A, D
-        case 0x1D: DEC(cpu.E); break;       // DEC A, E
-        case 0x25: DEC(cpu.H); break;       // DEC A, H
-        case 0x2D: DEC(cpu.L); break;       // DEC A, L
+        case 0x3D: cpu.A = DEC(cpu.A); break;       // DEC A, A
+        case 0x05: cpu.B = DEC(cpu.B); break;       // DEC A, B
+        case 0x0D: cpu.C = DEC(cpu.C); break;       // DEC A, C
+        case 0x15: cpu.D = DEC(cpu.D); break;       // DEC A, D
+        case 0x1D: cpu.E = DEC(cpu.E); break;       // DEC A, E
+        case 0x25: cpu.H = DEC(cpu.H); break;       // DEC A, H
+        case 0x2D: cpu.L = DEC(cpu.L); break;       // DEC A, L
         
         // DEC A, (HL)
         case 0x35: {
-            //right shift H register
-            uint16_t hl = REG_HL;
-            hl--;
-            
-            cpu.H = (hl>>8) & 0xFF;
-            cpu.L = hl & 0xFF;
-
+            uint8_t val = mmu_read(REG_HL);
+            val = DEC(val);
+            mmu_write(REG_HL, val);
             break;
         }
 
