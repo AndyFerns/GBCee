@@ -1113,6 +1113,26 @@ bool execute_opcode(uint8_t opcode) {
         //     }
         //     break;
         // }
+
+
+        /* 16-BIT ARITHMETIC OPERATIONS*/
+
+        /**
+         * 1. ADD HL, n
+         * adds n to HL
+         * 
+         * use with:
+         *  n = BC,DE,HL,SP
+         * 
+         * flags affected:
+            Z - Not affected.
+            N - Reset.
+            H - Set if carry from bit 11.
+            C - Set if carry from bit 15. 
+        */
+
+
+        
         
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);

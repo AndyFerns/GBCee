@@ -16,6 +16,12 @@
 #define FLAG_H 0x20
 #define FLAG_C 0x10
 
+/* Helper macros for combined 16-bit registers */
+#define REG_BC ((cpu.B << 8) | cpu.C)
+#define REG_DE ((cpu.D << 8) | cpu.E)
+#define REG_HL ((cpu.H << 8) | cpu.L)
+
+
 /* ARITHMETIC OPERATIONS */
 /** 
  * ADD_A
@@ -147,6 +153,76 @@ void CP_A(uint8_t val) {
         cpu.F |= FLAG_Z;
     }
 }
+
+
+// 16- BIT ARITHMETIC OPERATIONS
+
+/**
+ * @brief ADD_HL adds 16-bit value to HL resistor
+ * 
+ *  * Flags affected:
+ *   N - Reset
+ *   H - Set if carry from bit 11
+ *   C - Set if carry from bit 15
+ *   Z - Not affected
+ * 
+ * @param val 16-bit register value (BC, DE, HL, SP)
+ * 
+ * @returns void
+ */
+void ADD_HL(uint16_t val) {
+    uint32_t result = REG_HL + val;
+
+    //reset N
+    cpu.F &= ~FLAG_H;
+
+    // Check half carry from bit 11
+    if (((REG_HL & 0x0FFF) + (val & 0x0FFF)) > 0x0FFF)
+        cpu.F |= FLAG_H;
+    else
+        cpu.F &= ~FLAG_H;
+
+    // Check full carry from bit 15
+    if (result > 0xFFFF)
+        cpu.F |= FLAG_C;
+    else
+        cpu.F &= ~FLAG_C;
+
+    // set H and L values as expected
+    cpu.H = (result >> 8) & 0xFF;
+    cpu.L = result & 0xFF;
+}
+
+/**
+ * @brief ADD_SP - Adds signed 8-bit immediate value to SP
+ * 
+ * Flags affected:
+ *   Z - Reset
+ *   N - Reset
+ *   H - Set if carry from bit 3
+ *   C - Set if carry from bit 7
+ * 
+ * @param val signed 8-bit value to add to SP
+ * 
+ * @returns void
+ */
+void ADD_SP(int8_t val) {
+    uint16_t sp = cpu.SP;
+    uint16_t result = sp + val;
+
+    cpu.F = 0; // Reset Z and N
+
+    // Half-carry check (bit 3)
+    if (((sp & 0xF) + (val & 0xF)) > 0xF)
+        cpu.F |= FLAG_H;
+
+    // Full-carry check (bit 7)
+    if (((sp & 0xFF) + (val & 0xFF)) > 0xFF)
+        cpu.F |= FLAG_C;
+
+    cpu.SP = result;
+}
+
 
 
 
