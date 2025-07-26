@@ -1029,13 +1029,6 @@ bool execute_opcode(uint8_t opcode) {
         
         case 0xFE: CP_A(mmu_read(cpu.PC++)); break;      // CP A, #
 
-        // case 0xA0: AND_A(cpu.B); break;     // AND A, B
-        // case 0xB0: OR_A(cpu.B); break;     // OR A, B
-        // case 0xB8: XOR_A(cpu.B); break;     // XOR A, B
-
-        // case 0xB8: CP_A(cpu.B); break;     // Compare CP A, B
-
-
 
         /* INCREMENT AND DECREMENT OPERATORS*/
         
@@ -1067,7 +1060,7 @@ bool execute_opcode(uint8_t opcode) {
         // INC (HL)
         case 0x23: {
             //right shift H register
-            uint16_t hl = (cpu.H << 8) | cpu.L;
+            uint16_t hl = REG_HL;
             hl++;
             
             cpu.H = (hl>>8) & 0xFF;
@@ -1079,134 +1072,19 @@ bool execute_opcode(uint8_t opcode) {
         
         /* DECREMENT OPERATIONS */
         //DEC B
-        case 0x05: {
-            uint8_t prev = cpu.B;
-            cpu.B--;
 
-            cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
-            cpu.F |= FLAG_N;
-            
-            if (cpu.B == 0) {
-                cpu.F |= FLAG_Z;
-            }
-            
-            if ((prev & 0x0F) == 0x00) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
-
-        // DEC C
-        case 0x0D: {
-            uint8_t prev = cpu.C;
-            cpu.C--;
-            
-            cpu.F &= FLAG_C;        // preserve C, clear others
-            cpu.F |= FLAG_N;
-
-            if (cpu.C == 0) {
-                cpu.F |= FLAG_Z;
-            }
-            if ((prev & 0x0F) == 0x00) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
-
-        //DEC D
-        case 0x15: {
-            uint8_t prev = cpu.D;
-            cpu.D--;
-
-            cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
-            cpu.F |= FLAG_N;
-
-            if (cpu.D == 0) {
-                cpu.F |= FLAG_Z;
-            }
-
-            if ((prev & 0x0F) == 0x00) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
+        case 0x3D: DEC(cpu.A); break;       // DEC A, A
+        case 0x05: DEC(cpu.B); break;       // DEC A, B
+        case 0x0D: DEC(cpu.C); break;       // DEC A, C
+        case 0x15: DEC(cpu.D); break;       // DEC A, D
+        case 0x1D: DEC(cpu.E); break;       // DEC A, E
+        case 0x25: DEC(cpu.H); break;       // DEC A, H
+        case 0x2D: DEC(cpu.L); break;       // DEC A, L
         
-        //DEC E
-        case 0x1D: {
-            uint8_t prev = cpu.E;
-            cpu.E--;
-            
-            cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
-            cpu.F |= FLAG_N;
-
-            if (cpu.E == 0) {
-                cpu.F |= FLAG_Z;
-            }
-
-            if ((prev & 0x0F) == 0x00) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
-
-        //DEC H
-        case 0x25: {
-            uint8_t prev = cpu.H;
-            cpu.H--;
-            
-            cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
-            cpu.F |= FLAG_N;
-
-            if (cpu.H == 0) {
-                cpu.F |= FLAG_Z;
-            }
-
-            if ((prev & 0x0F) == 0x00) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
-
-        //DEC L
-        case 0x2D:{
-            uint8_t prev = cpu.L;
-            cpu.L--;
-            
-            cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
-            cpu.F |= FLAG_N;
-
-            if (cpu.L == 0) {
-                cpu.F |= FLAG_Z;
-            }
-
-            if ((prev & 0x0F) == 0x00) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
-
-        //DEC A
-        case 0x3D: {
-            uint8_t prev = cpu.A;
-            cpu.A--;
-
-            cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
-            cpu.F |= FLAG_N;
-
-            if (cpu.A == 0) {
-                cpu.F |= FLAG_Z;
-            }
-
-            if ((prev & 0x0F) == 0x00) {
-                cpu.F |= FLAG_H;
-            }
-            break;
-        }
-
-        // DEC HL
+        // DEC A, (HL)
         case 0x35: {
             //right shift H register
-            uint16_t hl = (cpu.H << 8) | cpu.L;
+            uint16_t hl = REG_HL;
             hl--;
             
             cpu.H = (hl>>8) & 0xFF;
@@ -1214,6 +1092,24 @@ bool execute_opcode(uint8_t opcode) {
 
             break;
         }
+
+        // older logic: 
+        // case 0x05: {
+        //     uint8_t prev = cpu.B;
+        //     cpu.B--;
+
+        //     cpu.F &= FLAG_C;        //preserve C (carry) always, clear other flags
+        //     cpu.F |= FLAG_N;
+            
+        //     if (cpu.B == 0) {
+        //         cpu.F |= FLAG_Z;
+        //     }
+            
+        //     if ((prev & 0x0F) == 0x00) {
+        //         cpu.F |= FLAG_H;
+        //     }
+        //     break;
+        // }
         
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
