@@ -1052,12 +1052,12 @@ bool execute_opcode(uint8_t opcode) {
         case 0x04: cpu.B = INC(cpu.B); break;   // INC B
         case 0x0C: cpu.C = INC(cpu.C); break;   // INC C
         case 0x14: cpu.D = INC(cpu.D); break;   // INC D
-        case 0x1C: cpu.E = INC(cpu.E); break;   // INC e
-        case 0x24: cpu.H = INC(cpu.H); break;   // INC F
+        case 0x1C: cpu.E = INC(cpu.E); break;   // INC E
+        case 0x24: cpu.H = INC(cpu.H); break;   // INC H
         case 0x2C: cpu.L = INC(cpu.L); break;  //INC L
 
         // INC (HL)
-        case 0x23: {
+        case 0x34: {
             uint8_t val = mmu_read(REG_HL);
             val = INC(val);
             mmu_write(REG_HL, val);
@@ -1080,13 +1080,13 @@ bool execute_opcode(uint8_t opcode) {
             C - Not affect
          */
 
-        case 0x3D: cpu.A = DEC(cpu.A); break;       // DEC A, A
-        case 0x05: cpu.B = DEC(cpu.B); break;       // DEC A, B
-        case 0x0D: cpu.C = DEC(cpu.C); break;       // DEC A, C
-        case 0x15: cpu.D = DEC(cpu.D); break;       // DEC A, D
-        case 0x1D: cpu.E = DEC(cpu.E); break;       // DEC A, E
-        case 0x25: cpu.H = DEC(cpu.H); break;       // DEC A, H
-        case 0x2D: cpu.L = DEC(cpu.L); break;       // DEC A, L
+        case 0x3D: cpu.A = DEC(cpu.A); break;       // DEC A
+        case 0x05: cpu.B = DEC(cpu.B); break;       // DEC B
+        case 0x0D: cpu.C = DEC(cpu.C); break;       // DEC C
+        case 0x15: cpu.D = DEC(cpu.D); break;       // DEC D
+        case 0x1D: cpu.E = DEC(cpu.E); break;       // DEC E
+        case 0x25: cpu.H = DEC(cpu.H); break;       // DEC H
+        case 0x2D: cpu.L = DEC(cpu.L); break;       // DEC L
         
         // DEC A, (HL)
         case 0x35: {
