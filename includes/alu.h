@@ -11,6 +11,10 @@ void SUB_A(uint8_t val);
 void SBC_A(uint8_t val);
 void CP_A(uint8_t val);
 
+// 16- bit arithmetic ops
+void ADD_HL(uint16_t val);
+void ADD_SP(uint16_t val);
+
 // Logical Operations
 
 void AND_A(uint8_t val);
