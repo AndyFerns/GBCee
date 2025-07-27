@@ -553,3 +553,44 @@ uint8_t RL(uint8_t value, bool carry_in, bool *carry_out) {
     *carry_out = bit7;
     return result;
 }
+
+
+/**
+ * @brief RRC Rotate n right, bit 0 -> carry. Old bit 7 to carry flag
+ * 
+ * @param value:uint8_t 8 bit register to be rotated
+ * 
+ * @returns uint8_t The result of rotation
+ */
+uint8_t RRC(uint8_t value) {
+    uint8_t bit0 = value & 0x01;
+    uint8_t result = (value >> 1) | (bit0 << 7); // Rotate right
+
+    // Set flags
+    cpu.F = 0;
+    if (result == 0) cpu.F |= 0x80;  // Z
+    if (bit0)        cpu.F |= 0x10;  // C
+
+    return result;
+}
+
+
+/**
+ * @brief RR Rotate right through carry
+ * 
+ * @param value:uint8_t 8 bit register to be rotated
+ * 
+ * @returns uint8_t The result of rotation
+ */
+uint8_t RR(uint8_t value) {
+    uint8_t carry = (cpu.F & 0x10) ? 1 : 0;   // old carry
+    uint8_t bit0 = value & 0x01;
+    uint8_t result = (value >> 1) | (carry << 7);
+
+    // Set flags
+    cpu.F = 0;
+    if (result == 0) cpu.F |= 0x80;  // Z
+    if (bit0)        cpu.F |= 0x10;  // C
+
+    return result;
+}

@@ -40,6 +40,7 @@ void SCF();
 
 uint8_t RLC(uint8_t value, bool *carry_out); // rotate n left
 uint8_t RL(uint8_t value, bool carry_in, bool *carry_out); // rotate n left through carry
-
+uint8_t RRC(uint8_t value); // rotate n right 
+uint8_t RR(uint8_t value); // rotate n right through carry
 
 #endif
