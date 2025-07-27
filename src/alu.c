@@ -224,6 +224,37 @@ void ADD_SP(int8_t val) {
 }
 
 
+/**
+ * @brief INC_16 Increment 16-bit register nn
+ * 
+ * nn = BC,DE,HL,SP 
+ * 
+ * Flags affected: none
+ * 
+ * @param 
+ * 
+ * @return 
+ */
+void INC_16(uint16_t *regist) {
+    *regist += 1;
+}
+
+
+/**
+ * @brief DEC_16 decrement 16-bit register nn
+ * 
+ * nn = BC,DE,HL,SP 
+ * 
+ * Flags affected: none
+ * 
+ * @param 
+ * 
+ * @return 
+ */
+void DEC_16(uint16_t *regist) {
+    *regist -= 1;
+}
+
 
 
 /* LOGICAL OPERATIONS */
