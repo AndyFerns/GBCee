@@ -13,16 +13,23 @@ CPU cpu;
 #define REG_DE ((cpu.D << 8) | cpu.E)
 #define REG_HL ((cpu.H << 8) | cpu.L)
 
+/* Setter macroes for 16-bit operations */ 
+#define SET_REG_BC(val) do { cpu.B = ((val) >> 8) & 0xFF; cpu.C = (val) & 0xFF; } while (0)
+#define SET_REG_DE(val) do { cpu.D = ((val) >> 8) & 0xFF; cpu.E = (val) & 0xFF; } while (0)
+#define SET_REG_HL(val) do { cpu.H = ((val) >> 8) & 0xFF; cpu.L = (val) & 0xFF; } while (0)
+
+/* Flag definitions for Zero(Z), Negative-Carry(N), Half-Carry(H), and Carry(C) */
 #define FLAG_Z 0x80
 #define FLAG_N 0x40
 #define FLAG_H 0x20
 #define FLAG_C 0x10
 
 /**
- * cpu_reset - Resets the CPU to its post-BIOS state.
+ * @brief cpu_reset - Resets the CPU to its post-BIOS state.
  *
  * Initializes registers and sets PC to 0x0100.
- * No parameters, no return value.
+ * 
+ * @returns void
  */
 void cpu_reset() {
     cpu.A = 0x01; // int 1
@@ -41,11 +48,11 @@ void cpu_reset() {
 }
 
 /**
- * cpu_step - Executes a single CPU instruction.
+ * @brief cpu_step - Executes a single CPU instruction.
  *
  * Fetches, decodes, and executes one instruction at PC.
- * May modify CPU registers and memory.
- * No parameters 
+ * 
+ * May modify CPU registers and memory. 
  * 
  * @returns 
  * Returns cycle count
@@ -1131,8 +1138,83 @@ bool execute_opcode(uint8_t opcode) {
             C - Set if carry from bit 15. 
         */
 
+        case 0x09: ADD_HL(REG_BC); break;   // ADD HL, BC
+        case 0x19: ADD_HL(REG_DE); break;   // ADD HL, DE
+        case 0x29: ADD_HL(REG_HL); break;   // ADD HL, HL
+        case 0x39: ADD_HL(cpu.SP); break;   // ADD HL, SP (stakc pointer)
+        
+
+        /**
+         * 2. ADD SP, n
+         * adds n to stack pointer (SP)
+         * 
+         * use with:
+         *  n = one byte signed immediate value (#)
+         * 
+         * Flags affected:
+            Z - Reset.
+            N - Reset.
+            H - Set or reset according to operation.
+            C - Set or reset acc
+         */
+
+        case 0xE8: ADD_SP(cpu.SP); break;   //ADD SP, #
+
+
+        /**
+         * 3. INC nn
+         * increment register nn 
+         * 
+         * use with:
+         * nn = BC,DE,HL,SP 
+         * 
+         * Flags affected: none
+         */
+
+        // INC BC
+        case 0x03: {
+            uint16_t bc = REG_BC;
+            INC_16(&bc);
+            SET_REG_BC(bc); 
+            break;
+        }
+
+        // INC DE
+        case 0x13: {
+            uint16_t de = REG_DE;
+            INC_16(&de);
+            SET_REG_DE(de); 
+            break;
+        }
+
+        // INC HL
+        case 0x23: {
+            uint16_t hl = REG_HL;
+            INC_16(&hl);
+            SET_REG_HL(hl); 
+            break;
+        }
+
+        // INC SP
+        case 0x33: {
+            INC_16(&cpu.SP); 
+            break;
+        }
+        
+        /**
+         * 4. DEC nn
+         * decrement register nn 
+         * 
+         * use with:
+         * nn = BC,DE,HL,SP
+         * 
+         * Flags affected: none
+         */
 
         
+         
+
+
         
         case 0x76: // HALT instruction
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
