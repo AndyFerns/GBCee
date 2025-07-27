@@ -516,3 +516,22 @@ void SCF() {
     cpu.F &= ~(FLAG_N | FLAG_H); // reset N and H flags
     cpu.F |= FLAG_C; // set carry flag
 }
+
+
+/* ROTATES AND SHIFTS */
+
+/**
+ * @brief RLC - rotate n left. old bit 7 to carry flag
+ * 
+ * @param value The byte to rotate
+ * @param carry_out Pointer to store the carry flag
+ * 
+ * @return uint8_t Result of rotation
+ */
+static uint8_t RLC(uint8_t value, bool *carry_out) {
+    uint8_t bit7 = (value >> 7) | 0x01;
+    uint8_t result = (value << 1) | bit7;
+
+    *carry_out = bit7; //assign 7 bit value to carry flag
+    return result;
+}

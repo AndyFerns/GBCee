@@ -36,4 +36,8 @@ void CPL();
 void CCF();
 void SCF();
 
+// rotates and shifts
+
+static uint8_t RLC(uint8_t value, bool *carry_out);
+
 #endif
