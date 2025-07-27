@@ -1615,6 +1615,103 @@ bool execute_cb_opcode(uint8_t opcode) {
         }
 
 
+        /**
+         * 6. RL n 
+         * rotate n left through carry flag 
+         * 
+         * use with:
+         *  n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 7 data.
+         */
+
+        // RL B
+        case 0x10: {
+            bool carry_out;
+            cpu.B = RL(cpu.B, (cpu.F & FLAG_C), &carry_out);
+            cpu.F = 0;
+            if (cpu.B == 0) cpu.F |= FLAG_Z;
+            if (carry_out)  cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RL C
+        case 0x11: {
+            bool carry_out;
+            cpu.C = RL(cpu.C, (cpu.F & FLAG_C), &carry_out);
+            cpu.F = 0;
+            if (cpu.C == 0) cpu.F |= FLAG_Z;
+            if (carry_out)  cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RL D
+        case 0x12: {
+            bool carry_out;
+            cpu.D = RL(cpu.D, (cpu.F & FLAG_C), &carry_out);
+            cpu.F = 0;
+            if (cpu.D == 0) cpu.F |= FLAG_Z;
+            if (carry_out)  cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RL E
+        case 0x13: {
+            bool carry_out;
+            cpu.E = RL(cpu.E, (cpu.F & FLAG_C), &carry_out);
+            cpu.F = 0;
+            if (cpu.E == 0) cpu.F |= FLAG_Z;
+            if (carry_out)  cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RL H
+        case 0x14: {
+            bool carry_out;
+            cpu.H = RL(cpu.H, (cpu.F & FLAG_C), &carry_out);
+            cpu.F = 0;
+            if (cpu.H == 0) cpu.F |= FLAG_Z;
+            if (carry_out)  cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RL L
+        case 0x15: {
+            bool carry_out;
+            cpu.L = RL(cpu.L, (cpu.F & FLAG_C), &carry_out);
+            cpu.F = 0;
+            if (cpu.L == 0) cpu.F |= FLAG_Z;
+            if (carry_out)  cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RL (HL)
+        case 0x16: {
+            uint8_t val = mmu_read(REG_HL);
+            bool carry_out;
+            uint8_t result = RL(val, (cpu.F & FLAG_C), &carry_out);
+            mmu_write(REG_HL, result);
+            cpu.F = 0;
+            if (result == 0) cpu.F |= FLAG_Z;
+            if (carry_out)  cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RL A
+        case 0x17: {
+            bool carry_out;
+            cpu.A = RL(cpu.A, (cpu.F & FLAG_C), &carry_out);
+            cpu.F = 0;
+            // Z flag is not set for RL A
+            if (carry_out)  cpu.F |= FLAG_C;
+            break;
+        }
+
+
 
 
 
