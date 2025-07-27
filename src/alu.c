@@ -609,8 +609,8 @@ uint8_t RR(uint8_t value) {
  * 
  * @returns void
  */
-void SLA(uint8_t val) {
-    uint8_t old = val;
+void SLA(uint8_t *val) {
+    uint8_t old = *val;
     uint8_t result = old << 1;
 
     // Set flags
@@ -618,7 +618,7 @@ void SLA(uint8_t val) {
     if (result == 0) cpu.F |= FLAG_Z;
     if (old & 0x80) cpu.F |= FLAG_C;  // old MSB
 
-    val = result;
+    *val = result;
 }
 
 
@@ -635,8 +635,8 @@ void SLA(uint8_t val) {
  * 
  * @returns void
  */
-void SRA(uint8_t val) {
-    uint8_t old = val;
+void SRA(uint8_t *val) {
+    uint8_t old = *val;
     uint8_t msb = old & 0x80;
     uint8_t result = (old >> 1) | msb;
 
@@ -645,7 +645,7 @@ void SRA(uint8_t val) {
     if (result == 0) cpu.F |= FLAG_Z;
     if (old & 0x01) cpu.F |= FLAG_C;  // old LSB
 
-    val = result;
+    *val = result;
 }
 
 /**
@@ -658,9 +658,11 @@ void SRA(uint8_t val) {
  * C - Old bit 0.
  *
  * @param val - Pointer to register or memory to shift
+ * 
+ * @returns void
  */
-void SRL(uint8_t val) {
-    uint8_t old = val;
+void SRL(uint8_t *val) {
+    uint8_t old = *val;
     uint8_t result = old >> 1;
 
     // Set flags
@@ -668,5 +670,5 @@ void SRL(uint8_t val) {
     if (result == 0) cpu.F |= FLAG_Z;
     if (old & 0x01) cpu.F |= FLAG_C;  // old LSB
 
-    val = result;
+    *val = result;
 }
