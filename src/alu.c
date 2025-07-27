@@ -535,3 +535,21 @@ uint8_t RLC(uint8_t value, bool *carry_out) {
     *carry_out = bit7;
     return result;
 }
+
+/**
+ * @brief RL - rotate n left through carry
+ * 
+ * Bit 7 is moved into carry flag.
+ * Carry flag is moved into bit 0.
+ * 
+ * @param value The byte to rotate
+ * @param carry_in The current carry flag
+ * @param carry_out Pointer to store the new carry flag
+ * @return uint8_t The result of rotation
+ */
+uint8_t RL(uint8_t value, bool carry_in, bool *carry_out) {
+    uint8_t bit7 = (value >> 7) & 0x01;
+    uint8_t result = (value << 1) | (carry_in ? 1 : 0);
+    *carry_out = bit7;
+    return result;
+}
