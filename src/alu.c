@@ -672,3 +672,64 @@ void SRL(uint8_t *val) {
 
     *val = result;
 }
+
+
+
+/* BIT OPCODES */
+
+/**
+ * @brief BIT Checks if a given bit in a register is set or not.
+ * 
+ * This implements the BIT n, r instruction, which checks if bit `bit` of `value` is 0.
+ * 
+ * flags affected
+ *  Z: Set if bit is 0.
+ *  H: Always set.
+ *  N: Always reset.
+ *  C: Preserved.
+ * 
+ * @param value The 8-bit register or memory value to test.
+ * @param bit   The bit index (0 to 7) to test.
+ * 
+ * @returns void
+ */
+void BIT(uint8_t value, uint8_t bit) {
+    // Preserve Carry flag, reset N, set H
+    cpu.F &= FLAG_C;
+    cpu.F |= FLAG_H;
+    cpu.F &= ~FLAG_N;
+
+    // Set or reset Z depending on whether bit is 0
+    if ((value & (1 << bit)) == 0)
+        cpu.F |= FLAG_Z;
+    else
+        cpu.F &= ~FLAG_Z;
+}
+
+
+/**
+ * @brief SET's bit `bit` in `value`.
+ * 
+ * Flags affected: none
+ * 
+ * @param value Pointer to register or memory location.
+ * @param bit   Bit index to set (0 to 7).
+ * 
+ * @returns void
+ */
+void SET(uint8_t* value, uint8_t bit) {
+    *value |= (1 << bit);
+}
+
+
+/**
+ * @brief Resets (clears) bit `bit` in `value`.
+ * 
+ * Flags affected: none
+ * 
+ * @param value Pointer to register or memory location.
+ * @param bit   Bit index to reset (0 to 7).
+ */
+static void RES(uint8_t* value, uint8_t bit) {
+    *value &= ~(1 << bit);
+}
