@@ -43,4 +43,8 @@ uint8_t RL(uint8_t value, bool carry_in, bool *carry_out); // rotate n left thro
 uint8_t RRC(uint8_t value); // rotate n right 
 uint8_t RR(uint8_t value); // rotate n right through carry
 
+void SLA(uint8_t val); // shift n left by 1
+void SRA(uint8_t val); // shift n arithmetic right
+void SRL(uint8_t val); // logical shift right
+
 #endif
