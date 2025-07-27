@@ -45,6 +45,10 @@ void cpu_reset() {
     // Program counter
     cpu.PC = 0x0100; // int 256
     cpu.halted = false;
+
+    cpu.ime = false;
+    cpu.ime_enable = false;
+    cpu.ime_disable = false;
 }
 
 /**
@@ -81,7 +85,21 @@ bool cpu_step() {
         return execute_cb_opcode(cb_opcode);
     }
 
-    return execute_opcode(opcode);
+    // on succesfully executing an instruction, it returns a true value and continues on with the cpu step
+    bool success = execute_opcode(opcode); 
+
+    // Apply delayed IME effects AFTER the instruction
+    if (cpu.ime_enable) {
+        cpu.ime = true;
+        cpu.ime_enable = false;
+    }
+
+    if (cpu.ime_disable) {
+        cpu.ime = false;
+        cpu.ime_disable = false;
+    }
+
+    return success;
 }
 
 /**
@@ -1295,6 +1313,23 @@ bool execute_opcode(uint8_t opcode) {
          */
         case 0x37: SCF(); break;
 
+        /**
+         * MISC 9. DI (disable interrupts)
+         * this instruction DISABLES interrupts but NOT IMMEDIATELY.
+         * Interrupts are disabled after instruction AFTER DI is executed
+         * 
+         * Flags affected: none
+         */
+        case 0xF3: cpu.ime_disable = true; break;
+
+
+        /**
+         * MISC 10. EI (enable interrupts)
+         * this instruction ENABLES interrupts but not IMMEDIATELY.
+         * Interrupts are enabled after instruction AFTER EI is executed
+         */
+        case 0xFB: cpu.ime_enable = true; break;
+
 
 
         // HALT instruction
@@ -1313,8 +1348,6 @@ bool execute_opcode(uint8_t opcode) {
             cpu.halted = true;
             break;
         }
-
-
 
         default:
             printf("[HALT] Unimplemented opcode: 0x%02X at 0x%04X\n", opcode, cpu.PC);
