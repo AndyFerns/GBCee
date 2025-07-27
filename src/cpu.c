@@ -1195,11 +1195,8 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
-        // INC SP
-        case 0x33: {
-            INC_16(&cpu.SP); 
-            break;
-        }
+        case 0x33: INC_16(&cpu.SP); break; // INC SP (stack pointer)
+        
         
         /**
          * 4. DEC nn
@@ -1211,9 +1208,32 @@ bool execute_opcode(uint8_t opcode) {
          * Flags affected: none
          */
 
-        
-         
+        // DEC BC
+        case 0x0B:{
+            uint16_t bc = REG_BC;
+            DEC_16(&bc);
+            SET_REG_BC(bc);
+            break;
+        }
 
+        // DEC DE
+        case 0x1B:{
+            uint16_t de = REG_DE;
+            DEC_16(&de);
+            SET_REG_DE(de);
+            break;
+        }
+
+        // DEC HL
+        case 0x2B:{
+            uint16_t hl = REG_HL;
+            DEC_16(&hl);
+            SET_REG_HL(hl);
+            break;
+        }
+    
+        case 0x3B: DEC_16(&cpu.SP); break;     //DEC SP (stack pointer)
+        
 
         
         case 0x76: // HALT instruction
