@@ -1268,6 +1268,41 @@ bool execute_cb_opcode(uint8_t opcode) {
         According to gameboy spec BIT instructions
     */
     switch(opcode) {
+        /**
+         * 1. SWAP n
+         * swap upper and lower nibles of n
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Reset
+         */
+
+        case 0x37: cpu.A = SWAP(cpu.A); break;      // SWAP A
+        case 0x30: cpu.B = SWAP(cpu.B); break;      // SWAP B
+        case 0x31: cpu.C = SWAP(cpu.C); break;      // SWAP C
+        case 0x32: cpu.D = SWAP(cpu.D); break;      // SWAP D
+        case 0x33: cpu.E = SWAP(cpu.E); break;      // SWAP E
+        case 0x34: cpu.H = SWAP(cpu.H); break;      // SWAP H
+        case 0x35: cpu.L = SWAP(cpu.L); break;      // SWAP L
+
+        // SWAP (HL)
+        case 0x36: {
+            uint8_t val = mmu_read(REG_HL);
+            uint8_t swap = SWAP(val);
+
+            mmu_write(REG_HL, swap);
+            break;
+        }
+
+
+        /**
+         * BIT
+         */
         // BIT 0, B
         case 0x40: 
             cpu.F &= FLAG_C; // preserve C
