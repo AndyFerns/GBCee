@@ -100,7 +100,8 @@ bool execute_opcode(uint8_t opcode) {
         H set if overflow from bit 3
     */
     switch (opcode) {
-        case 0x00: // No Operation
+        // No operation
+        case 0x00: 
             // cpu.PC++;
             break;
 
@@ -1235,7 +1236,12 @@ bool execute_opcode(uint8_t opcode) {
         case 0x3B: DEC_16(&cpu.SP); break;     //DEC SP (stack pointer)
 
 
+        /* MISCELLANEOUS OPERATIONS */
+
         /**
+         * 1. SWAP - implemented in execute CB opcodes
+         * 
+         * 
          * 2. DAA decimal adjust register A
          * 
          * this instruction adjusts reg A so that the correct representation of BCD (Binary Coded Decimal) is obtained
@@ -1252,11 +1258,62 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
-        
-        case 0x76: // HALT instruction
+        /**
+         * 3. CPL - complement register A (flip all bits)
+         * 
+         * Flags affected:
+            Z - Not affected.
+            N - Set.
+            H - Set.
+            C - Not affected.
+         */
+        case 0x2F: CPL(); break;
+
+
+        /**
+         * 4. CCF - complement Carry flag
+         * if c flag is set, then reset it.
+         * If C flag is reset, then set it.
+         *
+         * Flags affected:
+            Z - Not affected.
+            N - Reset.
+            H - Reset.
+            C - Complemented.
+         */
+        case 0x3F: CCF(); break;
+
+
+        /** 
+         * 5. SCF - set carry flag
+         * 
+         *  Flags affected:
+            Z - Not affected.
+            N - Reset.
+            H - Reset.
+            C - Set.
+         */
+        case 0x37: SCF(); break;
+
+
+
+        // HALT instruction
+        case 0x76: {
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
             cpu.halted = true;
             return false; // indicate that cpu is halted
+        }
+
+        // STOP Instruction
+        case 0x10: {
+            uint8_t next = mmu_read(cpu.PC++);
+            if (next != 0x00) {
+                printf("[ERROR] 0x00 instruction expected after STOP");
+            }
+            cpu.halted = true;
+            break;
+        }
+
 
 
         default:
