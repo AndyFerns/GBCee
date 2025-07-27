@@ -82,6 +82,11 @@ bool cpu_step() {
     // CB - Prefixed Bit operations 
     if (opcode == 0xCB) {
         uint8_t cb_opcode = mmu_read(cpu.PC++);
+
+        // special logging for CB_opcodes
+        printf("[PC=0x%04X] Opcode 0xCB 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
+           pc, cb_opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
+        );
         return execute_cb_opcode(cb_opcode);
     }
 
