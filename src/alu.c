@@ -473,3 +473,46 @@ void CPL() {
     cpu.A = ~cpu.A;
     cpu.F |= FLAG_N | FLAG_H;
 }
+
+
+/**
+ * @brief CCF (complement carry flag) 
+ * 
+ * if C flag is set, then reset it 
+ * and if C flag is reset, then set it
+ * 
+ * Flags affected:
+    Z - Not affected.
+    N - Reset.
+    H - Reset.
+    C - Complemented.
+
+ * opcode 0x3F
+ *
+ * @param none
+ * 
+ * @returns void
+ */
+void CCF() {
+    cpu.F &= ~(FLAG_N | FLAG_H); // reset N and H flags
+    cpu.F ^= FLAG_C; // toggle carry flag (main logic)
+}
+
+
+/**
+ * @brief SCF (Set carry flag)
+ * 
+ * Flags affected:
+    Z - Not affected.
+    N - Reset.
+    H - Reset.
+    C - Set.
+ *
+ * @param none
+ * 
+ * @returns void
+ */
+void SCF() {
+    cpu.F &= ~(FLAG_N | FLAG_H); // reset N and H flags
+    cpu.F |= FLAG_C; // set carry flag
+}
