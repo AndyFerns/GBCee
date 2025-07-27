@@ -594,3 +594,79 @@ uint8_t RR(uint8_t value) {
 
     return result;
 }
+
+
+/**
+ * @brief SLA n - Shift n left by 1. Bit 7 → Carry. Bit 0 = 0.
+ * 
+ * Flags affected:
+ * Z - Set if result is zero.
+ * N - Reset.
+ * H - Reset.
+ * C - Old bit 7.
+ *
+ * @param val - Pointer to register or memory to shift
+ * 
+ * @returns void
+ */
+void SLA(uint8_t val) {
+    uint8_t old = val;
+    uint8_t result = old << 1;
+
+    // Set flags
+    cpu.F = 0;
+    if (result == 0) cpu.F |= FLAG_Z;
+    if (old & 0x80) cpu.F |= FLAG_C;  // old MSB
+
+    val = result;
+}
+
+
+/**
+ * @brief SRA n - Arithmetic shift right. MSB stays, LSB → Carry.
+ * 
+ * Flags affected:
+ * Z - Set if result is zero.
+ * N - Reset.
+ * H - Reset.
+ * C - Old bit 0.
+ *
+ * @param val - Pointer to register or memory to shift
+ * 
+ * @returns void
+ */
+void SRA(uint8_t val) {
+    uint8_t old = val;
+    uint8_t msb = old & 0x80;
+    uint8_t result = (old >> 1) | msb;
+
+    // Set flags
+    cpu.F = 0;
+    if (result == 0) cpu.F |= FLAG_Z;
+    if (old & 0x01) cpu.F |= FLAG_C;  // old LSB
+
+    val = result;
+}
+
+/**
+ * @brief SRL n - Logical shift right. MSB = 0. LSB → Carry.
+ * 
+ * Flags affected:
+ * Z - Set if result is zero.
+ * N - Reset.
+ * H - Reset.
+ * C - Old bit 0.
+ *
+ * @param val - Pointer to register or memory to shift
+ */
+void SRL(uint8_t val) {
+    uint8_t old = val;
+    uint8_t result = old >> 1;
+
+    // Set flags
+    cpu.F = 0;
+    if (result == 0) SET_FLAG(FLAG_Z);
+    if (old & 0x01) SET_FLAG(FLAG_C);  // old LSB
+
+    val = result;
+}
