@@ -665,8 +665,8 @@ void SRL(uint8_t val) {
 
     // Set flags
     cpu.F = 0;
-    if (result == 0) SET_FLAG(FLAG_Z);
-    if (old & 0x01) SET_FLAG(FLAG_C);  // old LSB
+    if (result == 0) cpu.F |= FLAG_Z;
+    if (old & 0x01) cpu.F |= FLAG_C;  // old LSB
 
     val = result;
 }
