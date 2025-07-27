@@ -1523,6 +1523,99 @@ bool execute_cb_opcode(uint8_t opcode) {
          */
 
 
+        // RLC A 
+        case 0x07: { 
+            bool carry;
+            cpu.A = RLC(cpu.A, &carry);
+            cpu.F = 0;
+
+            // if (cpu.A == 0) cpu.F |= FLAG_Z;
+            // dont set the Z flag for A case
+            if (carry)    cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RLC B
+        case 0x00: { 
+            bool carry;
+            cpu.B = RLC(cpu.B, &carry);
+            cpu.F = 0;
+
+            if (cpu.B == 0) cpu.F |= FLAG_Z;
+            if (carry)    cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RLC C
+        case 0x01: { 
+            bool carry;
+            cpu.C = RLC(cpu.C, &carry);
+            cpu.F = 0;
+
+            if (cpu.C == 0) cpu.F |= FLAG_Z;
+            if (carry)    cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RLC D
+        case 0x02: { 
+            bool carry;
+            cpu.D = RLC(cpu.D, &carry);
+            cpu.F = 0;
+
+            if (cpu.D == 0) cpu.F |= FLAG_Z;
+            if (carry)    cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RLC E
+        case 0x03: { 
+            bool carry;
+            cpu.E = RLC(cpu.E, &carry);
+            cpu.F = 0;
+
+            if (cpu.E == 0) cpu.F |= FLAG_Z;
+            if (carry)    cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RLC H
+        case 0x04: {
+            bool carry;
+            cpu.H = RLC(cpu.H, &carry);
+            cpu.F = 0;
+
+            if (cpu.H == 0) cpu.F |= FLAG_Z;
+            if (carry)    cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RLC L
+        case 0x05: { 
+            bool carry;
+            cpu.L = RLC(cpu.L, &carry);
+            cpu.F = 0;
+
+            if (cpu.L == 0) cpu.F |= FLAG_Z;
+            if (carry)    cpu.F |= FLAG_C;
+            break;
+        }
+
+        // RLC (HL)
+        case 0x06: { 
+            bool carry;
+            uint8_t val = mmu_read(REG_HL);
+            uint8_t result = RLC(val, &carry);
+            mmu_write(REG_HL, result);
+            cpu.F = 0;
+
+            if (result == 0) cpu.F |= FLAG_Z;
+            if (carry)      cpu.F |= FLAG_C;
+            break;
+        }
+
+
+
 
 
         /**
