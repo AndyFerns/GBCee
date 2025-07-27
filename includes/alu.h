@@ -38,6 +38,8 @@ void SCF();
 
 // rotates and shifts
 
-static uint8_t RLC(uint8_t value, bool *carry_out);
+uint8_t RLC(uint8_t value, bool *carry_out); // rotate n left
+uint8_t RL(uint8_t value, bool carry_in, bool *carry_out); // rotate n left through carry
+
 
 #endif
