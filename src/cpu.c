@@ -1233,7 +1233,24 @@ bool execute_opcode(uint8_t opcode) {
         }
     
         case 0x3B: DEC_16(&cpu.SP); break;     //DEC SP (stack pointer)
-        
+
+
+        /**
+         * 2. DAA decimal adjust register A
+         * 
+         * this instruction adjusts reg A so that the correct representation of BCD (Binary Coded Decimal) is obtained
+         * 
+         * Flags affected:
+            Z - Set if register A is zero.
+            N - Not affected.
+            H - Reset.
+            C - Set or reset according to operation
+         */
+        // DAA
+        case 0x27: {
+            DAA();
+            break;
+        }
 
         
         case 0x76: // HALT instruction
