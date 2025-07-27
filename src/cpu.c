@@ -1331,6 +1331,108 @@ bool execute_opcode(uint8_t opcode) {
         case 0xFB: cpu.ime_enable = true; break;
 
 
+        /* 3.3.6 ROTATES AND SHIFTS */
+
+        /**
+         * 1. RLCA (what)
+         * Rotate A left, Old bit 7 to carry flag 
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 7 data. 
+         */
+
+        case 0x07:{
+            uint8_t bit7 = (cpu.A >> 7) &0x01;
+            cpu.A = (cpu.A << 1) | bit7;
+
+            //flags
+            cpu.F = 0; // Z=0, N=0, H=0
+            if (bit7) {
+                cpu.F |= FLAG_C;
+            }
+            break;
+        }
+
+
+        /**
+         * 2. RLA rotate A left through carry flag
+         * 
+         * flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 7 data.
+         */
+
+        case 0x17: { // RLA
+            uint8_t carry = (cpu.F & FLAG_C) ? 1 : 0;
+            uint8_t bit7 = (cpu.A >> 7) & 0x01;
+            cpu.A = (cpu.A << 1) | carry;
+
+            // Flags
+            cpu.F = 0;
+            if (bit7) {
+                cpu.F |= FLAG_C;
+            }
+
+            break;
+        }
+
+
+        /** 
+         * 3. RRCA 
+         * Rotate A right. old bit 0 to carry flag
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 0 data.
+         */ 
+
+        case 0x0F: { // RRCA
+            uint8_t bit0 = cpu.A & 0x01;
+            cpu.A = (cpu.A >> 1) | (bit0 << 7);
+
+            // Flags
+            cpu.F = 0;
+            if (bit0) {
+                cpu.F |= FLAG_C;
+            }
+
+            break;
+        }
+
+
+        /**
+         * 4. RRA
+         * Rotate A right through carry flag
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 0 data
+         */
+
+        case 0x1F: { // RRA
+            uint8_t carry = (cpu.F & FLAG_C) ? 1 : 0;
+            uint8_t bit0 = cpu.A & 0x01;
+            cpu.A = (cpu.A >> 1) | (carry << 7);
+
+            // Flags
+            cpu.F = 0;
+            if (bit0) {
+                cpu.F |= FLAG_C;
+            }
+
+            break;
+        }
+
+
 
         // HALT instruction
         case 0x76: {
@@ -1405,6 +1507,22 @@ bool execute_cb_opcode(uint8_t opcode) {
             mmu_write(REG_HL, swap);
             break;
         }
+
+        /**
+         * RLC n
+         * rotate n left. old bit 7 to carry flag
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 7 data.
+         */
+
+
 
 
         /**
