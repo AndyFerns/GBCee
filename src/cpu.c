@@ -1773,6 +1773,92 @@ bool execute_cb_opcode(uint8_t opcode) {
         case 0x1F: cpu.A = RR(cpu.A); break;    // RR A
 
 
+        /**
+         * 9. SLA n
+         * shift n left  into carry . Least significant Bit of n set to 0
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 7 data.
+         */
+        case 0x20: SLA(&cpu.B); break;  // SLA B
+        case 0x21: SLA(&cpu.C); break;  // SLA C
+        case 0x22: SLA(&cpu.D); break;  // SLA D
+        case 0x23: SLA(&cpu.E); break;  // SLA E
+        case 0x24: SLA(&cpu.H); break;  // SLA H
+        case 0x25: SLA(&cpu.L); break;   // SLA L
+        // SLA (HL)
+        case 0x26: {
+            uint8_t val = mmu_read(REG_HL);
+            SLA(&val);
+            mmu_write(REG_HL, val);
+            break;
+        }
+        case 0x27: SLA(&cpu.A); break;   // SLA A
+
+        
+
+        /**
+         * 10. SRA n
+         * shift n right into carry. most significant bit  doesnt change
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 0 data. 
+         */
+        case 0x28: SRA(&cpu.B); break;  // SRA B
+        case 0x29: SRA(&cpu.C); break;  // SRA C
+        case 0x2A: SRA(&cpu.D); break;  // SRA D
+        case 0x2B: SRA(&cpu.E); break;  // SRA E
+        case 0x2C: SRA(&cpu.H); break;  // SRA H
+        case 0x2D: SRA(&cpu.L); break;  // SRA L
+          // SRA (HL)
+        case 0x2E: {
+            uint8_t val = mmu_read(REG_HL);
+            SRA(&val);
+            mmu_write(REG_HL, val);
+            break;
+        }
+        case 0x2F: SRA(&cpu.A); break;  // SRA A
+
+
+        /**
+         * 11. SRL n
+         * shift n right into carry. MSB (most significant bit) set to 0
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL)
+         * 
+         * flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 0 data.
+         */
+        case 0x38: SRL(&cpu.B); break;  // SRL B
+        case 0x39: SRL(&cpu.C); break;  // SRL C
+        case 0x3A: SRL(&cpu.D); break;  // SRL D
+        case 0x3B: SRL(&cpu.E); break;  // SRL E
+        case 0x3C: SRL(&cpu.H); break;  // SRL H
+        case 0x3D: SRL(&cpu.L); break;  // SRL L
+          // SRL (HL)
+        case 0x3E: {
+            uint8_t val = mmu_read(HL());
+            SRL(&val);
+            mmu_write(HL(), val);
+            break;
+        }
+        case 0x3F: SRL(&cpu.A); break;  // SRL A
 
 
 
