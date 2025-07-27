@@ -1476,6 +1476,15 @@ bool execute_cb_opcode(uint8_t opcode) {
         Preserve C
         According to gameboy spec BIT instructions
     */
+
+    
+    // array to auto generate the 64 BIT b,r instructions
+    // Indexes 0-7 correspond to: B, C, D, E, H, L, (HL), A
+    uint8_t* const regs[] = {
+        &cpu.B, &cpu.C, &cpu.D, &cpu.E, &cpu.H, &cpu.L, NULL, &cpu.A 
+    };
+
+    // switch case for each CB-prefixed opcodes
     switch(opcode) {
         /**
          * 1. SWAP n
@@ -1853,113 +1862,105 @@ bool execute_cb_opcode(uint8_t opcode) {
         case 0x3D: SRL(&cpu.L); break;  // SRL L
           // SRL (HL)
         case 0x3E: {
-            uint8_t val = mmu_read(HL());
+            uint8_t val = mmu_read(REG_HL);
             SRL(&val);
-            mmu_write(HL(), val);
+            mmu_write(REG_HL, val);
             break;
         }
         case 0x3F: SRL(&cpu.A); break;  // SRL A
 
 
+        /* 3.3.7 BIT OPCODES */
 
         /**
-         * BIT
+         * 1. BIT b, r
+         * test bit b in register r
+         * 
+         * use with:
+         *  b = 0 - 7, r = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if bit b of register r is 0.
+            N - Reset.
+            H - Set.
+            C - Not affected.
          */
-        // BIT 0, B
-        case 0x40: 
-            cpu.F &= FLAG_C; // preserve C
-            cpu.F |= FLAG_H; // always set H
-            cpu.F &= ~FLAG_N; // clear N
 
-            if ((cpu.B & (1 << 0)) == 0)
-                cpu.F |= FLAG_Z;
-            else
-                cpu.F &= ~FLAG_Z;
+        // table for auto-generating all 64opcodes for BIT
+        // CB opcodes from 0xC0 to 0x7F
+        case 0x40 ... 0x7F: {
+            uint8_t bit = (opcode >> 3) & 0x07;     //extracted bit number
+            uint8_t index = opcode & 0x07;     // extracted register index
+
+            // register (HL) case
+            if (index == 6) {
+                uint8_t val = mmu_read(REG_HL);
+                BIT(val, bit);
+            } else {
+                // BIT b, r (registers B, C, D, E, H, L, A)
+                BIT(*regs[index], bit);
+            }
             break;
+        }
 
-        // BIT 0, C
-        case 0x41:
-            cpu.F &= FLAG_C; // preserve C
-            cpu.F |= FLAG_H; // always set H
-            cpu.F &= ~FLAG_N; // clear N
 
-            if ((cpu.C & (1 << 0)) == 0)
-                cpu.F |= FLAG_Z;
-            else
-                cpu.F &= ~FLAG_Z;
+        /**
+         * 2. SET b, r
+         * SETs bit b in register R
+         * 
+         * use with:
+         *  b = 0 - 7, r = A,B,C,D,E,H,L,(HL)
+         * 
+         * flags affected: none
+         */
+
+        // table for auto generating all of the bitcodes for SET
+        // CB opcodes 0xC0 to 0xFF
+        case 0xC0 ... 0xFF: {
+            uint8_t bit = (opcode >> 3) & 0x07; //extract bit index (b)
+            uint8_t index = opcode & 0x07; // extract register index (r)
+
+            // register (HL)case
+            if (index == 6) {
+                uint8_t val = mmu_read(REG_HL);
+                SET(&val, bit); // SET bit "bit" in val
+                mmu_write(REG_HL, val); // write it back
+            } else {
+                // register case
+                SET((uint8_t*)regs[index], bit); // typecast away const
+            }
             break;
+        }
 
-        // BIT 0, D
-        case 0x42:
-            cpu.F &= FLAG_C; // preserve C
-            cpu.F |= FLAG_H; // always set H
-            cpu.F &= ~FLAG_N; // clear N
 
-            if ((cpu.D & (1 << 0)) == 0)
-                cpu.F |= FLAG_Z;
-            else
-                cpu.F &= ~FLAG_Z;
-            break;
+        /**
+         * 3. RES b, r
+         * reset bit b in register r
+         * 
+         * use with:
+         * b = 0 - 7, r = A,B,C,D,E,H,L,(HL)
+         * 
+         * flags affected: none
+         */
+        // table to auto generate the CB-prefixed opcodes
+        // CB opcodes: 0x80 to 0xBF
+        case 0x80 ... 0xBF: {
+            uint8_t bit = (opcode >> 3) & 0x07;     //extract bit index (b)
+            uint8_t index = opcode & 0x07;          // extract register index (r) 
         
-        // BIT 0, E
-        case 0x43:
-            cpu.F &= FLAG_C; // preserve C
-            cpu.F |= FLAG_H; // always set H
-            cpu.F &= ~FLAG_N; // clear N
-
-            if ((cpu.E & (1 << 0)) == 0)
-                cpu.F |= FLAG_Z;
-            else
-                cpu.F &= ~FLAG_Z;
+            // register (HL) case
+            if (index == 6) {
+                uint8_t val = mmu_read(REG_HL);
+                RES(&val, bit);     // clear bit 'bit' in val
+                mmu_write(REG_HL, val); // write it back
+            } else {
+                // register case
+                RES((uint8_t*)regs[index], bit);    //cast away const
+            }
             break;
+        }
 
-        // BIT 0, H
-        case 0x44:
-            cpu.F &= FLAG_C; // preserve C
-            cpu.F |= FLAG_H; // always set H
-            cpu.F &= ~FLAG_N; // clear N
 
-            if ((cpu.H & (1 << 0)) == 0)
-                cpu.F |= FLAG_Z;
-            else
-                cpu.F &= ~FLAG_Z;
-            break;
-
-        // BIT 0, L
-        case 0x45:
-            cpu.F &= FLAG_C; // preserve C
-            cpu.F |= FLAG_H; // always set H
-            cpu.F &= ~FLAG_N; // clear N
-
-            if ((cpu.L & (1 << 0)) == 0)
-                cpu.F |= FLAG_Z;
-            else
-                cpu.F &= ~FLAG_Z;
-            break;
-
-        // // BIT 0, (HL)
-        // case 0x46:
-        //     printf("Not implemented");
-        //     return false;
-        //     break;
-
-        // BIT 0, A
-        case 0x47:
-            cpu.F &= FLAG_C; // preserve C
-            cpu.F |= FLAG_H; // always set H
-            cpu.F &= ~FLAG_N; // clear N
-
-            if ((cpu.A & (1 << 0)) == 0)
-                cpu.F |= FLAG_Z;
-            else
-                cpu.F &= ~FLAG_Z;
-            break;
-
-        // SET
-        // yet to be implemented
-
-        // RES 
-        // yet to be implemented
 
         default: 
             printf("[CB] Unimplemented opcode: 0x%02X\n", opcode);
