@@ -528,10 +528,10 @@ void SCF() {
  * 
  * @return uint8_t Result of rotation
  */
-static uint8_t RLC(uint8_t value, bool *carry_out) {
-    uint8_t bit7 = (value >> 7) | 0x01;
-    uint8_t result = (value << 1) | bit7;
+uint8_t RLC(uint8_t value, bool *carry_out) {
+    bool bit7 = (value & 0x80) != 0;                // Check if bit 7 is set
+    uint8_t result = (value << 1) | (bit7 ? 1 : 0); // Rotate left, wrap bit7 to bit0
 
-    *carry_out = bit7; //assign 7 bit value to carry flag
+    *carry_out = bit7;
     return result;
 }
