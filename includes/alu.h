@@ -10,6 +10,9 @@ void ADC_A(uint8_t val);
 void SUB_A(uint8_t val);
 void SBC_A(uint8_t val);
 void CP_A(uint8_t val);
+uint8_t INC(uint8_t val);
+uint8_t DEC(uint8_t val);
+
 
 // 16- bit arithmetic ops
 
@@ -27,8 +30,7 @@ void XOR_A(uint8_t val);
 
 // misc ALU ops
 
-uint8_t INC(uint8_t val);
-uint8_t DEC(uint8_t val);
+uint8_t SWAP(uint8_t val);
 void DAA();
 void CPL();
 
