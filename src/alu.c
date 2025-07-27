@@ -323,8 +323,28 @@ void XOR_A(uint8_t val) {
  */
 
 /**
- *  1. SWAP n -TBD
+ *  @brief SWAP swap upper and lower nibbles of 8-bit values
+ * 
+ * Flags affected:  
+ *  Z - Set if result is 0
+ *  N - Reset
+ *  H - Reset
+ *  C - Reset
+ * 
+ * 
+ * 
  */
+uint8_t SWAP(uint8_t val) {
+    uint8_t result = (val >> 4) | (val << 4);
+
+    cpu.F = 0; // clear all flags
+
+    if (result == 0) {
+        cpu.F = FLAG_Z; // set Z flag if result is 0
+    }
+    return result;
+}
+
 
 
 /**
