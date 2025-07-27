@@ -1711,6 +1711,67 @@ bool execute_cb_opcode(uint8_t opcode) {
             break;
         }
 
+        /** 
+         * 7. RRC n
+         * rotate n right 
+         * old bit 0 to carry flag
+         * 
+         * use with:
+         * n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 0 data.
+         */
+        case 0x08: cpu.B = RRC(cpu.B); break;    // RRC B
+        case 0x09: cpu.C = RRC(cpu.C); break;    // RRC C 
+        case 0x0A: cpu.D = RRC(cpu.D); break;    // RRC D
+        case 0x0B: cpu.E = RRC(cpu.E); break;    // RRC E
+        case 0x0C: cpu.H = RRC(cpu.H); break;    // RRC H
+        case 0x0D: cpu.L = RRC(cpu.L); break;    // RRC L
+        
+        // RRC (HL)
+        case 0x0E: {
+            uint16_t addr = REG_HL;
+            uint8_t val = mmu_read(addr);
+            mmu_write(addr, RRC(val));
+            return 16;
+        }
+        case 0x0F: cpu.A = RRC(cpu.A); break;   // RRC A
+        
+
+
+        /**
+         * 8. RR n
+         * rotate n right through carry flag
+         * 
+         * use with:
+         *  n = A,B,C,D,E,H,L,(HL)
+         * 
+         * Flags affected:
+            Z - Set if result is zero.
+            N - Reset.
+            H - Reset.
+            C - Contains old bit 0 data.
+         */
+        case 0x18: cpu.B = RR(cpu.B); break;    // RR B
+        case 0x19: cpu.C = RR(cpu.C); break;    // RR C
+        case 0x1A: cpu.D = RR(cpu.D); break;    // RR D
+        case 0x1B: cpu.E = RR(cpu.E); break;    // RR E
+        case 0x1C: cpu.H = RR(cpu.H); break;    // RR H
+        case 0x1D: cpu.L = RR(cpu.L); break;    // RR L
+        
+        // RR (HL)
+        case 0x1E: {
+            uint16_t addr = REG_HL;
+            uint8_t val = mmu_read(addr);
+            mmu_write(addr, RR(val));
+            return 16;
+        }
+        case 0x1F: cpu.A = RR(cpu.A); break;    // RR A
+
 
 
 
