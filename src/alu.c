@@ -730,6 +730,6 @@ void SET(uint8_t* value, uint8_t bit) {
  * @param value Pointer to register or memory location.
  * @param bit   Bit index to reset (0 to 7).
  */
-static void RES(uint8_t* value, uint8_t bit) {
+void RES(uint8_t* value, uint8_t bit) {
     *value &= ~(1 << bit);
 }
