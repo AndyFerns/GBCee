@@ -28,23 +28,23 @@ Here’s the milestone roadmap sorted into logical steps. Let’s track your pro
 
 - [ ] Implement the full instruction set (~500 opcodes including CB-prefix ones).
 
-- [ ] All 8-bit loads: LD r1, r2, LD r, (HL), LD (HL), r
+- [x] All 8-bit loads: LD r1, r2, LD r, (HL), LD (HL), r
 
-- [ ] 16-bit loads: LD rr, nn, PUSH, POP, LD SP, HL
+- [x] 16-bit loads: LD rr, nn, PUSH, POP, LD SP, HL
 
-- [ ] Arithmetic/logic: ADD, SUB, ADC, SBC, AND, OR, XOR, CP
+- [x] Arithmetic/logic: ADD, SUB, ADC, SBC, AND, OR, XOR, CP
 
 - [ ] Jumps/calls/returns: JP, CALL, RET, JR, RST, conditional versions
 
-- [ ] Rotate/shift ops: RLC, RR, SLA, etc.
+- [x] Rotate/shift ops: RLC, RR, SLA, etc.
 
-- [ ] CB-prefixed instructions (0xCB): extended bit-level ops
+- [x] CB-prefixed instructions (0xCB): extended bit-level ops
 
-- [ ] Add a “not yet implemented” fallback so you can stub these gradually.
+- [x] Add a “not yet implemented” fallback so you can stub these gradually.
 
 ## Memory Map Implementation
 
-- [ ] Map the Game Boy’s memory layout:
+- [x] Map the Game Boy’s memory layout:
 
 - [ ] ROM Bank 0 (0x0000–0x3FFF)
 
