@@ -13,14 +13,12 @@ void CP_A(uint8_t val);
 uint8_t INC(uint8_t val);
 uint8_t DEC(uint8_t val);
 
-
 // 16- bit arithmetic ops
 
 void ADD_HL(uint16_t val);
 void ADD_SP(uint16_t val);
 void INC_16(uint16_t *regist);
 void DEC_16(uint16_t *regist);
-
 
 // Logical Operations
 
@@ -46,5 +44,11 @@ uint8_t RR(uint8_t value); // rotate n right through carry
 void SLA(uint8_t *val); // shift n left by 1
 void SRA(uint8_t *val); // shift n arithmetic right
 void SRL(uint8_t *val); // logical shift right
+
+// BIT Opcodes
+
+void BIT(uint8_t val, uint8_t bit);
+void SET(uint8_t *val, uint8_t bit);
+void RES(uint8_t *val, uint8_t bit);
 
 #endif
