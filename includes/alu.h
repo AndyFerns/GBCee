@@ -33,5 +33,7 @@ void XOR_A(uint8_t val);
 uint8_t SWAP(uint8_t val);
 void DAA();
 void CPL();
+void CCF();
+void SCF();
 
 #endif
