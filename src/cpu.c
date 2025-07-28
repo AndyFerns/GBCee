@@ -128,41 +128,6 @@ bool execute_opcode(uint8_t opcode) {
             // cpu.PC++;
             break;
 
-        // program execution flow transferred to new memory address "n n"       
-        // JP nn
-        case 0xC3: {
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC = addr;
-            break;
-        }
-
-        // Branching Instructions
-        // JR n (signed offset)
-        case 0x18: {
-            int8_t offset = (int8_t)mmu_read(cpu.PC++);
-            cpu.PC += offset;
-            break;
-        }
-
-        // CALL nn
-        case 0xCD:{
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
-            mmu_write(--cpu.SP, (cpu.PC >> 8));
-            mmu_write(--cpu.SP, (cpu.PC & 0xFF));
-            cpu.PC = addr;
-            break;
-        }
-
-        // RET 
-        case 0xC9:{
-            uint8_t lo = mmu_read(cpu.SP);
-            uint8_t hi = mmu_read(cpu.SP + 1);
-            cpu.SP += 2;
-            cpu.PC = (hi << 8) | lo;
-            break;
-        }
-
         /* 8-bit Load operations */
 
         /** 
@@ -1438,6 +1403,49 @@ bool execute_opcode(uint8_t opcode) {
         }
 
 
+
+        /* JUMPS (van halen moment)*/
+        /**
+         * 1. JP, nn
+         * jump to address nn 
+         * 
+         * use with: 
+         *  nn = two byte immediate value. (least significant byte first.)
+         */
+   
+        // JP nn
+        case 0xC3: {
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC = addr;
+            break;
+        }
+
+        // Branching Instructions
+        // JR n (signed offset)
+        case 0x18: {
+            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            cpu.PC += offset;
+            break;
+        }
+
+        // CALL nn
+        case 0xCD:{
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC += 2;
+            mmu_write(--cpu.SP, (cpu.PC >> 8));
+            mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+            cpu.PC = addr;
+            break;
+        }
+
+        // RET 
+        case 0xC9:{
+            uint8_t lo = mmu_read(cpu.SP);
+            uint8_t hi = mmu_read(cpu.SP + 1);
+            cpu.SP += 2;
+            cpu.PC = (hi << 8) | lo;
+            break;
+        }
 
         // HALT instruction
         case 0x76: {
