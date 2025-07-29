@@ -1420,13 +1420,142 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
-        // Branching Instructions
+        /**
+         * 2. JP cc, nn
+         * 
+         * jump to address n if following conditions are true:
+         * cc = NZ, jump if Z flag is reset
+         * cc = Z, jump if Z flag is set
+         * cc = NC, jump if C flag is reset
+         * cc = C, jump if C flag is set
+         * 
+         * use with:
+         * nn = two byte immediate value. (least significant  byte first.)
+         * 
+         */
+
+        // JP NZ nn
+        case 0xC2:{
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            if (!FLAG_Z) {
+                cpu.PC = addr;
+            } else {
+                cpu.PC += 2;
+            }
+
+            break;
+        }
+
+        // JP Z nn
+        case 0xCA:{
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            if (FLAG_Z) {
+                cpu.PC = addr;
+            } else {
+                cpu.PC += 2;
+            }
+
+            break;
+        }
+
+        // JP NC nn
+        case 0xD2:{
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            if (!FLAG_C) {
+                cpu.PC = addr;
+            } else {
+                cpu.PC += 2;
+            }
+
+            break;
+        }
+        
+        // JP C nn
+        case 0xDA:{
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            if (FLAG_C) {
+                cpu.PC = addr;
+            } else {
+                cpu.PC += 2;
+            }
+
+            break;
+        }
+
+
+        /**
+         * 3. JP HL
+         * jump to address contained in HL 16-bit register
+         * 
+         */
+
+        // JP HL 
+        case 0xE9: cpu.PC = REG_HL; break;
+
+
+        /**
+         * 4. JR n
+         * add n to current address and jump to it
+         * 
+         * use with:
+         * n = one byte signed immediate value 
+         */
+
         // JR n (signed offset)
         case 0x18: {
             int8_t offset = (int8_t)mmu_read(cpu.PC++);
             cpu.PC += offset;
             break;
         }
+
+        /**
+         * 5. JR cc, n
+         * if following condition is true, then add n to current address and jump to it
+         * 
+         * use with:
+         *  n = one byte signed immediate value
+            cc = NZ, Jump if Z flag is reset.
+            cc = Z, Jump if Z flag is set.
+            cc = NC, Jump if C flag is reset.
+            cc = C, Jump if C flag is set
+         */
+
+        // JR NZ, * opcode 0x20
+        case 0x20: {
+            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            if (!FLAG_Z) {
+                cpu.PC += offset;
+            }
+            break;
+        }
+
+        // JR Z, * opcode 0x28
+        case 0x28: {
+            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            if (FLAG_Z) {
+                cpu.PC += offset;
+            }
+            break;
+        }
+
+        // JR NC, * opcode 0x30
+        case 0x30: {
+            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            if (!FLAG_C) {
+                cpu.PC += offset;
+            }
+            break;
+        }
+
+        // JR C, * opcode 0x38
+        case 0x38: {
+            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            if (FLAG_C) {
+                cpu.PC += offset;
+            }
+            break;
+        }
+
 
         // CALL nn
         case 0xCD:{
