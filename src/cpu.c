@@ -1557,6 +1557,15 @@ bool execute_opcode(uint8_t opcode) {
         }
 
 
+        /* CALLS */
+
+        /**
+         * 1. CALL nn 
+         * puts address of next instruction onto stack and then jumps to address nn
+         * 
+         * use with:
+         * nn = two byte immediate value (Least Significant byte first)
+         */
         // CALL nn
         case 0xCD:{
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
@@ -1566,6 +1575,67 @@ bool execute_opcode(uint8_t opcode) {
             cpu.PC = addr;
             break;
         }
+
+        /**
+         * 2. CALL cc, nn 
+         * call addr n if following conditions are true:
+            cc = NZ, Call if Z flag is reset.
+            cc = Z, Call if Z flag is set.
+            cc = NC, Call if C flag is reset.
+            cc = C, Call if C flag is set.
+         * 
+         * use with:
+         * nn = two byte immediate value (Least significant byte first)
+         */
+
+        // CALL NZ, nn
+        case 0xC4: {
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC += 2;
+            if ((cpu.F & FLAG_Z) == 0) {
+                mmu_write(--cpu.SP, (cpu.PC >> 8));
+                mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+                cpu.PC = addr;
+            }
+            break;
+        }
+
+        // CALL Z, nn
+        case 0xCC: {
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC += 2;
+            if ((cpu.F & FLAG_Z) != 0) {
+                mmu_write(--cpu.SP, (cpu.PC >> 8));
+                mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+                cpu.PC = addr;
+            }
+            break;
+        }
+
+        // CALL NC, nn
+        case 0xD4: {
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC += 2;
+            if ((cpu.F & FLAG_C) == 0) {
+                mmu_write(--cpu.SP, (cpu.PC >> 8));
+                mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+                cpu.PC = addr;
+            }
+            break;
+        }
+
+        // CALL C, nn
+        case 0xDC: {
+            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
+            cpu.PC += 2;
+            if ((cpu.F & FLAG_C) != 0) {
+                mmu_write(--cpu.SP, (cpu.PC >> 8));
+                mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+                cpu.PC = addr;
+            }
+            break;
+        }
+
 
         // RET 
         case 0xC9:{
