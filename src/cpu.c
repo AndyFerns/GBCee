@@ -1437,10 +1437,9 @@ bool execute_opcode(uint8_t opcode) {
         // JP NZ nn
         case 0xC2:{
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            if (!FLAG_Z) {
+            cpu.PC += 2;
+            if ((cpu.F & FLAG_Z) == 0) {
                 cpu.PC = addr;
-            } else {
-                cpu.PC += 2;
             }
 
             break;
@@ -1449,11 +1448,10 @@ bool execute_opcode(uint8_t opcode) {
         // JP Z nn
         case 0xCA:{
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            if (FLAG_Z) {
+            cpu.PC += 2;
+            if ((cpu.F & FLAG_Z) != 0) {
                 cpu.PC = addr;
-            } else {
-                cpu.PC += 2;
-            }
+            } 
 
             break;
         }
@@ -1461,11 +1459,10 @@ bool execute_opcode(uint8_t opcode) {
         // JP NC nn
         case 0xD2:{
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            if (!FLAG_C) {
+            cpu.PC += 2;
+            if ((cpu.F & FLAG_C) == 0) {
                 cpu.PC = addr;
-            } else {
-                cpu.PC += 2;
-            }
+            } 
 
             break;
         }
@@ -1473,10 +1470,9 @@ bool execute_opcode(uint8_t opcode) {
         // JP C nn
         case 0xDA:{
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            if (FLAG_C) {
+            cpu.PC += 2;
+            if ((cpu.F & FLAG_C) != 0) {
                 cpu.PC = addr;
-            } else {
-                cpu.PC += 2;
             }
 
             break;
@@ -1523,7 +1519,7 @@ bool execute_opcode(uint8_t opcode) {
         // JR NZ, * opcode 0x20
         case 0x20: {
             int8_t offset = (int8_t)mmu_read(cpu.PC++);
-            if (!FLAG_Z) {
+            if ((cpu.F & FLAG_Z) == 0) {
                 cpu.PC += offset;
             }
             break;
@@ -1532,7 +1528,7 @@ bool execute_opcode(uint8_t opcode) {
         // JR Z, * opcode 0x28
         case 0x28: {
             int8_t offset = (int8_t)mmu_read(cpu.PC++);
-            if (FLAG_Z) {
+            if ((cpu.F & FLAG_Z) != 0) {
                 cpu.PC += offset;
             }
             break;
@@ -1541,7 +1537,7 @@ bool execute_opcode(uint8_t opcode) {
         // JR NC, * opcode 0x30
         case 0x30: {
             int8_t offset = (int8_t)mmu_read(cpu.PC++);
-            if (!FLAG_C) {
+            if ((cpu.F & FLAG_C) == 0) {
                 cpu.PC += offset;
             }
             break;
@@ -1550,7 +1546,7 @@ bool execute_opcode(uint8_t opcode) {
         // JR C, * opcode 0x38
         case 0x38: {
             int8_t offset = (int8_t)mmu_read(cpu.PC++);
-            if (FLAG_C) {
+            if ((cpu.F & FLAG_C) != 0) {
                 cpu.PC += offset;
             }
             break;
