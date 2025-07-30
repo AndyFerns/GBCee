@@ -1695,16 +1695,48 @@ bool execute_opcode(uint8_t opcode) {
             cc = C, R
          */
         // RET NZ
-        case 0xC0: break;
+        case 0xC0: {
+            if ((cpu.F & FLAG_Z) == 0) {
+                uint8_t low = mmu_read(cpu.SP);
+                uint8_t high = mmu_read(cpu.SP + 1);
+                cpu.SP += 2;
+                cpu.PC = (high << 8) | low;
+            }
+            break;
+        }
 
         // RET Z
-        case 0xC8: break;
+        case 0xC8: {
+            if ((cpu.F & FLAG_Z) != 0) {
+                uint8_t low = mmu_read(cpu.SP);
+                uint8_t high = mmu_read(cpu.SP + 1);
+                cpu.SP += 2;
+                cpu.PC = (high << 8) | low;
+            }
+            break;
+        }
 
         // RET NC
-        case 0xD0: break;
+        case 0xD0: {           
+            if ((cpu.F & FLAG_C) == 0) {
+                uint8_t low = mmu_read(cpu.SP);
+                uint8_t high = mmu_read(cpu.SP + 1);
+                cpu.SP += 2;
+                cpu.PC = (high << 8) | low;
+            }
+            break;
+        }
 
         // RET C
-        case 0xD8: break;
+        case 0xD8: {
+            if ((cpu.F & FLAG_C) != 0) {
+                uint8_t low = mmu_read(cpu.SP);
+                uint8_t high = mmu_read(cpu.SP + 1);
+                cpu.SP += 2;
+                cpu.PC = (high << 8) | low;
+            }
+            break;
+        }
 
 
         /**
@@ -1713,8 +1745,14 @@ bool execute_opcode(uint8_t opcode) {
          */
 
          // RETI 
-         case 0xD9: {break;}
-
+        case 0xD9: {
+            uint8_t low = mmu_read(cpu.SP);
+            uint8_t high = mmu_read(cpu.SP + 1);
+            cpu.SP += 2;
+            cpu.PC = (high << 8) | low;
+            cpu.ime = true; // enable ime immediately without delay
+            break;
+        }
 
 
         // HALT instruction
