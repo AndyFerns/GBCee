@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "cpu.h"
+#include "mmu.h"
 
 /* Flag bit Masks 
  * GameBoy CPU:
@@ -732,4 +733,16 @@ void SET(uint8_t* value, uint8_t bit) {
  */
 void RES(uint8_t* value, uint8_t bit) {
     *value &= ~(1 << bit);
+}
+
+
+/* HELPER STACK OPERATIONS */
+/**
+ * @brief push16 used to push a 16-bit value into the memory stack 
+ * 
+ * @param val 
+ */
+void push16(uint16_t val) {
+    mmu_write(--cpu.SP, (val >> 8) & 0xFF); // higher byte
+    mmu_write(--cpu.SP, val & 0xFF);    // lower byte
 }
