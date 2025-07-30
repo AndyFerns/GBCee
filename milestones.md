@@ -26,7 +26,7 @@ Here’s the milestone roadmap sorted into logical steps. Let’s track your pro
 
 ## CPU: Core Instruction Set
 
-- [ ] Implement the full instruction set (~500 opcodes including CB-prefix ones).
+- [x] Implement the full instruction set (~500 opcodes including CB-prefix ones).
 
 - [x] All 8-bit loads: LD r1, r2, LD r, (HL), LD (HL), r
 
@@ -34,7 +34,7 @@ Here’s the milestone roadmap sorted into logical steps. Let’s track your pro
 
 - [x] Arithmetic/logic: ADD, SUB, ADC, SBC, AND, OR, XOR, CP
 
-- [ ] Jumps/calls/returns: JP, CALL, RET, JR, RST, conditional versions
+- [x] Jumps/calls/returns: JP, CALL, RET, JR, RST, conditional versions
 
 - [x] Rotate/shift ops: RLC, RR, SLA, etc.
 
@@ -56,7 +56,7 @@ Here’s the milestone roadmap sorted into logical steps. Let’s track your pro
 
 - [ ] WRAM, Echo RAM, OAM, IO, etc.
 
-- 🧠 Use a read_byte() and write_byte() abstraction for MMU.
+- [x] Use a read_byte() and write_byte() abstraction for MMU.
 
 ## Input Handling
 
