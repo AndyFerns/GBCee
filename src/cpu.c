@@ -1632,7 +1632,51 @@ bool execute_opcode(uint8_t opcode) {
             break;
         }
 
+        /**
+         * 3.3.10 RESTARTS
+         * 
+         * 1. RST n
+         * push present address onto stack
+         * jump to address $0000 + n
+         * 
+         * use with:
+         *  n = $00,$08,$10,$18,$20,$28,$30,$38
+         */
+        
+        // RST 00H 
+        case 0xC7: push16(cpu.PC); cpu.PC = 0x00; break;
+        
+        // RST 08H 
+        case 0xCF: push16(cpu.PC); cpu.PC = 0x08; break;
+        
+        // RST 10H 
+        case 0xD7: push16(cpu.PC); cpu.PC = 0x10; break;
+        
+        // RST 18H 
+        case 0xDF: push16(cpu.PC); cpu.PC = 0x18; break;
+        
+        // RST 20H 
+        case 0xE7: push16(cpu.PC); cpu.PC = 0x20; break;
+        
+        // RST 28H 
+        case 0xEF: push16(cpu.PC); cpu.PC = 0x28; break;
+        
+        // RST 30H 
+        case 0xF7: push16(cpu.PC); cpu.PC = 0x30; break;
+        
+        // RST 38H 
+        case 0xFF: push16(cpu.PC); cpu.PC = 0x38; break;
 
+
+
+        /* RETURNS */
+
+        /**
+         * 1 RET
+         * pop two bytes from stack and jump to that address
+         * 
+         * opcode: 0xC9
+         */
         // RET 
         case 0xC9:{
             uint8_t lo = mmu_read(cpu.SP);
@@ -1641,6 +1685,37 @@ bool execute_opcode(uint8_t opcode) {
             cpu.PC = (hi << 8) | lo;
             break;
         }
+
+        /**
+         * 2. RET cc
+         * return if the conditions are true:
+            cc = NZ, Return if Z flag is reset.
+            cc = Z, Return if Z flag is set.
+            cc = NC, Return if C flag is reset.
+            cc = C, R
+         */
+        // RET NZ
+        case 0xC0: break;
+
+        // RET Z
+        case 0xC8: break;
+
+        // RET NC
+        case 0xD0: break;
+
+        // RET C
+        case 0xD8: break;
+
+
+        /**
+         * 3. RETI
+         * pop two bytes from stack and jump to that address then enable interrupts
+         */
+
+         // RETI 
+         case 0xD9: {break;}
+
+
 
         // HALT instruction
         case 0x76: {
