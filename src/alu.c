@@ -740,6 +740,8 @@ void RES(uint8_t* value, uint8_t bit) {
 /**
  * @brief push16 used to push a 16-bit value into the memory stack 
  * 
+ *  The stack grows downward so high byte is pushed first (big-endian on stack)
+ * 
  * @param val 
  */
 void push16(uint16_t val) {
