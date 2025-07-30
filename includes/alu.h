@@ -51,4 +51,7 @@ void BIT(uint8_t val, uint8_t bit);
 void SET(uint8_t *val, uint8_t bit);
 void RES(uint8_t *val, uint8_t bit);
 
+// STACK - based operations
+void push16(uint16_t val);
+
 #endif
