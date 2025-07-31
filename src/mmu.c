@@ -77,13 +77,41 @@ void init_mmu() {
     interrupt_flag = 0;
 }
 
+
+
 /**
- * mmu_read - See header.
+ * @brief Reads a byte from the full memory map.
+ *
+ * Handles memory bank redirection as per address range.
+ *
+ * @param addr Address to read from.
+ * @return Value at that address.
  */
 uint8_t mmu_read(uint16_t addr) {
-    if (addr < 0x8000)
-        return rom[addr]; // ROM is read-only
-    return ram[addr];
+    if (addr < 0x8000) {
+        return rom[addr]; // TODO: handle banking later
+    } else if (addr >= 0x8000 && addr <= 0x9FFF) {
+        return vram[addr - 0x8000];
+    } else if (addr >= 0xA000 && addr <= 0xBFFF) {
+        return eram[addr - 0xA000];
+    } else if (addr >= 0xC000 && addr <= 0xDFFF) {
+        return wram[addr - 0xC000];
+    } else if (addr >= 0xE000 && addr <= 0xFDFF) {
+        // Echo RAM (mirror of 0xC000–0xDDFF)
+        return wram[addr - 0xE000];
+    } else if (addr >= 0xFE00 && addr <= 0xFE9F) {
+        return oam[addr - 0xFE00];
+    } else if (addr == 0xFF0F) {
+        return interrupt_flag;
+    } else if (addr >= 0xFF00 && addr <= 0xFF7F) {
+        return io[addr - 0xFF00];
+    } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
+        return hram[addr - 0xFF80];
+    } else if (addr == 0xFFFF) {
+        return interrupt_enable;
+    }
+
+    return 0xFF; // Unmapped memory
 }
 
 /**
