@@ -31,25 +31,25 @@
 
 // Cartridge ROM region
 // DONT KEEP STATIC FOR THE LOVE OF ALL THATS GOOD
-uint8_t rom[0x8000]; 
+uint8_t rom[MAX_ROM_SIZE]; 
 
 /// VRAM: 8KB (0x8000–0x9FFF)
-static uint8_t vram[0x2000];
+static uint8_t vram[VRAM_SIZE];
 
 /// External RAM (cartridge): 8KB (0xA000–0xBFFF)
-static uint8_t eram[0x2000];
+static uint8_t eram[MAX_ERAM_SIZE];
 
 /// Work RAM (WRAM): 8KB (0xC000–0xDFFF)
-static uint8_t wram[0x2000];
+static uint8_t wram[WRAM_SIZE];
 
 /// High RAM (HRAM): 127B (0xFF80–0xFFFE)
-static uint8_t hram[0x7F];
+static uint8_t hram[HRAM_SIZE];
 
 /// Sprite Attribute Table (OAM): 160B (0xFE00–0xFE9F)
-static uint8_t oam[0xA0];
+static uint8_t oam[OAM_SIZE];
 
 /// IO Ports: 128B (0xFF00–0xFF7F)
-static uint8_t io[0x80];
+static uint8_t io[IO_SIZE];
 
 /// Interrupt Enable Register (0xFFFF)
 static uint8_t interrupt_enable;
@@ -88,7 +88,7 @@ void init_mmu() {
  * @return Value at that address.
  */
 uint8_t mmu_read(uint16_t addr) {
-    if (addr < 0x8000) {
+    if (addr < MAX_ROM_SIZE) {
         return rom[addr]; // TODO: handle banking later
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {
         return vram[addr - 0x8000];
@@ -114,10 +114,36 @@ uint8_t mmu_read(uint16_t addr) {
     return 0xFF; // Unmapped memory
 }
 
+
 /**
- * mmu_write - See header.
+ * @brief Writes a byte to the full memory map.
+ *
+ * Handles memory protection and mirroring.
+ *
+ * @param addr Address to write to.
+ * @param value Byte to write.
  */
 void mmu_write(uint16_t addr, uint8_t value) {
-    if (addr < 0x8000) return; // ROM is read-only
-    ram[addr] = value;
+    if (addr < MAX_ROM_SIZE) {
+        // TODO: Handle MBC register writes for ROM banking
+        return; // ROM is read-only
+    } else if (addr >= 0x8000 && addr <= 0x9FFF) {
+        vram[addr - 0x8000] = value;
+    } else if (addr >= 0xA000 && addr <= 0xBFFF) {
+        eram[addr - 0xA000] = value;
+    } else if (addr >= 0xC000 && addr <= 0xDFFF) {
+        wram[addr - 0xC000] = value;
+    } else if (addr >= 0xE000 && addr <= 0xFDFF) {
+        wram[addr - 0xE000] = value;
+    } else if (addr >= 0xFE00 && addr <= 0xFE9F) {
+        oam[addr - 0xFE00] = value;
+    } else if (addr == 0xFF0F) {
+        interrupt_flag = value;
+    } else if (addr >= 0xFF00 && addr <= 0xFF7F) {
+        io[addr - 0xFF00] = value;
+    } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
+        hram[addr - 0xFF80] = value;
+    } else if (addr == 0xFFFF) {
+        interrupt_enable = value;
+    }
 }
