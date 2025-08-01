@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+// Maximum rom size: 2MB
+#define MAX_ROM_SIZE (2 * 1024 * 1024)
+
 /**
  * init_mmu - 
  * Initializes Main Memory Unit memory regions.
@@ -34,6 +37,6 @@ uint8_t mmu_read(uint16_t addr);
  */
 void mmu_write(uint16_t addr, uint8_t value);
 
-extern uint8_t rom[0x8000]; // exposing rom array to main memory
+extern uint8_t rom[MAX_ROM_SIZE]; // exposing rom array to main memory
 
 #endif
