@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h> //for memset()
 
-extern uint8_t rom[0x8000]; // Access the ROM array defined in mmu.c
+extern uint8_t rom[MAX_ROM_SIZE]; // Access the ROM array defined in mmu.c
 
 /**
  * load_rom - Loads a ROM file into memory starting at 0x0100.
