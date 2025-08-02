@@ -10,6 +10,16 @@
 * 0x0150+	            Start of game code          (entry point)
 */
 
+typedef enum mbc_t {
+    MBC_NONE,
+    MBC1,
+    MBC3,
+    MBC5,
+    MBC_UNKNOWN,
+} mbc_t;
+
+extern mbc_t mbc_type;
+
 /**
  * load_rom - Loads a Game Boy ROM into memory.
  * 
