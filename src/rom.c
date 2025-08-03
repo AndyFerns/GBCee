@@ -24,11 +24,20 @@ int load_rom(const char* path) {
 
     // Load actual ROM starting at 0x0100
 
-    size_t bytes_read = fread(rom, 1, 0x8000, f); // Full 32KB load
-
-    // fread(rom, 1, 0x8000, f); // Load up to 32KB
+    size_t bytes_read = fread(rom, 1, MAX_ROM_SIZE, f); // Full ROM load]
     fclose(f);
 
+    if (bytes_read < 0x8000) {
+        printf("Rom too small to be loaded!");
+        return 0;
+    }
+    
     printf("Loaded %zu bytes at 0x0000\n", bytes_read);
+
+    // detect MBC type from byte at 0x0147
+    uint8_t mbc_type = rom[0x147];
+    printf("MBC Type: 0x%02X\n", mbc_type);
+
+
     return 1;
 }
