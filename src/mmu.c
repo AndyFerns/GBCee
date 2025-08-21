@@ -1,4 +1,4 @@
-#include "mmu.h"
+#include "../includes/mmu.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
