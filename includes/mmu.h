@@ -1,61 +1,58 @@
+// mmu.h  (additions marked //// NEW)
 #ifndef MMU_H
 #define MMU_H
 
 #include <stdint.h>
+#include <stddef.h> //// NEW: for size_t
 
+// Maximum rom size: 2MB
+#define MAX_ROM_SIZE (2 * 1024 * 1024)
 
-/* MMU Suite */
+//// NEW: Maximum external RAM size: 32KB (typical upper bound for DMG MBCs)
+#define MAX_ERAM_SIZE (32 * 1024)
 
 /**
- * @brief Initializes the MMU and clears all memory regions.
+ * init_mmu - 
+ * Initializes Main Memory Unit memory regions.
  *
- * This must be called before any other MMU functions are used.
- * 
- * @returns void
+ * Clears RAM and prepares memory map. No parameters.
  */
-void mmu_init();
+void init_mmu();
 
 /**
- * @brief Frees any dynamically allocated memory by the MMU (e.g., the ROM).
- *
- * This should be called when the emulator is shutting down to prevent memory leaks.
- * 
- * @returns void
- */
-void mmu_free();
-
-
-/**
- * @brief mmu_read - 
+ * mmu_read - 
  * Reads a byte from the specified address.
  * 
- * @param addr 16-bit memory address.
+ * Parameters:
+ * @addr: 16-bit memory address.
  *
- * @returns Value at address.
+ * Return: Value at address.
  */
 uint8_t mmu_read(uint16_t addr);
 
 /**
- * @brief mmu_write - 
+ * mmu_write - 
  * Writes a byte to the specified address.
  * 
- * @param addr: 16-bit memory address.
- * @param value: Byte to write.
+ * Parameters: -
+ * @addr: 16-bit memory address.
+ * @value: Byte to write.
  * 
- * @returns void
+ * Return: void
  */
 void mmu_write(uint16_t addr, uint8_t value);
 
+extern uint8_t rom[MAX_ROM_SIZE]; // exposing rom array to main memory
 
-/**
- * @brief Loads a ROM file from the given path into memory.
- *
- * This function will allocate the necessary memory for the ROM. If a ROM is
- * already loaded, it will be freed first.
- *
- * @param filepath The path to the Game Boy ROM file.
- * @return 0 on success, or -1 on failure (e.g., file not found, memory allocation error).
- */
-int mmu_load_rom(const char* filepath);
+//// NEW: Expose ERAM (so MBC read/write helpers can use it)
+extern uint8_t eram[MAX_ERAM_SIZE];
+
+//// NEW: Actual loaded sizes (set by ROM loader), used for bounds checks
+extern size_t g_rom_size;
+extern size_t g_eram_size;
+
+//// NEW: Setters to be called after ROM header is parsed/ERAM size known
+void mmu_set_rom_size(size_t sz);
+void mmu_set_eram_size(size_t sz);
 
 #endif
