@@ -2,39 +2,28 @@
 #define MMU_H
 
 #include <stdint.h>
-#include <stddef.h>
 
-// Maximum rom size: 2MB
-#define MAX_ROM_SIZE (2 * 1024 * 1024)  // 2MB
 
-// maximum external RAM (eram) size: 32KB (upper bound for DMG MBCs)
-#define MAX_ERAM_SIZE (32 * 1024)   // 32 KB 
-
-/* Memory exposition suite */
-
-// exposing rom array to main memory
-extern uint8_t rom[MAX_ROM_SIZE]; 
-
-// exposing eram to main memory (For MBC read/write helper ops)
-extern uint8_t eram[MAX_ERAM_SIZE];
-
-// actual loaded sizes (these are set by the rom loader)
-// used for bound checks
-extern size_t g_rom_size;
-extern size_t g_ram_size;
-
+/* MMU Suite */
 
 /**
- * @brief init_mmu - 
- * Initializes Main Memory Unit memory regions.
+ * @brief Initializes the MMU and clears all memory regions.
  *
- * Clears RAM and prepares memory map. 
- * 
- * @param none
+ * This must be called before any other MMU functions are used.
  * 
  * @returns void
  */
-void init_mmu();
+void mmu_init();
+
+/**
+ * @brief Frees any dynamically allocated memory by the MMU (e.g., the ROM).
+ *
+ * This should be called when the emulator is shutting down to prevent memory leaks.
+ * 
+ * @returns void
+ */
+void mmu_free();
+
 
 /**
  * @brief mmu_read - 
@@ -57,9 +46,16 @@ uint8_t mmu_read(uint16_t addr);
  */
 void mmu_write(uint16_t addr, uint8_t value);
 
-// TODO: calling and implementing setters
-// setters to be called after ROM header is parsed and ERAM size is known
-void mmu_set_rom_size(size_t sz);
-void mmu_set_eram_size(size_t sz);
+
+/**
+ * @brief Loads a ROM file from the given path into memory.
+ *
+ * This function will allocate the necessary memory for the ROM. If a ROM is
+ * already loaded, it will be freed first.
+ *
+ * @param filepath The path to the Game Boy ROM file.
+ * @return 0 on success, or -1 on failure (e.g., file not found, memory allocation error).
+ */
+int mmu_load_rom(const char* filepath);
 
 #endif
