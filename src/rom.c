@@ -3,16 +3,16 @@
 #include <stdio.h>
 #include <string.h> //for memset()
 
-extern uint8_t rom[MAX_ROM_SIZE]; // Access the ROM array defined in mmu.c
+// removed extern rom array to prevent external exposure to rom 
 
 /**
- * load_rom - Loads a ROM file into memory starting at 0x0100.
+ * @brief load_rom - Loads a ROM file into memory starting at 0x0100.
  *
- * @path: Path to the ROM file.
+ * @param path Path to the ROM file.
  *
- * Return: 1 on success, 0 on failure.
+ * @returns 1 on success, 0 on failure.
  */
-int load_rom(const char* path) {
+int load_rom(const char* path, ) {
     FILE* f = fopen(path, "rb");
     if (!f) {
         perror("ROM open failed");
