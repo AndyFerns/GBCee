@@ -12,32 +12,54 @@
  *
  * @returns 1 on success, 0 on failure.
  */
-int load_rom(const char* path, ) {
+int load_rom(const char* path, uint8_t** out_rom_data, size_t* out_rom_size, mbc_type_t* out_mbc_type) {
     FILE* f = fopen(path, "rb");
     if (!f) {
         perror("ROM open failed");
         return 0;
     }
-    // Pad memory up to 0x0100 with NOPs (0x00)
-    //void *memset(void *_Dst, int _Val, size_t _Size)
-    // memset(rom, 0x00, 0x0100); // not needed for commercial roms 
 
-    // Load actual ROM starting at 0x0100
+    fseek(f, 0, SEEK_END);
+    size_t size = ftell(f);
+    fseek(f, 0, SEEK_SET);
 
-    size_t bytes_read = fread(rom, 1, MAX_ROM_SIZE, f); // Full ROM load]
-    fclose(f);
-
-    if (bytes_read < 0x8000) {
-        printf("Rom too small to be loaded!");
+    // checking the minimal size of a valid header
+    if (size < 0x150) {
+        fprintf(stderr, "ROM File is too small.\n");
+        fclosef(f);
         return 0;
     }
-    
-    printf("Loaded %zu bytes at 0x0000\n", bytes_read);
 
-    // detect MBC type from byte at 0x0147
-    uint8_t mbc_type = rom[0x147];
-    printf("MBC Type: 0x%02X\n", mbc_type);
+    // set file buffer
+    uint8_t* buffer = malloc(size);
+    if (!buffer) {
+        fprintf(stderr, "Failed to allocate memory for ROM.\n");
+        fclosef(f);
+        return 0;
+    }
 
+    if (fread(buffer, 1, size, f) != size) {
+        fprintf(stderr, "Failed to read ROM file.\n");
+        fclose(f);
+        free(buffer);
+        return 0;
+    }
 
-    return 1;
+    /* Parsing the file */
+    uint8_t mbc_code = buffer[0x147];
+    switch(mbc_code) {
+        // allocating cartrigde type bytes from the rom header
+        case 0x00: *out_mbc_type = MBC_TYPE_NONE; break;
+        // TBD for all cartridge types
+
+        default: *out_mbc_type = MBC_TYPE_UNKNOWN; break;
+    }
+
+    /* Setting output preferences */
+    *out_rom_data = buffer;
+    *out_rom_size = size;
+
+    printf("Loaded %zu bytes from %s\n", size, path);
+
+    return 1; //success
 }
