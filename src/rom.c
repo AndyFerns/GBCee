@@ -2,6 +2,7 @@
 #include "mmu.h"
 #include <stdio.h>
 #include <string.h> //for memset()
+#include <stdlib.h>
 
 // removed extern rom array to prevent external exposure to rom 
 
@@ -26,7 +27,7 @@ int load_rom(const char* path, uint8_t** out_rom_data, size_t* out_rom_size, mbc
     // checking the minimal size of a valid header
     if (size < 0x150) {
         fprintf(stderr, "ROM File is too small.\n");
-        fclosef(f);
+        fclose(f);
         return 0;
     }
 
@@ -34,7 +35,7 @@ int load_rom(const char* path, uint8_t** out_rom_data, size_t* out_rom_size, mbc
     uint8_t* buffer = malloc(size);
     if (!buffer) {
         fprintf(stderr, "Failed to allocate memory for ROM.\n");
-        fclosef(f);
+        fclose(f);
         return 0;
     }
 
