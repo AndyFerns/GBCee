@@ -1,9 +1,8 @@
-// mmu.h  (additions marked //// NEW)
 #ifndef MMU_H
 #define MMU_H
 
 #include <stdint.h>
-#include <stddef.h> //// NEW: for size_t
+#include <stddef.h> 
 
 
 /**
