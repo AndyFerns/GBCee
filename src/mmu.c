@@ -98,7 +98,10 @@ void mmu_free() {
 
 
 /**
- * @brief Loads a ROM using the rom.c module and integrates it into the MMU.
+ * @brief Loads a ROM file from the given path into memory.
+ *
+ * @param filepath The path to the Game Boy ROM file.
+ * @return 0 on success, or -1 on failure (e.g., file not found).
  */
 int mmu_load_rom(const char* filepath) {
     mmu_free(); // Free any previously loaded ROM
