@@ -49,10 +49,19 @@ int load_rom(const char* path, uint8_t** out_rom_data, size_t* out_rom_size, mbc
     uint8_t mbc_code = buffer[0x147];
     switch(mbc_code) {
         // allocating cartrigde type bytes from the rom header
+        
+        // No-MBC
         case 0x00: *out_mbc_type = MBC_TYPE_NONE; break;
+
+        // --- MBC 1 ---
+        case 0x01: case 0x02: case 0x03:
+            *out_mbc_type = MBC_TYPE_MBC1;
+            break;
+
         // TBD for all cartridge types
 
         default: *out_mbc_type = MBC_TYPE_UNKNOWN; break;
+        return 1;
     }
 
     /* Setting output preferences */
