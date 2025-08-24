@@ -44,6 +44,15 @@ uint8_t mmu_read(uint16_t addr);
  */
 void mmu_write(uint16_t addr, uint8_t value);
 
+
+/**
+ * @brief Loads a ROM file from the given path into memory.
+ *
+ * @param filepath The path to the Game Boy ROM file.
+ * @return 0 on success, or -1 on failure (e.g., file not found).
+ */
+int mmu_load_rom(const char* filepath);
+
 // removed external loading for bound checks
 
 #endif
