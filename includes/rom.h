@@ -35,6 +35,6 @@ extern mbc_type_t mbc_type;
  *
  * @returns 1 on success, 0 on failure.
  */
-int load_rom(const char* path, uint8_t** out_rom_data, size_t* out_rom_size, mbc_type_t out_mbc_type);
+int load_rom(const char* path, uint8_t** out_rom_data, size_t* out_rom_size, mbc_type_t* out_mbc_type);
 
 #endif
