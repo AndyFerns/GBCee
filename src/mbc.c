@@ -1,83 +1,46 @@
-// mbc.c
 #include "mbc.h"
 #include "mmu.h"
 #include <string.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
 
-// removing all static and global variables
-
-// // --- MBC1 state ---
-// static uint8_t mbc1_rom_lo5 = 1;     // lower 5 bits of ROM bank (1..31)
-// static uint8_t mbc1_rom_hi2_or_ram = 0; // high 2 bits for ROM (mode 0) or RAM bank (mode 1)
-// static uint8_t mbc1_mode = 0;        // 0: ROM banking mode, 1: RAM banking mode
-
-// // --- MBC2 state (scaffold) ---
-// // MBC2 has internal 512x4-bit RAM, no external eram[]; enable/rom-bank writes depend on A8 bit.
-// // We'll stub minimal behavior here.
-// static uint8_t mbc2_rom_bank = 1;
-
-// // --- MBC3 state (scaffold) ---
-// // ROM bank: 7 bits (1..127), RAM bank 0..3 or RTC register (0x08..0x0C). Latch clock at 0x6000-0x7FFF.
-// static uint8_t mbc3_rom_bank = 1;
-// static uint8_t mbc3_ram_bank_or_rtc = 0;
-// static uint8_t mbc3_latch = 0;
-
-// // --- MBC5 state (scaffold) ---
-// // ROM bank: 9 bits (0..511), RAM bank: 0..15
-// static uint16_t mbc5_rom_bank = 1;
-// static uint8_t  mbc5_ram_bank = 0;
-
-// Helpers
-static inline uint8_t in_rom_bounds(uint32_t off) {
-    return (g_rom_size > 0 && off < g_rom_size);
-}
-static inline uint8_t in_eram_bounds(uint32_t off) {
-    return (g_eram_size > 0 && off < g_eram_size);
-}
-
 /**
  * @brief initializes the memory bank controller system
  * 
- * @param type: uint8_t The MBC Type from the ROM header (0x0147)
+ * @param mmu: a pointer to the main mmu struct
  * 
  * @return void
  */ 
-void mbc_init(uint8_t type) {
-    mbc_type = type;
-    ram_enable = 0;
-
-    // Reset MBC1
-    mbc1_rom_lo5 = 1;
-    mbc1_rom_hi2_or_ram = 0;
-    mbc1_mode = 0;
-
-    // Reset others
-    mbc2_rom_bank = 1;
-
-    mbc3_rom_bank = 1;
-    mbc3_ram_bank_or_rtc = 0;
-    mbc3_latch = 0;
-
-    mbc5_rom_bank = 1;
-    mbc5_ram_bank = 0;
+void mbc_init(mmu_t* mmu) {
+    // The mbc_type is already set in mmu->mbc_type by the ROM loader.
+    // We just need to initialize the banking registers.
+    mmu->ram_enabled = false;
+    mmu->current_rom_bank = 1;
+    mmu->current_ram_bank = 0;
+    mmu->mbc1_mode = 0;
 }
 
-/**
- * @brief Compute active MBC1 ROM bank for 0x4000–0x7FFF window.
- * Rules:
- *  - Bank number = (hi2 << 5) | lo5
- *  - If lo5 == 0, treat as 1
- *  - In ROM mode (mode=0): lower window is 0x0000–0x3FFF (bank 0), upper window is selected bank.
- *  - In RAM mode (mode=1): same as above for upper window; lower window uses (hi2 << 5) with lo5=0.
- */
-static inline uint16_t mbc1_active_upper_rom_bank(void) {
-    uint8_t lo5 = mbc1_rom_lo5 & 0x1F;
-    if (lo5 == 0) lo5 = 1; // forbidden to select 0 for upper bank
-    uint8_t hi2 = (mbc1_rom_hi2_or_ram & 0x03);
-    return (uint16_t)((hi2 << 5) | lo5);
+uint8_t mbc_read_rom(mmu_t* mmu, uint16_t addr) {
+    uint32_t rom_offset = 0;
+
+    // Bank 00 is always read directly from 0x0000-0x3FFF
+    if (addr < 0x4000) {
+        rom_offset = addr;
+    } else { // Switchable bank area 0x4000-0x7FFF
+        // Calculate the offset into the ROM data based on the current bank
+        rom_offset = (mmu->current_rom_bank * 0x4000) + (addr - 0x4000);
+    }
+
+    // Bounds check against the actual size of the loaded ROM
+    if (rom_offset < mmu->rom_size) {
+        return mmu->rom_data[rom_offset];
+    }
+    return 0xFF; // Return 0xFF if out of bounds
 }
+
+
 
 /**
  * @brief Compute MBC1 lower-window bank (0x0000–0x3FFF) when in RAM banking mode.
