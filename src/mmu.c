@@ -130,46 +130,38 @@ int mmu_load_rom(const char* filepath) {
  * @return Value at that address.
  */
 uint8_t mmu_read(uint16_t addr) {
-    if (addr < ROM_FIXED_SIZE) {
-        // 0x0000–0x7FFF (ROM area): delegate to MBC (handles bank 0 + switchable)
-        return mbc_read(addr);
-
-    } else if (addr >= 0x8000 && addr <= 0x9FFF) {
-        return vram[addr - 0x8000];
-
-    } else if (addr >= 0xA000 && addr <= 0xBFFF) {
-        // External RAM is MBC-controlled (enable/banks)
-        return mbc_read_ram(addr);
-
-    } else if (addr >= 0xC000 && addr <= 0xDFFF) {
-        return wram[addr - 0xC000];
-
-    } else if (addr >= 0xE000 && addr <= 0xFDFF) {
-        // Echo RAM (mirror of 0xC000–0xDDFF). Our WRAM buffer is 8KB, so this maps cleanly.
-        return wram[addr - 0xE000];
-
-    } else if (addr >= 0xFE00 && addr <= 0xFE9F) {
-        return oam[addr - 0xFE00];
-
-    } else if (addr >= 0xFEA0 && addr <= 0xFEFF) {
-        // Unusable range
-        return 0xFF;
-
-    } else if (addr == 0xFF0F) {
-        return interrupt_flag;
-
-    } else if (addr >= 0xFF00 && addr <= 0xFF7F) {
-        // NOTE: most of these need special handling later (joypad/timers/LCD/etc.)
-        return io[addr - 0xFF00];
-
-    } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
-        return hram[addr - 0xFF80];
-
-    } else if (addr == 0xFFFF) {
-        return interrupt_enable;
+    if (addr <= 0x7FFF) {
+        // return mbc_read(&mmu, addr);
+        return mmu.rom_data[addr]; // Placeholder for no MBC
     }
-
-    return 0xFF; // Unmapped memory
+    if (addr <= 0x9FFF) { 
+        return mmu.vram[addr - 0x8000]; 
+    }
+    if (addr <= 0xBFFF) {
+        // return mbc_read_ram(&mmu, addr);
+        return mmu.eram[addr - 0xA000]; // Placeholder for no MBC
+    }
+    if (addr <= 0xDFFF) { 
+        return mmu.wram[addr - 0xC000]; 
+    }
+    if (addr <= 0xFDFF) { 
+        return mmu.wram[addr - 0xE000]; 
+    } // Echo RAM
+    if (addr <= 0xFE9F) { 
+        return mmu.oam[addr - 0xFE00]; 
+    }
+    if (addr <= 0xFEFF) { 
+        return 0xFF; 
+    } // Unusable
+    if (addr <= 0xFF7F) {
+        if (addr == 0xFF0F) return mmu.interrupt_flag;
+        return mmu.io[addr - 0xFF00];
+    }
+    if (addr <= 0xFFFE) { 
+        return mmu.hram[addr - 0xFF80]; 
+    }
+    
+    return mmu.interrupt_enable; // 0xFFFF
 }
 
 /**
