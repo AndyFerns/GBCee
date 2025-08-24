@@ -89,7 +89,7 @@ void mmu_init() {
  */
 void mmu_free() {
     if (mmu.rom_data) {
-        free(mmu.rom_data;
+        free(mmu.rom_data);
             mmu.rom_data = NULL;
             printf("ROM Memory freed!.\n");
     }
@@ -173,42 +173,41 @@ uint8_t mmu_read(uint16_t addr) {
  * @param value Byte to write.
  */
 void mmu_write(uint16_t addr, uint8_t value) {
-    if (addr < ROM_FIXED_SIZE) {
-        // 0x0000–0x7FFF writes hit MBC control registers (bank switching / RAM enable / mode)
-        mbc_write(addr, value);
+    if (addr <= 0x7FFF) {
+        // mbc_write(&mmu, addr, value);
         return;
-
-    } else if (addr >= 0x8000 && addr <= 0x9FFF) {
-        vram[addr - 0x8000] = value;
-
-    } else if (addr >= 0xA000 && addr <= 0xBFFF) {
-        // External RAM is MBC-controlled (enable/banks)
-        mbc_write_ram(addr, value);
-
-    } else if (addr >= 0xC000 && addr <= 0xDFFF) {
-        wram[addr - 0xC000] = value;
-
-    } else if (addr >= 0xE000 && addr <= 0xFDFF) {
-        wram[addr - 0xE000] = value;
-
-    } else if (addr >= 0xFE00 && addr <= 0xFE9F) {
-        oam[addr - 0xFE00] = value;
-
-    } else if (addr >= 0xFEA0 && addr <= 0xFEFF) {
-        // Unusable range: ignore writes
-        return;
-
-    } else if (addr == 0xFF0F) {
-        interrupt_flag = value;
-
-    } else if (addr >= 0xFF00 && addr <= 0xFF7F) {
-        // NOTE: many of these need special behavior (DIV reset on write, DMA, STAT/LCDC, etc.)
-        io[addr - 0xFF00] = value;
-
-    } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
-        hram[addr - 0xFF80] = value;
-
-    } else if (addr == 0xFFFF) {
-        interrupt_enable = value;
     }
+    if (addr <= 0x9FFF) { 
+        mmu.vram[addr - 0x8000] = value; 
+        return; 
+    }
+    if (addr <= 0xBFFF) {
+        // mbc_write_ram(&mmu, addr, value);
+        mmu.eram[addr - 0xA000] = value; // Placeholder for no MBC
+        return;
+    }
+    if (addr <= 0xDFFF) { 
+        mmu.wram[addr - 0xC000] = value; return; 
+    }
+    if (addr <= 0xFDFF) { 
+        mmu.wram[addr - 0xE000] = value; return; 
+    } // Echo RAM
+    if (addr <= 0xFE9F) { 
+        mmu.oam[addr - 0xFE00] = value; return; 
+    }
+    if (addr <= 0xFEFF) { 
+        return; 
+    } // Unusable: ignore writes
+    if (addr <= 0xFF7F) {
+        if (addr == 0xFF0F) { 
+            mmu.interrupt_flag = value; return; 
+        }
+        mmu.io[addr - 0xFF00] = value;
+        return;
+    }
+    if (addr <= 0xFFFE) { 
+        mmu.hram[addr - 0xFF80] = value; return; 
+    }
+    
+    mmu.interrupt_enable = value; // 0xFFFF
 }
