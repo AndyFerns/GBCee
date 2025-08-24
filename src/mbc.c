@@ -5,39 +5,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-// --- MBC type IDs (from 0x0147) - not exhaustive, but common ones ---
-#define MBC_TYPE_ROM_ONLY      0x00
-#define MBC_TYPE_MBC1          0x01  // (also 0x02: MBC1+RAM, 0x03: MBC1+RAM+BATTERY)
-#define MBC_TYPE_MBC2          0x05  // (0x05 MBC2, 0x06 MBC2+BATTERY)
-#define MBC_TYPE_MBC3          0x11  // (0x11 MBC3, 0x12 +RAM, 0x13 +RAM+BAT)
-#define MBC_TYPE_MBC5          0x19  // (0x19 MBC5, 0x1A +RAM, 0x1B +RAM+BAT, 0x1C..1E RUMBLE)
 
-// --- Internal MBC state ---
-static uint8_t mbc_type = 0;
+// removing all static and global variables
 
-// Common flags
-static uint8_t ram_enable = 0;
+// // --- MBC1 state ---
+// static uint8_t mbc1_rom_lo5 = 1;     // lower 5 bits of ROM bank (1..31)
+// static uint8_t mbc1_rom_hi2_or_ram = 0; // high 2 bits for ROM (mode 0) or RAM bank (mode 1)
+// static uint8_t mbc1_mode = 0;        // 0: ROM banking mode, 1: RAM banking mode
 
-// --- MBC1 state ---
-static uint8_t mbc1_rom_lo5 = 1;     // lower 5 bits of ROM bank (1..31)
-static uint8_t mbc1_rom_hi2_or_ram = 0; // high 2 bits for ROM (mode 0) or RAM bank (mode 1)
-static uint8_t mbc1_mode = 0;        // 0: ROM banking mode, 1: RAM banking mode
+// // --- MBC2 state (scaffold) ---
+// // MBC2 has internal 512x4-bit RAM, no external eram[]; enable/rom-bank writes depend on A8 bit.
+// // We'll stub minimal behavior here.
+// static uint8_t mbc2_rom_bank = 1;
 
-// --- MBC2 state (scaffold) ---
-// MBC2 has internal 512x4-bit RAM, no external eram[]; enable/rom-bank writes depend on A8 bit.
-// We'll stub minimal behavior here.
-static uint8_t mbc2_rom_bank = 1;
+// // --- MBC3 state (scaffold) ---
+// // ROM bank: 7 bits (1..127), RAM bank 0..3 or RTC register (0x08..0x0C). Latch clock at 0x6000-0x7FFF.
+// static uint8_t mbc3_rom_bank = 1;
+// static uint8_t mbc3_ram_bank_or_rtc = 0;
+// static uint8_t mbc3_latch = 0;
 
-// --- MBC3 state (scaffold) ---
-// ROM bank: 7 bits (1..127), RAM bank 0..3 or RTC register (0x08..0x0C). Latch clock at 0x6000-0x7FFF.
-static uint8_t mbc3_rom_bank = 1;
-static uint8_t mbc3_ram_bank_or_rtc = 0;
-static uint8_t mbc3_latch = 0;
-
-// --- MBC5 state (scaffold) ---
-// ROM bank: 9 bits (0..511), RAM bank: 0..15
-static uint16_t mbc5_rom_bank = 1;
-static uint8_t  mbc5_ram_bank = 0;
+// // --- MBC5 state (scaffold) ---
+// // ROM bank: 9 bits (0..511), RAM bank: 0..15
+// static uint16_t mbc5_rom_bank = 1;
+// static uint8_t  mbc5_ram_bank = 0;
 
 // Helpers
 static inline uint8_t in_rom_bounds(uint32_t off) {
