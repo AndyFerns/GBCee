@@ -1,30 +1,40 @@
 #include <stdio.h>
+#include <stdbool.h> 
 #include "cpu.h"
 #include "mmu.h"
-#include "rom.h"
+#include "rom.h" // not required as main shouldnt know about the rom info
+
+// TODO ppu.h, interrupts.h and timer.h
+
 
 /**
- * main:
+ * @brief main:
  * Entry point of the emulator.
- * 
- * Arguments: 
- * @argc: Number of command-line arguments.
- * @argv: Array of argument strings.
- *
  * Loads the ROM and starts the emulation loop.
+ *  
+ * @param argc: Number of command-line arguments.
+ * @param argv: Array of argument strings.
  *
- * Return: 
+ *
+ * @returns 
  * 0 on success, non-zero on failure.
  */
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        printf("Usage: %s <ROM file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <ROM file>\n", argv[0]);
         return 1;
     }
 
-    init_mmu();
+    // should follow emulator lifecycle:
+    // initialize hardware -> load the game -> run main loop -> clean up resources 
 
-    if (!load_rom(argv[1])) {
+    mmu_init();
+    cpu_reset();
+    // ppu_init();   // placeholder for initializing the Picture Processing Unit 
+    // timer_init(); // placeholder for initializing the timer
+
+    // only call mmu_load_rom and not load_rom
+    if (mmu_load_rom(argv[1]) != 0) {
         printf("Failed to load ROM.\n");
         return 1;
     }
