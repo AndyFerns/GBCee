@@ -1,15 +1,14 @@
-// mmu.c
 #include "mmu.h"
 #include "mbc.h"            // NEW: delegate banking to MBC
+#include "rom.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-/// Max rom size supported (2MB)
-#define ROM_FIXED_SIZE 0x8000
-
-/// Max external RAM size (32KB) — matches mmu.h
-// #define MAX_ERAM_SIZE (32 * 1024)  // now in mmu.h
+// =================================================
+// Global Size definitions
+// =================================================
 
 /// VRAM size (8KB)
 #define VRAM_SIZE 0x2000
@@ -26,75 +25,101 @@
 /// IO register size (128 bytes)
 #define IO_SIZE 0x80
 
-// Cartridge ROM region (not static — exposed in mmu.h)
-uint8_t rom[MAX_ROM_SIZE];
+/// Max External RAM size (32KB)
+#define MAX_ERAM_SIZE (32 * 1024)
 
-/// VRAM: 8KB (0x8000–0x9FFF)
-static uint8_t vram[VRAM_SIZE];
 
-/// External RAM (cartridge): up to 32KB (0xA000–0xBFFF)
-// MADE NON-STATIC so MBC can access it (declared extern in mmu.h)
-uint8_t eram[MAX_ERAM_SIZE];
+// ===================================================
+// MMU State Structure
+// ===================================================
 
-/// Work RAM (WRAM): 8KB (0xC000–0xDFFF)
-static uint8_t wram[WRAM_SIZE];
+/// the core mmu struct which stores all memory and state
+typedef struct mmu_t {
+    // dynamically allocated rom data
+    uint8_t* rom_data;
+    size_t rom_size;
 
-/// High RAM (HRAM): 127B (0xFF80–0xFFFE)
-static uint8_t hram[HRAM_SIZE];
+    // internal memory regions
+    uint8_t vram[VRAM_SIZE];
+    uint8_t eram[MAX_ERAM_SIZE];
+    uint8_t wram[WRAM_SIZE];
+    uint8_t oam[OAM_SIZE];
+    uint8_t io[IO_SIZE];
+    uint8_t hram[HRAM_SIZE];
 
-/// Sprite Attribute Table (OAM): 160B (0xFE00–0xFE9F)
-static uint8_t oam[OAM_SIZE];
+    // internal registers
+    uint8_t interrupt_enable;
+    uint8_t interrupt_flag;
 
-/// IO Ports: 128B (0xFF00–0xFF7F)
-static uint8_t io[IO_SIZE];
+    // MBC (Memory bank controller) state
+    mbc_type_t mbc_type;
+    // other mbc types TBD
+    // int current_rom_bank;
+    // bool eram_enabled;
+} mmu_t;
 
-/// Interrupt Enable Register (0xFFFF)
-static uint8_t interrupt_enable;
+static mmu_t mmu;
 
-/// Interrupt Flag Register (0xFF0F)
-static uint8_t interrupt_flag;
 
-/// Actual loaded sizes (defaults to 0 until set)
-size_t g_rom_size = 0;
-size_t g_eram_size = 0;
+// =========================================================
+// Function Implementations
+// ============================================================
 
-/**
- * @brief Set the actual ROM size in bytes (call after loading ROM).
- * @param sz: size_t Total bytes in ROM buffer (<= MAX_ROM_SIZE).
- * @return void
- */
-void mmu_set_rom_size(size_t sz) {
-    if (sz > MAX_ROM_SIZE) sz = MAX_ROM_SIZE;
-    g_rom_size = sz;
-}
-
-/**
- * @brief Set the actual ERAM size in bytes (from header).
- * @param sz: size_t Total bytes of external RAM (<= MAX_ERAM_SIZE).
- * @return void
- */
-void mmu_set_eram_size(size_t sz) {
-    if (sz > MAX_ERAM_SIZE) sz = MAX_ERAM_SIZE;
-    g_eram_size = sz;
-}
 
 /**
- * @brief Initializes the MMU and clears memory regions.
+ * @brief Initializes the MMU memory regions
+ * 
+ * Clears RAM and prepares memory map. No parameters.
  * 
  * @param none
  * 
- * @returns none 
+ * @returns void 
  */
-void init_mmu() {
-    memset(vram, 0, sizeof(vram));
-    memset(eram, 0, sizeof(eram));
-    memset(wram, 0, sizeof(wram));
-    memset(oam,  0, sizeof(oam));
-    memset(hram, 0, sizeof(hram));
-    memset(io,   0, sizeof(io));
-    interrupt_enable = 0;
-    interrupt_flag = 0;
+void mmu_init() {
+    memset(&mmu, 0, sizeof(mmu));
+    printf("MMU Initialized!.\n");
 }
+
+
+/**
+ * @brief mmu_free -
+ * frees any dynamically allocated memory by the mmu (the rom for eg) 
+ * 
+ * @returns void
+ */
+void mmu_free() {
+    if (mmu.rom_data) {
+        free(mmu.rom_data;
+            mmu.rom_data = NULL;
+            printf("ROM Memory freed!.\n");
+    }
+}
+
+
+
+/**
+ * @brief Loads a ROM using the rom.c module and integrates it into the MMU.
+ */
+int mmu_load_rom(const char* filepath) {
+    mmu_free(); // Free any previously loaded ROM
+
+    // Delegate the file loading and parsing to the rom.c module
+    int result = load_rom(filepath, &mmu.rom_data, &mmu.rom_size, &mmu.mbc_type);
+
+    if (result == 0) { // Check for failure (assuming 0 is failure from your rom.c)
+        mmu.rom_data = NULL; // Ensure pointer is null on failure
+        return -1;
+    }
+
+    printf("ROM loading delegated to rom.c, result integrated into MMU.\n");
+    printf("Detected MBC Type: %d\n", mmu.mbc_type);
+
+    // TODO: Initialize the MBC based on the detected type
+    // mbc_init(&mmu);
+    
+    return 0; // Success
+}
+
 
 /**
  * @brief Reads a byte from the full memory map.
