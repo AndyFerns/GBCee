@@ -35,18 +35,22 @@ int main(int argc, char *argv[]) {
 
     // only call mmu_load_rom and not load_rom
     if (mmu_load_rom(argv[1]) != 0) {
-        printf("Failed to load ROM.\n");
+        fprintf(stderr, "Error: Failed to load ROM '%s'.\n", argv[1]);
         return 1;
     }
 
-    cpu_reset();
+    
+    printf(" --- Starting Emulation --- \n");
+    while (true) { 
+        // if (cpu.PC >= 0x8000) {  // Prevent out-of-ROM execution
+        //     printf("[HALT] PC out of ROM bounds: 0x%04X\n", cpu.PC);
+        //     break;
+        // }
 
-    while (!cpu.halted) { // initially false hence !false = true
-        if (cpu.PC >= 0x8000) {  // Prevent out-of-ROM execution
-            printf("[HALT] PC out of ROM bounds: 0x%04X\n", cpu.PC);
-            break;
-        }
-        // Execute one instruction per cycle
+        /** Execute one instruction per cycle 
+         * cpu step handles the halted state internally
+         * doesnt fetch an opcode for halting
+        */
         cpu_step();
 
         // Future work:
@@ -55,6 +59,8 @@ int main(int argc, char *argv[]) {
         // - Handle input
         // - Trigger interrupts
     }
-
+    
+    printf(" --- Emulation Halted --- ");
+    mmu_free(); // prevent memory leaks from loaded roms
     return 0;
 }
