@@ -240,10 +240,8 @@ bool execute_opcode(uint8_t opcode) {
         // LD (HL), n-- 12 cycle count
         case 0x36: {
             uint8_t val = mmu_read(cpu.PC++);
-            uint16_t addr = (cpu.H << 8) | cpu.L;
-
-            mmu_write(addr, val);
-            cpu.PC += 2;
+            // write value at HL register (already defined w macro)
+            mmu_write(REG_HL, val);
             break;
         }
 
@@ -296,12 +294,14 @@ bool execute_opcode(uint8_t opcode) {
         // A, (nn)
         case 0xFA:{
             // load from absolute 16-bit address into A
-            uint8_t low = mmu_read(cpu.PC+ 1);
-            uint8_t high = mmu_read(cpu.PC + 2);
+            // PC is at the address of the first operand byte
+            uint8_t low = mmu_read(cpu.PC);
+            uint8_t high = mmu_read(cpu.PC + 1);
             uint16_t addr = ((uint16_t)high << 8) | low;
 
             cpu.A = mmu_read(addr);
-            cpu.PC += 3;
+            // advance PC past the two-byte operand
+            cpu.PC += 2;
             break;
         }
 
@@ -447,7 +447,7 @@ bool execute_opcode(uint8_t opcode) {
             mmu_write(hl, cpu.A);
             hl--; //decrement step
 
-            cpu.H = (hl << 8) & 0xFF; 
+            cpu.H = (hl >> 8) & 0xFF; 
             cpu.L = hl & 0xFF;
             break;
         }
@@ -1304,7 +1304,7 @@ bool execute_opcode(uint8_t opcode) {
         /* 3.3.6 ROTATES AND SHIFTS */
 
         /**
-         * 1. RLCA (what)
+         * 1. RLC A (what)
          * Rotate A left, Old bit 7 to carry flag 
          * 
          * Flags affected:
