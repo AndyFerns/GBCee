@@ -34,7 +34,7 @@
 // ===================================================
 
 
-static mmu_t mmu;
+mmu_t mmu; // change to static after running unit tests
 
 
 // =========================================================
@@ -110,15 +110,15 @@ int mmu_load_rom(const char* filepath) {
  */
 uint8_t mmu_read(uint16_t addr) {
     if (addr <= 0x7FFF) {
-        // return mbc_read(&mmu, addr);
-        return mmu.rom_data[addr]; // Placeholder for no MBC
+        return mbc_read_rom(&mmu, addr);
+        // return mmu.rom_data[addr]; // Placeholder for no MBC
     }
     if (addr <= 0x9FFF) { 
         return mmu.vram[addr - 0x8000]; 
     }
     if (addr <= 0xBFFF) {
-        // return mbc_read_ram(&mmu, addr);
-        return mmu.eram[addr - 0xA000]; // Placeholder for no MBC
+        return mbc_read_ram(&mmu, addr);
+        // return mmu.eram[addr - 0xA000]; // Placeholder for no MBC
     }
     if (addr <= 0xDFFF) { 
         return mmu.wram[addr - 0xC000]; 
@@ -153,7 +153,7 @@ uint8_t mmu_read(uint16_t addr) {
  */
 void mmu_write(uint16_t addr, uint8_t value) {
     if (addr <= 0x7FFF) {
-        // mbc_write(&mmu, addr, value);
+        mbc_write_rom(&mmu, addr, value);
         return;
     }
     if (addr <= 0x9FFF) { 
@@ -161,8 +161,8 @@ void mmu_write(uint16_t addr, uint8_t value) {
         return; 
     }
     if (addr <= 0xBFFF) {
-        // mbc_write_ram(&mmu, addr, value);
-        mmu.eram[addr - 0xA000] = value; // Placeholder for no MBC
+        mbc_write_ram(&mmu, addr, value);
+        // mmu.eram[addr - 0xA000] = value; // Placeholder for no MBC
         return;
     }
     if (addr <= 0xDFFF) { 
