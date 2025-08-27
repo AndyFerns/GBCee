@@ -59,10 +59,18 @@ int load_rom(const char* path, uint8_t** out_rom_data, size_t* out_rom_size, mbc
             *out_mbc_type = MBC_TYPE_MBC1;
             break;
 
-        // TBD for all cartridge types
+        // --- MBC 5 --- 
+        case 0x11: case 0x12: case 0x13:
+            *out_mbc_type = MBC_TYPE_MBC3;
+            break;
+
+        // --- MBC 5 --- 
+        case 0x19: case 0x1A: case 0x1B: 
+        case 0x1C: case 0x1D: case 0x1E:
+            *out_mbc_type = MBC_TYPE_MBC5;
+            break;
 
         default: *out_mbc_type = MBC_TYPE_UNKNOWN; break;
-        return 1;
     }
 
     /* Setting output preferences */
