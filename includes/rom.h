@@ -17,6 +17,7 @@
 typedef enum mbc_type_t {
     MBC_TYPE_NONE,
     MBC_TYPE_MBC1,
+    MBC_TYPE_MBC2,
     MBC_TYPE_MBC3,
     MBC_TYPE_MBC5,
     MBC_TYPE_UNKNOWN,
