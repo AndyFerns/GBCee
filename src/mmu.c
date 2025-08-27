@@ -34,7 +34,7 @@
 // ===================================================
 
 
-mmu_t mmu; // change to static after running unit tests
+mmu_t mmu; // static mmu_t mmu change to static after running unit tests
 
 
 // =========================================================
