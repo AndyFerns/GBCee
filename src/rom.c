@@ -55,19 +55,42 @@ int load_rom(const char* path, uint8_t** out_rom_data, size_t* out_rom_size, mbc
         case 0x00: *out_mbc_type = MBC_TYPE_NONE; break;
 
         // --- MBC 1 ---
-        case 0x01: case 0x02: case 0x03:
+        case 0x01: // MBC1 
+        case 0x02: // MBC1 + RAM
+        case 0x03: // MBC1 + BATTERY
             *out_mbc_type = MBC_TYPE_MBC1;
             break;
 
-        // --- MBC 5 --- 
-        case 0x11: case 0x12: case 0x13:
+        // --- MBC2 ---
+        case 0x05: // MBC2
+        case 0x06: // MBC2 + BATTERY
+            // *out_mbc_type = MBC_TYPE_MBC2; // UNCOMMENT after mbc 2 implementation
+            *out_mbc_type = MBC_TYPE_UNKNOWN;
+            break;
+
+        // --- MBC 3 --- 
+        case 0x0F: // MBC3 + TIMER + BATTERY
+        case 0x10: // MBC3 + TIMER + RAM + BATTERY
+        case 0x11: // MBC3
+        case 0x12: // MBC3 + RAM 
+        case 0x13: // MBC3 + RAM + BATTERY
             *out_mbc_type = MBC_TYPE_MBC3;
             break;
 
         // --- MBC 5 --- 
-        case 0x19: case 0x1A: case 0x1B: 
-        case 0x1C: case 0x1D: case 0x1E:
+        case 0x19: // MBC 5 
+        case 0x1A: // MBC5 + RAM
+        case 0x1B: // MBC5 + RAM + BATTERY
+        case 0x1C: // MBC5 + RUMBLE
+        case 0x1D: // MBC5 + RUMBLE + RAM
+        case 0x1E: // MBC5 + RUMBLE + RAM + BATTERY
             *out_mbc_type = MBC_TYPE_MBC5;
+            break;
+
+        // --- uncommon MBC types ---
+        case 0x08: // ROM + RAM
+        case 0x09: // ROM + RAM + BATTERY
+            *out_mbc_type = MBC_TYPE_NONE; // behaves like ROM_ONLY but has RAM lol
             break;
 
         default: *out_mbc_type = MBC_TYPE_UNKNOWN; break;
