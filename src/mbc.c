@@ -27,19 +27,35 @@ void mbc_init(mmu_t* mmu) {
 uint8_t mbc_read_rom(mmu_t* mmu, uint16_t addr) {
     uint32_t rom_offset = 0;
 
-    // Bank 00 is always read directly from 0x0000-0x3FFF
-    if (addr < 0x4000) {
-        rom_offset = addr;
-    } else { // Switchable bank area 0x4000-0x7FFF
-        // Calculate the offset into the ROM data based on the current bank
-        rom_offset = (mmu->current_rom_bank * 0x4000) + (addr - 0x4000);
+     // --- FIX: Use a switch to handle different MBC types correctly. ---
+    switch (mmu->mbc_type) {
+        case MBC_TYPE_NONE:
+            // For ROM_ONLY, the address is the offset. No banking.
+            rom_offset = addr;
+            break;
+
+        case MBC_TYPE_MBC1:
+            if (addr < 0x4000) {
+                // Bank 00 is usually at 0x0000-0x3FFF.
+                // In advanced mode, this can change, but for now, this is correct.
+                rom_offset = addr;
+            } else {
+                // The switchable bank is at 0x4000-0x7FFF.
+                rom_offset = (mmu->current_rom_bank * 0x4000) + (addr - 0x4000);
+            }
+            break;
+
+        // TODO: Add cases for MBC3, MBC5, etc.
+        default:
+            // Default to ROM_ONLY behavior for unknown types.
+            rom_offset = addr;
+            break;
     }
 
-    // Bounds check against the actual size of the loaded ROM
     if (rom_offset < mmu->rom_size) {
         return mmu->rom_data[rom_offset];
     }
-    return 0xFF; // Return 0xFF if out of bounds
+    return 0xFF; // Return 0xFF if out of bounds.
 }
 
 
@@ -80,7 +96,7 @@ void mbc_write_rom(mmu_t* mmu, uint16_t addr, uint8_t value) {
             // Placeholder
             break;
 
-        // case MBC_TYPE_ROM_ONLY:
+        case MBC_TYPE_NONE:
         default:
             // Do nothing for ROM ONLY cartridges
             break;
