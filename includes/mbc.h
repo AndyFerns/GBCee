@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "mmu.h"
 
-struct mmu_t;
+typedef struct mmu_t mmu_t;
 
 /**
  * @brief initializes the memory bank controller system
