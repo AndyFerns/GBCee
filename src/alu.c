@@ -177,10 +177,10 @@ void ADD_HL(uint16_t val) {
     uint16_t old_hl = REG_HL;
 
     //preserve Z, reset N, clear H and C
-    cpu.F &= ~FLAG_Z; // Z flag is NOT affected by this instruction
+    cpu.F &= FLAG_Z; // Z flag is NOT affected by this instruction
 
     // Check half carry from bit 11
-    if (((REG_HL & 0x0FFF) + (val & 0x0FFF)) > 0x0FFF)
+    if (((old_hl & 0x0FFF) + (val & 0x0FFF)) > 0x0FFF)
         cpu.F |= FLAG_H;
     else
         cpu.F &= ~FLAG_H;
@@ -192,8 +192,7 @@ void ADD_HL(uint16_t val) {
         cpu.F &= ~FLAG_C;
 
     // set H and L values as expected
-    cpu.H = (result >> 8) & 0xFF;
-    cpu.L = result & 0xFF;
+    SET_REG_HL(result & 0xFFFF);
 }
 
 /**
