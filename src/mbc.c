@@ -27,10 +27,8 @@ void mbc_init(mmu_t* mmu) {
 uint8_t mbc_read_rom(mmu_t* mmu, uint16_t addr) {
     uint32_t rom_offset = 0;
 
-     // --- FIX: Use a switch to handle different MBC types correctly. ---
     switch (mmu->mbc_type) {
         case MBC_TYPE_NONE:
-            // For ROM_ONLY, the address is the offset. No banking.
             rom_offset = addr;
             break;
 
@@ -41,13 +39,17 @@ uint8_t mbc_read_rom(mmu_t* mmu, uint16_t addr) {
                 rom_offset = addr;
             } else {
                 // The switchable bank is at 0x4000-0x7FFF.
-                rom_offset = (mmu->current_rom_bank * 0x4000) + (addr - 0x4000);
+                // --- FIX: Added logic to handle the bank 0 hardware quirk. ---
+                int effective_bank = mmu->current_rom_bank;
+                // Banks 0x00, 0x20, 0x40, 0x60 are read as bank+1 on MBC1.
+                if (effective_bank == 0x00 || effective_bank == 0x20 || effective_bank == 0x40 || effective_bank == 0x60) {
+                    effective_bank++;
+                }
+                rom_offset = (effective_bank * 0x4000) + (addr - 0x4000);
             }
             break;
 
-        // TODO: Add cases for MBC3, MBC5, etc.
         default:
-            // Default to ROM_ONLY behavior for unknown types.
             rom_offset = addr;
             break;
     }
