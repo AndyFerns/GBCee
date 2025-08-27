@@ -1,5 +1,6 @@
 #include "mbc.h"
 #include "mmu.h"
+#include "rom.h"
 
 #include <string.h>
 #include <stdbool.h>
