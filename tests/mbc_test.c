@@ -4,16 +4,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// --- Test Suite Setup ---
-// Include the public headers for the modules we are testing.
 #include "mmu.h"
 #include "rom.h"
 
-// --- NEW: Accessing the MMU's internal state for testing ---
-// We declare the 'mmu' struct as 'extern'. This tells the compiler that
-// this variable is defined in another source file (mmu.c), and the linker
-// will connect them. This is the correct way to access the internal state
-// of a module for testing, replacing the old `#include "mmu.c"` hack.
 extern mmu_t mmu;
 
 // =============================================================================
@@ -31,7 +24,7 @@ static int tests_failed = 0;
     do { \
         tests_run++; \
         if ((a) != (b)) { \
-            fprintf(stderr, "    [FAIL] %s:%d: " message " - Expected 0x%X, got 0x%X\n", __FILE__, __LINE__, (int)(a), (int)(b)); \
+            fprintf(stderr, "    [FAIL] %s:%d: " message " - Expected 0x%X, got 0x%X\n", __FILE__, __LINE__, (int)(b), (int)(a)); \
             tests_failed++; \
         } else { \
             printf("    [PASS] %s\n", message); \
@@ -42,7 +35,6 @@ static int tests_failed = 0;
 // Test Helper Functions
 // =============================================================================
 
-// Helper to create a dummy ROM file on disk for testing
 void create_dummy_rom(const char* filename, size_t size, mbc_type_t mbc_type) {
     FILE* f = fopen(filename, "wb");
     assert(f != NULL);
