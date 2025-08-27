@@ -174,9 +174,10 @@ void CP_A(uint8_t val) {
  */
 void ADD_HL(uint16_t val) {
     uint32_t result = REG_HL + val;
+    uint16_t old_hl = REG_HL;
 
-    //reset N
-    cpu.F &= ~FLAG_H;
+    //preserve Z, reset N, clear H and C
+    cpu.F &= ~FLAG_Z; // Z flag is NOT affected by this instruction
 
     // Check half carry from bit 11
     if (((REG_HL & 0x0FFF) + (val & 0x0FFF)) > 0x0FFF)
@@ -421,36 +422,34 @@ uint8_t DEC(uint8_t val) {
  * @return none
  */
 void DAA() {
-    uint16_t a = cpu.A; // Use a 16-bit container to easily detect carry
+    uint16_t a = cpu.A;
 
     if (!(cpu.F & FLAG_N)) { // After an addition
-        if ((cpu.F & FLAG_H) || (a & 0x0F) > 9) {
+        if ((cpu.F & FLAG_C) || a > 0x99) {
+            a += 0x60;
+            cpu.F |= FLAG_C;
+        }
+        if ((cpu.F & FLAG_H) || (a & 0x0F) > 0x09) {
             a += 0x06;
         }
-        if ((cpu.F & FLAG_C) || a > 0x9F) {
-            a += 0x60;
-        }
     } else { // After a subtraction
-        if (cpu.F & FLAG_H) {
-            a = (a - 6) & 0xFF;
-        }
         if (cpu.F & FLAG_C) {
             a -= 0x60;
+        }
+        if (cpu.F & FLAG_H) {
+            a -= 0x06;
         }
     }
 
     cpu.F &= ~(FLAG_Z | FLAG_H); // Clear Z and H
 
-    if ((a & 0x100) == 0x100) { // If we carried out of the 8 bits
-        cpu.F |= FLAG_C;
-    }
-
-    cpu.A = a & 0xFF;
-
-    if (cpu.A == 0) {
+    if ((a & 0xFF) == 0) {
         cpu.F |= FLAG_Z;
     }
+    
+    cpu.A = a & 0xFF;
 }
+
 
 /**
  * @brief complement A register (flips all bits)
