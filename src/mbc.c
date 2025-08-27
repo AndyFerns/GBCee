@@ -79,7 +79,7 @@ void mbc_write_rom(mmu_t* mmu, uint16_t addr, uint8_t value) {
             // Placeholder
             break;
 
-        case MBC_TYPE_ROM_ONLY:
+        // case MBC_TYPE_ROM_ONLY:
         default:
             // Do nothing for ROM ONLY cartridges
             break;
