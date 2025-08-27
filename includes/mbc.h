@@ -13,7 +13,7 @@ typedef struct mmu_t mmu_t;
  * 
  * @return void
  */ 
-void mbc_init(struct mmu_t* mmu);
+void mbc_init(mmu_t* mmu);
 
 
 /**
@@ -24,7 +24,7 @@ void mbc_init(struct mmu_t* mmu);
  * 
  * @return Byte read from correctly calculated rom banked area
  */
-uint8_t mbc_read_rom(struct mmu_t* mmu, uint16_t addr);
+uint8_t mbc_read_rom(mmu_t* mmu, uint16_t addr);
 
 
 /**
@@ -36,7 +36,7 @@ uint8_t mbc_read_rom(struct mmu_t* mmu, uint16_t addr);
  * 
  * @return void 
  */
-void mbc_write_rom(struct mmu_t mmu, uint16_t addr, uint8_t val);
+void mbc_write_rom(mmu_t* mmu, uint16_t addr, uint8_t val);
 
 
 /**
@@ -47,7 +47,7 @@ void mbc_write_rom(struct mmu_t mmu, uint16_t addr, uint8_t val);
  * 
  * @returns the byte from the correctly calculated ram area
  */
-uint8_t mbc_read_ram(struct mmu_t* mmu, uint16_t addr);
+uint8_t mbc_read_ram(mmu_t* mmu, uint16_t addr);
 
 
 /**
@@ -59,6 +59,6 @@ uint8_t mbc_read_ram(struct mmu_t* mmu, uint16_t addr);
  * 
  * @returns void
  */
-void mbc_write_ram(struct mmu_t* mmu, uint16_t addr, uint8_t val);
+void mbc_write_ram(mmu_t* mmu, uint16_t addr, uint8_t val);
 
 #endif
