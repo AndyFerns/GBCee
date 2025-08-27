@@ -103,6 +103,8 @@ TEST_CASE(push_pop) {
     ASSERT_EQ(mmu_read(0xFFFD), 0xAB, "PUSH writes high byte");
     ASSERT_EQ(mmu_read(0xFFFC), 0xCD, "PUSH writes low byte");
 
+    // --- FIX: Reset PC before the next instruction in the same test ---
+    cpu.PC = 0x0100;
     SET_REG_DE(0x0000);
     run_opcode(0xD1); // POP DE
     ASSERT_EQ(REG_DE, 0xABCD, "POP DE retrieves correct value");
