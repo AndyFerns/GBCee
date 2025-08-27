@@ -109,6 +109,11 @@ int mmu_load_rom(const char* filepath) {
  * @return Value at that address.
  */
 uint8_t mmu_read(uint16_t addr) {
+    // serial port stubbing
+    // temporarily setting value with bit 7 set
+    if (addr == 0xFF02) {
+        return 0xFF;
+    }
     if (addr <= 0x7FFF) {
         return mbc_read_rom(&mmu, addr);
         // return mmu.rom_data[addr]; // Placeholder for no MBC
