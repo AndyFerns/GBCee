@@ -33,30 +33,6 @@
 // MMU State Structure
 // ===================================================
 
-/// the core mmu struct which stores all memory and state
-typedef struct mmu_t {
-    // dynamically allocated rom data
-    uint8_t* rom_data;
-    size_t rom_size;
-
-    // internal memory regions
-    uint8_t vram[VRAM_SIZE];
-    uint8_t eram[MAX_ERAM_SIZE];
-    uint8_t wram[WRAM_SIZE];
-    uint8_t oam[OAM_SIZE];
-    uint8_t io[IO_SIZE];
-    uint8_t hram[HRAM_SIZE];
-
-    // internal registers
-    uint8_t interrupt_enable;
-    uint8_t interrupt_flag;
-
-    // MBC (Memory bank controller) state
-    mbc_type_t mbc_type;
-    // other mbc types TBD
-    // int current_rom_bank;
-    // bool eram_enabled;
-} mmu_t;
 
 static mmu_t mmu;
 
