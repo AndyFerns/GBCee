@@ -161,24 +161,29 @@ TEST_CASE(alu_8bit_flags) {
 
 TEST_CASE(alu_16bit_flags) {
     setup_test();
+    // Z flag is preserved, so we test both initial states
+    cpu.F = 0; // Z flag is initially clear
     SET_REG_HL(0x0FFF);
     SET_REG_BC(0x0001);
     run_opcode(0x09); // ADD HL, BC
     ASSERT_EQ(REG_HL, 0x1000, "ADD HL, BC result");
-    ASSERT_EQ(cpu.F, FLAG_H, "ADD HL should set H flag on bit 11 carry");
+    ASSERT_EQ(cpu.F, FLAG_H, "ADD HL should set H flag (Z clear)");
 
+    cpu.F = FLAG_Z; // Z flag is initially set
     SET_REG_HL(0xFFFF);
     SET_REG_BC(0x0001);
     cpu.PC = 0x0100;
     run_opcode(0x09); // ADD HL, BC
     ASSERT_EQ(REG_HL, 0x0000, "ADD HL, BC with overflow result");
-    ASSERT_EQ(cpu.F, FLAG_H | FLAG_C, "ADD HL should set H and C flags on overflow");
+    // CORRECTED: Z flag is preserved, not reset
+    ASSERT_EQ(cpu.F, FLAG_Z | FLAG_H | FLAG_C, "ADD HL should set H and C, and preserve Z");
     teardown_test();
 }
 
 TEST_CASE(misc_ops) {
     setup_test();
-    cpu.A = 0b00011001; // 0x19
+    cpu.A = 0x19;
+    cpu.F = 0; // Flags clear from previous ADD
     run_opcode(0x27); // DAA
     ASSERT_EQ(cpu.A, 0x19, "DAA on 0x19 (no change)");
 
