@@ -2,6 +2,7 @@
 #define ALU_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // Arithmeticv operations 
 
