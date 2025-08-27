@@ -152,6 +152,13 @@ uint8_t mmu_read(uint16_t addr) {
  * @param value Byte to write.
  */
 void mmu_write(uint16_t addr, uint8_t value) {
+    // serial port output stubbing
+    if (addr == 0xFF01) {
+        printf("%c", value);
+        fflush(stdout); // immediately print the character
+        return;
+    }
+
     if (addr <= 0x7FFF) {
         mbc_write_rom(&mmu, addr, value);
         return;
