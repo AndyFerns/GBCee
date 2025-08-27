@@ -3,7 +3,62 @@
 
 #include <stdint.h>
 #include <stddef.h> 
+#include <stdbool.h>
 
+#include "rom.h"
+
+// =================================================
+// Global Size definitions
+// =================================================
+
+/// VRAM size (8KB)
+#define VRAM_SIZE 0x2000
+
+/// WRAM size (8KB)
+#define WRAM_SIZE 0x2000
+
+/// HRAM size (127B)
+#define HRAM_SIZE 0x7F
+
+/// OAM size (160 bytes)
+#define OAM_SIZE 0xA0
+
+/// IO register size (128 bytes)
+#define IO_SIZE 0x80
+
+/// Max External RAM size (32KB)
+#define MAX_ERAM_SIZE (32 * 1024)
+
+
+// ===================================================
+// MMU State Structure
+// ===================================================
+
+/// the core mmu struct which stores all memory and state
+typedef struct mmu_t {
+    // dynamically allocated rom data
+    uint8_t* rom_data;
+    size_t rom_size;
+
+    // internal memory regions
+    uint8_t vram[VRAM_SIZE];
+    uint8_t eram[MAX_ERAM_SIZE];
+    uint8_t wram[WRAM_SIZE];
+    uint8_t oam[OAM_SIZE];
+    uint8_t io[IO_SIZE];
+    uint8_t hram[HRAM_SIZE];
+
+    // internal registers
+    uint8_t interrupt_enable;
+    uint8_t interrupt_flag;
+
+    // MBC (Memory bank controller) state
+    mbc_type_t mbc_type;
+    bool ram_enabled;
+    int current_rom_bank;
+    int current_ram_bank;
+    int mbc1_mode;
+} mmu_t;
 
 /**
  * @brief mmu_init - 
