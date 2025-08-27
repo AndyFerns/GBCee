@@ -10,10 +10,6 @@
 #include "alu.h"
 
 // --- Test Suite Setup ---
-// We declare the main cpu and mmu structs as 'extern'. This tells the compiler
-// that these variables are defined in other source files (cpu.c and mmu.c),
-// and the linker will connect them. This is the correct way to access the
-// internal state of a module for testing.
 extern CPU cpu;
 extern mmu_t mmu;
 
@@ -42,207 +38,201 @@ static int tests_failed = 0;
 void setup_test() {
     mmu_init();
     cpu_reset();
-    // Create a dummy 32KB ROM space for the CPU to execute from
     mmu.rom_data = (uint8_t*)calloc(32 * 1024, 1);
     mmu.rom_size = 32 * 1024;
+    cpu.PC = 0x0100; // Default start for all tests
 }
 
 void teardown_test() {
     mmu_free();
 }
 
+// Helper to execute a single opcode placed at 0x0100
+void run_opcode(uint8_t opcode) {
+    mmu.rom_data[0x0100] = opcode;
+    cpu_step();
+}
+
+// Helper for 2-byte opcodes
+void run_opcode_d8(uint8_t opcode, uint8_t d8) {
+    mmu.rom_data[0x0100] = opcode;
+    mmu.rom_data[0x0101] = d8;
+    cpu_step();
+}
+
+// Helper for 3-byte opcodes
+void run_opcode_d16(uint8_t opcode, uint16_t d16) {
+    mmu.rom_data[0x0100] = opcode;
+    mmu.rom_data[0x0101] = d16 & 0xFF;
+    mmu.rom_data[0x0102] = (d16 >> 8) & 0xFF;
+    cpu_step();
+}
+
 // =============================================================================
 // Test Cases
 // =============================================================================
 
-TEST_CASE(ld_8bit_immediate) {
+TEST_CASE(ld_8bit_ops) {
     setup_test();
-    mmu.rom_data[0x0100] = 0x06; // LD B, n
-    mmu.rom_data[0x0101] = 0xAB;
-    cpu.PC = 0x0100;
+    run_opcode_d8(0x06, 0xAB); // LD B, 0xAB
+    ASSERT_EQ(cpu.B, 0xAB, "LD B, n");
+    ASSERT_EQ(cpu.PC, 0x0102, "PC advances by 2");
     
-    cpu_step();
-    
-    ASSERT_EQ(cpu.B, 0xAB, "LD B, 0xAB");
-    ASSERT_EQ(cpu.PC, 0x0102, "PC should advance by 2");
-    teardown_test();
-}
-
-TEST_CASE(ld_8bit_reg_to_reg) {
-    setup_test();
     cpu.C = 0xBE;
-    mmu.rom_data[0x0100] = 0x41; // LD B, C
     cpu.PC = 0x0100;
-
-    cpu_step();
-
+    run_opcode(0x41); // LD B, C
     ASSERT_EQ(cpu.B, 0xBE, "LD B, C");
-    ASSERT_EQ(cpu.PC, 0x0101, "PC should advance by 1");
+    ASSERT_EQ(cpu.PC, 0x0101, "PC advances by 1");
     teardown_test();
 }
 
-TEST_CASE(ld_16bit_immediate) {
+TEST_CASE(ld_16bit_ops) {
     setup_test();
-    mmu.rom_data[0x0100] = 0x21; // LD HL, nn
-    mmu.rom_data[0x0101] = 0xAD; // Low byte
-    mmu.rom_data[0x0102] = 0xDE; // High byte
-    cpu.PC = 0x0100;
-
-    cpu_step();
-    
+    run_opcode_d16(0x21, 0xDEAD); // LD HL, 0xDEAD
     ASSERT_EQ(REG_HL, 0xDEAD, "LD HL, 0xDEAD");
-    ASSERT_EQ(cpu.PC, 0x0103, "PC should advance by 3");
+    ASSERT_EQ(cpu.PC, 0x0103, "PC advances by 3");
     teardown_test();
 }
 
-TEST_CASE(add_a_reg) {
+TEST_CASE(push_pop) {
     setup_test();
-    cpu.A = 0x10;
-    cpu.B = 0x05;
-    mmu.rom_data[0x0100] = 0x80; // ADD A, B
-    cpu.PC = 0x0100;
+    SET_REG_BC(0xABCD);
+    cpu.SP = 0xFFFE;
+    run_opcode(0xC5); // PUSH BC
+    ASSERT_EQ(cpu.SP, 0xFFFC, "SP decrements by 2 after PUSH");
+    ASSERT_EQ(mmu_read(0xFFFD), 0xAB, "PUSH writes high byte");
+    ASSERT_EQ(mmu_read(0xFFFC), 0xCD, "PUSH writes low byte");
 
-    cpu_step();
-
-    ASSERT_EQ(cpu.A, 0x15, "ADD A, B result");
-    ASSERT_EQ(cpu.F & FLAG_Z, 0, "Z flag should be reset");
-    ASSERT_EQ(cpu.F & FLAG_N, 0, "N flag should be reset");
-    ASSERT_EQ(cpu.F & FLAG_H, 0, "H flag should be reset");
-    ASSERT_EQ(cpu.F & FLAG_C, 0, "C flag should be reset");
+    SET_REG_DE(0x0000);
+    run_opcode(0xD1); // POP DE
+    ASSERT_EQ(REG_DE, 0xABCD, "POP DE retrieves correct value");
+    ASSERT_EQ(cpu.SP, 0xFFFE, "SP increments by 2 after POP");
     teardown_test();
 }
 
-TEST_CASE(add_a_half_carry) {
+TEST_CASE(add_sub_flags) {
     setup_test();
     cpu.A = 0x0F;
     cpu.B = 0x01;
-    mmu.rom_data[0x0100] = 0x80; // ADD A, B
+    run_opcode(0x80); // ADD A, B
+    ASSERT_EQ(cpu.A, 0x10, "ADD A, B result");
+    ASSERT_EQ(cpu.F, FLAG_H, "ADD should set Half Carry flag");
+
+    cpu.A = 0xFF;
+    cpu.B = 0x01;
     cpu.PC = 0x0100;
+    run_opcode(0x80); // ADD A, B
+    ASSERT_EQ(cpu.A, 0x00, "ADD with carry result");
+    ASSERT_EQ(cpu.F, FLAG_Z | FLAG_H | FLAG_C, "ADD should set Z, H, and C flags");
 
-    cpu_step();
-
-    ASSERT_EQ(cpu.A, 0x10, "ADD A, B with half carry result");
-    ASSERT_EQ(cpu.F & FLAG_H, FLAG_H, "H flag should be set on half carry");
+    cpu.A = 0x10;
+    cpu.C = 0x01;
+    cpu.PC = 0x0100;
+    run_opcode(0x91); // SUB C
+    ASSERT_EQ(cpu.A, 0x0F, "SUB result");
+    ASSERT_EQ(cpu.F, FLAG_N | FLAG_H, "SUB should set N and H flags");
     teardown_test();
 }
 
-TEST_CASE(sub_a_reg) {
+TEST_CASE(and_or_xor_cp_flags) {
     setup_test();
-    cpu.A = 0x15;
-    cpu.C = 0x05;
-    mmu.rom_data[0x0100] = 0x91; // SUB C
+    cpu.A = 0b11001100;
+    run_opcode_d8(0xE6, 0b10101010); // AND 0b10101010
+    ASSERT_EQ(cpu.A, 0b10001000, "AND result");
+    ASSERT_EQ(cpu.F, FLAG_H, "AND should set H flag");
+
+    cpu.A = 0b11001100;
     cpu.PC = 0x0100;
+    run_opcode_d8(0xF6, 0b00110011); // OR 0b00110011
+    ASSERT_EQ(cpu.A, 0b11111111, "OR result");
+    ASSERT_EQ(cpu.F, 0, "OR should clear all flags");
 
-    cpu_step();
+    cpu.A = 0xFF;
+    cpu.PC = 0x0100;
+    run_opcode_d8(0xEE, 0xFF); // XOR 0xFF
+    ASSERT_EQ(cpu.A, 0x00, "XOR result");
+    ASSERT_EQ(cpu.F, FLAG_Z, "XOR should set Z flag");
 
-    ASSERT_EQ(cpu.A, 0x10, "SUB C result");
-    ASSERT_EQ(cpu.F & FLAG_Z, 0, "Z flag should be reset");
-    ASSERT_EQ(cpu.F & FLAG_N, FLAG_N, "N flag should be set");
+    cpu.A = 0x3C;
+    cpu.PC = 0x0100;
+    run_opcode_d8(0xFE, 0x3C); // CP 0x3C
+    ASSERT_EQ(cpu.A, 0x3C, "CP should not change A");
+    ASSERT_EQ(cpu.F, FLAG_Z | FLAG_N, "CP should set Z and N flags on equal");
     teardown_test();
 }
 
-TEST_CASE(sub_a_zero_flag) {
+TEST_CASE(inc_dec_16bit_edge_cases) {
     setup_test();
-    cpu.A = 0x15;
-    cpu.C = 0x15;
-    mmu.rom_data[0x0100] = 0x91; // SUB C
+    SET_REG_HL(0xFFFF);
+    run_opcode(0x23); // INC HL
+    ASSERT_EQ(REG_HL, 0x0000, "INC HL should wrap from 0xFFFF to 0x0000");
+    
+    SET_REG_BC(0x0000);
     cpu.PC = 0x0100;
-
-    cpu_step();
-
-    ASSERT_EQ(cpu.A, 0x00, "SUB C with zero result");
-    ASSERT_EQ(cpu.F & FLAG_Z, FLAG_Z, "Z flag should be set on zero result");
-    ASSERT_EQ(cpu.F & FLAG_N, FLAG_N, "N flag should be set");
+    run_opcode(0x0B); // DEC BC
+    ASSERT_EQ(REG_BC, 0xFFFF, "DEC BC should wrap from 0x0000 to 0xFFFF");
     teardown_test();
 }
 
-TEST_CASE(inc_16bit) {
+TEST_CASE(jumps_and_calls) {
     setup_test();
-    SET_REG_BC(0x1233);
-    mmu.rom_data[0x0100] = 0x03; // INC BC
-    cpu.PC = 0x0100;
-
-    cpu_step();
-
-    ASSERT_EQ(REG_BC, 0x1234, "INC BC");
-    teardown_test();
-}
-
-TEST_CASE(jp_unconditional) {
-    setup_test();
-    mmu.rom_data[0x0100] = 0xC3; // JP nn
-    mmu.rom_data[0x0101] = 0xAD; // Low byte
-    mmu.rom_data[0x0102] = 0xDE; // High byte
-    cpu.PC = 0x0100;
-
-    cpu_step();
-
+    run_opcode_d16(0xC3, 0xDEAD); // JP 0xDEAD
     ASSERT_EQ(cpu.PC, 0xDEAD, "JP should set PC to the new address");
-    teardown_test();
-}
 
-TEST_CASE(jp_conditional_taken) {
-    setup_test();
-    cpu.F = FLAG_Z; // Set Z flag
-    mmu.rom_data[0x0100] = 0xCA; // JP Z, nn
-    mmu.rom_data[0x0101] = 0xAD; // Low byte
-    mmu.rom_data[0x0102] = 0xDE; // High byte
     cpu.PC = 0x0100;
+    cpu.F = FLAG_C; // Set Carry flag
+    run_opcode_d16(0xD2, 0xBEEF); // JP NC, 0xBEEF (not taken)
+    ASSERT_EQ(cpu.PC, 0x0103, "JP NC should not be taken when C is set");
 
-    cpu_step();
-
-    ASSERT_EQ(cpu.PC, 0xDEAD, "Conditional JP Z should be taken when Z is set");
-    teardown_test();
-}
-
-TEST_CASE(jp_conditional_not_taken) {
-    setup_test();
-    cpu.F = 0; // Clear Z flag
-    mmu.rom_data[0x0100] = 0xCA; // JP Z, nn
-    mmu.rom_data[0x0101] = 0xAD; // Low byte
-    mmu.rom_data[0x0102] = 0xDE; // High byte
     cpu.PC = 0x0100;
-
-    cpu_step();
-
-    ASSERT_EQ(cpu.PC, 0x0103, "Conditional JP Z should not be taken when Z is clear");
+    cpu.SP = 0xFFFE;
+    run_opcode_d16(0xCD, 0xFACE); // CALL 0xFACE
+    ASSERT_EQ(cpu.PC, 0xFACE, "CALL should jump to new address");
+    ASSERT_EQ(cpu.SP, 0xFFFC, "CALL should push return address, decrementing SP");
+    ASSERT_EQ(mmu_read(0xFFFD), 0x01, "Return address high byte pushed to stack");
+    ASSERT_EQ(mmu_read(0xFFFC), 0x03, "Return address low byte pushed to stack");
     teardown_test();
 }
 
-TEST_CASE(cb_bit_test) {
+TEST_CASE(cb_bit_ops) {
     setup_test();
-    cpu.A = 0b10000000; // Bit 7 is set
-    mmu.rom_data[0x0100] = 0xCB;
-    mmu.rom_data[0x0101] = 0x7F; // BIT 7, A
+    cpu.A = 0b10101010;
+    run_opcode_d8(0xCB, 0x7F); // BIT 7, A
+    ASSERT_EQ((cpu.F & FLAG_Z), 0, "BIT 7, A should clear Z flag (bit is set)");
+
+    cpu.A = 0b01111111;
     cpu.PC = 0x0100;
+    run_opcode_d8(0xCB, 0x7F); // BIT 7, A
+    ASSERT_EQ((cpu.F & FLAG_Z), FLAG_Z, "BIT 7, A should set Z flag (bit is clear)");
 
-    cpu_step();
+    cpu.B = 0b00000000;
+    cpu.PC = 0x0100;
+    run_opcode_d8(0xCB, 0xC0); // SET 0, B
+    ASSERT_EQ(cpu.B, 0b00000001, "SET 0, B");
 
-    ASSERT_EQ((cpu.F & FLAG_Z), 0, "BIT 7, A should clear Z flag when bit is set");
-    ASSERT_EQ((cpu.F & FLAG_N), 0, "BIT should reset N flag");
-    ASSERT_EQ((cpu.F & FLAG_H), FLAG_H, "BIT should set H flag");
+    cpu.C = 0b11111111;
+    cpu.PC = 0x0100;
+    run_opcode_d8(0xCB, 0x99); // RES 3, C
+    ASSERT_EQ(cpu.C, 0b11110111, "RES 3, C");
     teardown_test();
 }
+
 
 // =============================================================================
 // Test Runner
 // =============================================================================
 
 int main() {
-    printf("Starting CPU test suite...\n\n");
+    printf("Starting Robust CPU test suite...\n\n");
 
-    RUN_TEST(ld_8bit_immediate);
-    RUN_TEST(ld_8bit_reg_to_reg);
-    RUN_TEST(ld_16bit_immediate);
-    RUN_TEST(add_a_reg);
-    RUN_TEST(add_a_half_carry);
-    RUN_TEST(sub_a_reg);
-    RUN_TEST(sub_a_zero_flag);
-    RUN_TEST(inc_16bit);
-    RUN_TEST(jp_unconditional);
-    RUN_TEST(jp_conditional_taken);
-    RUN_TEST(jp_conditional_not_taken);
-    RUN_TEST(cb_bit_test);
+    RUN_TEST(ld_8bit_ops);
+    RUN_TEST(ld_16bit_ops);
+    RUN_TEST(push_pop);
+    RUN_TEST(add_sub_flags);
+    RUN_TEST(and_or_xor_cp_flags);
+    RUN_TEST(inc_dec_16bit_edge_cases);
+    RUN_TEST(jumps_and_calls);
+    RUN_TEST(cb_bit_ops);
 
     printf("\n----------------------------------------\n");
     if (tests_failed == 0) {
