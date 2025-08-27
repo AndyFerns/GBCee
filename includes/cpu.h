@@ -27,6 +27,28 @@ typedef struct CPU {
 
 extern CPU cpu;
 
+
+
+/* HELPER MACRO DEFINITIONS */
+
+/* Helper macros for combined 16-bit registers */
+#define REG_BC ((cpu.B << 8) | cpu.C)
+#define REG_DE ((cpu.D << 8) | cpu.E)
+#define REG_HL ((cpu.H << 8) | cpu.L)
+
+/* Setter macros for 16-bit operations */ 
+#define SET_REG_BC(val) do { cpu.B = ((val) >> 8) & 0xFF; cpu.C = (val) & 0xFF; } while (0)
+#define SET_REG_DE(val) do { cpu.D = ((val) >> 8) & 0xFF; cpu.E = (val) & 0xFF; } while (0)
+#define SET_REG_HL(val) do { cpu.H = ((val) >> 8) & 0xFF; cpu.L = (val) & 0xFF; } while (0)
+
+/* Flag definitions for Zero(Z), Negative(N), Half-Carry(H), and Carry(C) */
+#define FLAG_Z 0x80
+#define FLAG_N 0x40
+#define FLAG_H 0x20
+#define FLAG_C 0x10
+
+
+
 /**
  * cpu_reset - Resets the CPU to its post-BIOS state.
  *
