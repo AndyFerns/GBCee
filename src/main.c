@@ -51,13 +51,13 @@ int main(int argc, char *argv[]) {
          * cpu step handles the halted state internally
          * doesnt fetch an opcode for halting
         */
-        cpu_step();
-
-        // Future work:
-        // - Handle timers
-        // - Render graphics
-        // - Handle input
-        // - Trigger interrupts
+        if (!cpu_step()) {
+            break;
+        }
+        // PLACEHOLDER: Future hardware steps will go here.
+        // ppu_step(cycles_from_cpu);
+        // timer_step(cycles_from_cpu);
+        // handle_interrupts();
     }
     
     printf(" --- Emulation Halted --- ");
