@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "cpu.h"
 #include "mmu.h"
@@ -214,13 +215,13 @@ void ADD_SP(int8_t val) {
     cpu.F = 0; // Reset Z and N
 
     // Half-carry check (bit 3)
-    if (((sp & 0xF) + (val & 0xF)) > 0xF)
+    if (((sp & 0x0F) + (val & 0x0F)) > 0x0F) {
         cpu.F |= FLAG_H;
-
+    }
     // Full-carry check (bit 7)
-    if (((sp & 0xFF) + (val & 0xFF)) > 0xFF)
+    if (((sp & 0xFF) + (val & 0xFF)) > 0xFF) {
         cpu.F |= FLAG_C;
-
+    }
     cpu.SP = result;
 }
 
