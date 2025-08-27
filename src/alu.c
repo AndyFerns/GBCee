@@ -547,9 +547,10 @@ uint8_t RLC(uint8_t value, bool *carry_out) {
  * @return uint8_t The result of rotation
  */
 uint8_t RL(uint8_t value, bool carry_in, bool *carry_out) {
-    uint8_t bit7 = (value >> 7) & 0x01;
+    // The new carry flag is the top bit of the ORIGINAL value
+    *carry_out = (value & 0x80) != 0; 
+    
     uint8_t result = (value << 1) | (carry_in ? 1 : 0);
-    *carry_out = bit7;
     return result;
 }
 
