@@ -46,15 +46,15 @@ Here’s the milestone roadmap sorted into logical steps. Let’s track your pro
 
 - [x] Map the Game Boy’s memory layout:
 
-- [ ] ROM Bank 0 (0x0000–0x3FFF)
+- [] ROM Bank 0 (0x0000–0x3FFF)
 
 - [ ] ROM Bank N (0x4000–0x7FFF) — needs banking logic for MBCs
 
-- [ ] VRAM (0x8000–0x9FFF)
+- [x] VRAM (0x8000–0x9FFF)
 
-- [ ] External RAM (0xA000–0xBFFF)
+- [x] External RAM (0xA000–0xBFFF)
 
-- [ ] WRAM, Echo RAM, OAM, IO, etc.
+- [x] WRAM, Echo RAM, OAM, IO, etc.
 
 - [x] Use a read_byte() and write_byte() abstraction for MMU.
 
@@ -98,11 +98,11 @@ Here’s the milestone roadmap sorted into logical steps. Let’s track your pro
 
 ## MBC (Memory Bank Controllers)
 
-- [ ]  MBC0: No banking
+- [x]  MBC0: No banking
 
-- [ ]  MBC1: Switchable ROM/RAM banks
+- [x]  MBC1: Switchable ROM/RAM banks
 
-- [ ]  MBC2, MBC3 (RTC), MBC5 (big ROM support)
+- []  MBC2, MBC3 (RTC), MBC5 (big ROM support)
 
 - 📦 Needed to support most real GB games.
 
