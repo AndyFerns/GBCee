@@ -1558,8 +1558,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // CALL NC, nn
         case 0xD4: {
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
             if ((cpu.F & FLAG_C) == 0) {
                 push16(cpu.PC);
                 cpu.PC = addr;
