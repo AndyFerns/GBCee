@@ -47,16 +47,16 @@ void cpu_reset() {
  * @returns 
  * Returns cycle count
  */
-bool cpu_step() {
+int cpu_step() {
     // Halt if PC goes beyond 64KB or ROM loaded range
     if (cpu.PC == 0xFFFF) { // ((uint32_t)cpu.PC >= 0x10000)
         printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
         cpu.halted = true;
-        return false;
+        return 4;
     }
 
     if (cpu.halted) {
-        return false;
+        return 4;
     }
 
     uint16_t pc = cpu.PC;
