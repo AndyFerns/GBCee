@@ -167,14 +167,15 @@ bool execute_opcode(uint8_t opcode) {
          * LD H,n  26   
          * LD L,n  2E 
          */
-        // case 0x3E: cpu.A = mmu_read(cpu.PC++); break; // LD A,#
+        // case 0x3E: cpu.A = fetch_d8(); break; // LD A,#
         // case 0x3E implemented further
-        case 0x06: cpu.B = mmu_read(cpu.PC++); break; // LD B, n
-        case 0x0E: cpu.C = mmu_read(cpu.PC++); break; // LD C, n
-        case 0x16: cpu.D = mmu_read(cpu.PC++); break; // LD D, n
-        case 0x1E: cpu.E = mmu_read(cpu.PC++); break; // LD E,n
-        case 0x26: cpu.H = mmu_read(cpu.PC++); break; // LD H, n
-        case 0x2E: cpu.L = mmu_read(cpu.PC++); break; // LD L, n
+        case 0x06: cpu.B = fetch_d8(); break; // LD B, n
+        case 0x0E: cpu.C = fetch_d8(); break; // LD C, n
+        case 0x16: cpu.D = fetch_d8(); break; // LD D, n
+        case 0x1E: cpu.E = fetch_d8(); break; // LD E, n
+        case 0x26: cpu.H = fetch_d8(); break; // LD H, n
+        case 0x2E: cpu.L = fetch_d8(); break; // LD L, n
+
 
         /** 
          * 2. LD r1, r2
@@ -260,9 +261,10 @@ bool execute_opcode(uint8_t opcode) {
         case 0x74: mmu_write(REG_HL, cpu.H); break; // LD (HL), H
         case 0x75: mmu_write(REG_HL, cpu.L); break; // LD (HL), L
 
+
         // LD (HL), n-- 12 cycle count
         case 0x36: {
-            uint8_t val = mmu_read(cpu.PC++);
+            uint8_t val = fetch_d8();
             // write value at HL register (already defined w macro)
             mmu_write(REG_HL, val);
             break;
@@ -281,36 +283,9 @@ bool execute_opcode(uint8_t opcode) {
 
         // 0x7F - 0x7D already implemented
 
-        // A, (BC)
-        // case 0x0A:
-        //     // load from memory address pointed by BC into A
-        //     uint16_t addr = ((uint8_t)cpu.B << 8) | cpu.C;
-        //     cpu.A = mmu_read(addr);
-
-        //     cpu.PC++;
-        //     break;
-
         case 0x0A: cpu.A = mmu_read(REG_BC); break;
 
-        // A, (DE)
-        // case 0x1A:
-        //     // load from memory address pointed by DE into A
-        //     uint16_t addr = ((uint8_t)cpu.D << 8) | cpu.E;
-        //     cpu.A = mmu_read(addr);
-
-        //     cpu.PC++;
-        //     break;
-
         case 0x1A: cpu.A = mmu_read(REG_DE); break;
-
-        // A, (HL)
-        // case 0x7E:
-        //     // load from memory address pointed by HL into A
-        //     uint16_t addr = ((uint8_t)cpu.H << 8) | cpu.L;
-        //     cpu.A = mmu_read(addr);
-
-        //     cpu.PC++;
-        //     break;
 
         // case 0x7E: cpu.A = mmu_read(REG_HL); break;
 
@@ -318,25 +293,17 @@ bool execute_opcode(uint8_t opcode) {
         case 0xFA:{
             // load from absolute 16-bit address into A
             // PC is at the address of the first operand byte
-            uint8_t low = mmu_read(cpu.PC);
-            uint8_t high = mmu_read(cpu.PC + 1);
-            uint16_t addr = ((uint16_t)high << 8) | low;
-
+            uint16_t addr = fetch_d16();
             cpu.A = mmu_read(addr);
-            // advance PC past the two-byte operand
-            cpu.PC += 2;
             break;
         }
 
         // A, # case 0x3E
         // Load immediate 8-bit value int A
         case 0x3E:{
-            cpu.A = mmu_read(cpu.PC + 1); // read the immediate value
-            cpu.PC += 2; // move pc past opcode and operand
-
+            cpu.A = fetch_d8();
             break;
         }
-
 
 
         /**
@@ -364,13 +331,8 @@ bool execute_opcode(uint8_t opcode) {
 
         // LD (nn = 16 bit immediate address), A 
         case 0xEA: {
-            uint8_t low = mmu_read(cpu.PC + 1);
-            uint8_t high = mmu_read(cpu.PC  + 2);
-            uint16_t addr = ((uint16_t)high << 8) | low;
-
+            uint16_t addr = fetch_d16();
             mmu_write(addr, cpu.A);
-            cpu.PC += 3; //opcode +2 byte address
-
             break;
         }
 
@@ -391,13 +353,14 @@ bool execute_opcode(uint8_t opcode) {
          * 
          * put value at address $FF00 + register C into A
          * same as LD A, ($FF00 + C) 
+         * 
+         * one byte instruction only, do NOT take an operand
+         * from the rom and instead just execute the one byte instruction
          */
 
         case 0xF2:{
             uint16_t addr = 0xFF00 + cpu.C;
             cpu.A = mmu_read(addr);
-
-            cpu.PC++;
             break;
         }
 
@@ -406,14 +369,15 @@ bool execute_opcode(uint8_t opcode) {
          * 
          * put value of A into address $FF00 + register C
          * opposite to that of LD A, C
+         * 
+         * one byte instruction only, do NOT take an operand
+         * from the rom and instead just execute the one byte instruction
          *   
          */
         
         case 0xE2:{
             uint16_t addr = 0xFF00 + cpu.C;
             mmu_write(addr, cpu.A);
-
-            cpu.PC++;
             break;
         }
 
@@ -539,8 +503,8 @@ bool execute_opcode(uint8_t opcode) {
          */
 
         case 0xE0:{
-            uint16_t n = mmu_read(cpu.PC++); // taking n as offset
-            uint16_t addr = 0xFF00 + n; 
+            uint16_t offset = fetch_d8(); // taking an offset
+            uint16_t addr = 0xFF00 + offset; 
 
             mmu_write(addr, cpu.A);
             break;
@@ -556,10 +520,8 @@ bool execute_opcode(uint8_t opcode) {
          */
 
         case 0xF0:{
-            uint16_t n = mmu_read(cpu.PC++);
-            uint16_t addr = 0xFF00 + n;
-
-            cpu.A = mmu_read(addr);
+            uint8_t offset = fetch_d8();
+            cpu.A = mmu_read(0xFF00 + offset);
             break;
         }
 
@@ -601,6 +563,7 @@ bool execute_opcode(uint8_t opcode) {
         // LD SP (Stack pointer), nn
         case 0x31:{
             cpu.SP = fetch_d16();
+            break;
         }
 
 
