@@ -50,42 +50,43 @@ extern CPU cpu;
 
 
 /**
- * cpu_reset - Resets the CPU to its post-BIOS state.
+ * @brief cpu_reset - Resets the CPU to its post-BIOS state.
  *
- * Initializes registers and sets PC to 0x0100.
+ * @details Initializes registers and sets PC to 0x0100.
  * No parameters, no return value.
  */
 void cpu_reset();
 
 /**
- * cpu_step - Executes a single CPU instruction.
+ * @brief cpu_step - Executes a single CPU instruction.
  *
- * Fetches, decodes, and executes one instruction at PC.
+ * @details Fetches, decodes, and executes one instruction at PC.
  * May modify CPU registers and memory.
- * No parameters 
  * 
- * Return Value: 
- * Returns cycle count
+ * @param None 
+ * 
+ * @returns cycle count 
  */
-bool cpu_step();
+int cpu_step();
 
 /**
- * execute_opcode: Execution suite for an opcode
+ * @brief execute_opcode: Execution suite for an opcode
  * 
- * Parameters: 
- * @opcode: 8-bit opcode
+ * @param opcode: 8-bit opcode
  *
- * Return:
+ * @returns
  * int
  */
 bool execute_opcode(uint8_t opcode);
 
 /**
- * Executes CB Opcodes
- * Separated from execute_opcode for logic
+ * @brief execute_cb_opcode: Executes CB Opcodes inside the cpu step
+ * 
+ * eparated from execute_opcode for logic
  *
- * @return  bool    
- * returns true if CB opcode is succesfully executed
+ * @return bool    
+ * 
+ * @note returns true if CB opcode is succesfully executed
  * returns false otherwise
  */
 bool execute_cb_opcode(uint8_t opcode); 
