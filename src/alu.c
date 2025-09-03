@@ -208,7 +208,7 @@ void ADD_HL(uint16_t val) {
  * 
  * @returns void
  */
-void ADD_SP(int8_t val) {
+void ADD_SP(uint16_t val) {
     uint16_t sp = cpu.SP;
     uint16_t result = sp + val;
 
@@ -739,7 +739,7 @@ void RES(uint8_t* value, uint8_t bit) {
  * 
  *  The stack grows downward so high byte is pushed first (big-endian on stack)
  * 
- * @param val 
+ * @param val :value to be pushed
  */
 void push16(uint16_t val) {
     mmu_write(--cpu.SP, (val >> 8) & 0xFF); // higher byte
