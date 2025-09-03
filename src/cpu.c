@@ -94,6 +94,42 @@ bool cpu_step() {
     return success;
 }
 
+// helper functions for PC Incrementing
+
+/**
+ * @brief Function to fetch the next 8-bit value
+ * 
+ * @details Fetches the next 8-bit immediate value and increments the PC
+ * 
+ * @note the definition scope for this function needs to be static
+ * 
+ * @param none
+ * 
+ * @returns the immediate 8-bit value uint8_t 
+ */
+static uint8_t fetch_d8() {
+    return(mmu_read(cpu.PC++));
+}
+
+
+/**
+ * @brief Function to fetch the next 16-bit value
+ * 
+ * @details Fetches the next 16-bit immediate value (little-endian) and advances the PC
+ * 
+ * @note the definition scope is required to be static
+ * 
+ * @param none
+ * 
+ * @returns next 16-bit immediate value 
+ */
+static uint16_t fetch_d16() {
+    uint8_t low = mmu_read(cpu.PC++);
+    uint8_t high = mmu_read(cpu.PC++);
+    return (high << 8) | low;
+}
+
+
 /**
  * execute_opcode()-
  * Decodes and executes given 8-bit opcode 
