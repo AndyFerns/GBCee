@@ -772,11 +772,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x86: ADD_A(mmu_read(REG_HL)); break;     // ADD A, (HL)
         
         // ADD A, #
-        case 0xC6:{ 
-            uint8_t val = mmu_read(cpu.PC++);
-            ADD_A(val);
-            break; 
-        }
+        case 0xC6: ADD_A(fetch_d8()); break;
 
 
         /**
@@ -804,12 +800,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x8E:ADC_A(mmu_read(REG_HL)); break;      // ADC A, (HL)
         
         // ADC A, #
-        case 0xCE: {
-            uint8_t val = mmu_read(cpu.PC++);
-            ADC_A(val);
-            break;
-        }    
-
+        case 0xCE: ADC_A(fetch_d8()); break;
 
 
         /**
@@ -839,11 +830,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x96: SUB_A(mmu_read(REG_HL)); break;     // SUB (HL), A
 
         // SUB #, A
-        case 0xD6: {
-            uint8_t val = mmu_read(cpu.PC++);
-            SUB_A(val);
-            break;
-        }
+        case 0xD6: SUB_A(fetch_d8()); break;
 
 
         /**
@@ -872,11 +859,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // SBC A, #
         // not in the gameboy manual ?!?!?!
-        case 0xDE:{
-            uint8_t val = mmu_read(cpu.PC++);
-            SBC_A(val);
-            break;
-        }
+        case 0xDE: SBC_A(fetch_d8()); break;
 
 
         /**
@@ -907,11 +890,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0xA6: AND_A(mmu_read(REG_HL)); break;    // AND (HL) 
 
         // AND A, #
-        case 0xE6: {
-            uint8_t val = mmu_read(cpu.PC++);
-            AND_A(val);
-            break;
-        }
+        case 0xE6: AND_A(fetch_d8()); break;
 
 
         /**
@@ -940,7 +919,7 @@ bool execute_opcode(uint8_t opcode) {
         
         case 0xB6: OR_A(mmu_read(REG_HL)); break;          //OR A, (HL)
         
-        case 0xF6: OR_A(mmu_read(cpu.PC++)); break;          //OR A, (HL)
+        case 0xF6: OR_A(fetch_d8()); break;          //OR A, n
 
 
 
@@ -971,7 +950,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0xAE: XOR_A(mmu_read(REG_HL)); break;     // XOR A, (HL)
 
         //XOR A, *
-        case 0xEE: XOR_A(mmu_read(cpu.PC++)); break;
+        case 0xEE: XOR_A(fetch_d8()); break;
 
 
         /**
@@ -1000,7 +979,7 @@ bool execute_opcode(uint8_t opcode) {
         
         case 0xBE: CP_A(mmu_read(REG_HL)); break;      // CP A, (HL)
         
-        case 0xFE: CP_A(mmu_read(cpu.PC++)); break;      // CP A, #
+        case 0xFE: CP_A(fetch_d8()); break;      // CP A, #
 
 
         /* INCREMENT AND DECREMENT OPERATORS*/
