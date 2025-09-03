@@ -136,9 +136,18 @@ uint8_t mmu_read(uint16_t addr) {
     }
     if (addr <= 0xFEFF) { 
         return 0xFF; 
-    } // Unusable
+    }
+    // Timer Suite
     if (addr <= 0xFF7F) {
-        if (addr == 0xFF0F) return mmu.interrupt_flag;
+        if (addr == 0xFF04) return mmu.internal_timer >> 8;     // DIV
+        if (addr == 0xFF05) return mmu.tima;                    // TIMA
+        if (addr == 0xFF06) return mmu.tma;                     // TMA
+        if (addr == 0xFF07) return mmu.tac;                     // TAC
+        if (addr == 0xFF0F) return mmu.interrupt_flag;          // added interrupt flag
+
+        if (addr == 0xFF01) return 0xFF;            // Serial Data (stub)
+        if (addr == 0xFF02) return 0xFF;            // Serial Control (stub)
+
         return mmu.io[addr - 0xFF00];
     }
     if (addr <= 0xFFFE) { 
@@ -188,14 +197,19 @@ void mmu_write(uint16_t addr, uint8_t value) {
     }
     if (addr <= 0xFEFF) { 
         return; 
-    } // Unusable: ignore writes
+    } 
+    // Timer Suite
     if (addr <= 0xFF7F) {
-        if (addr == 0xFF0F) { 
-            mmu.interrupt_flag = value; return; 
-        }
+        if (addr == 0xFF01) { mmu.internal_timer = 0; return; }         // any write to DIV resets the timer
+        if (addr == 0xFF02) { mmu.tima = value; return; }               // TIMA
+        if (addr == 0xFF02) { mmu.tma = value; return; }               // TMA
+        if (addr == 0xFF02) { mmu.tac = value; return; }               // TAC
+        if (addr == 0xFF0F) { mmu.interrupt_flag = value; return; }
+
         mmu.io[addr - 0xFF00] = value;
         return;
     }
+    
     if (addr <= 0xFFFE) { 
         mmu.hram[addr - 0xFF80] = value; return; 
     }
