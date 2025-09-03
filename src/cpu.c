@@ -579,37 +579,28 @@ bool execute_opcode(uint8_t opcode) {
 
         // LD BC, nn
         case 0x01:{ 
-            uint16_t nn = mmu_read(cpu.PC++);
-            nn |= mmu_read(cpu.PC++) << 8;
-            cpu.B = (nn >> 8) & 0xFF;
-            cpu.C = nn & 0xFF;
+            uint16_t nn = fetch_d16();
+            SET_REG_BC(nn);
             break;
         }
 
         // LD DE, nn
         case 0x11:{
-            uint16_t nn = mmu_read(cpu.PC++);
-            nn |= mmu_read(cpu.PC++) << 8;
-            cpu.D = (nn >> 8) & 0xFF;
-            cpu.E = nn & 0xFF;
+            uint16_t nn = fetch_d16();
+            SET_REG_DE(nn);
             break;
         }    
         
         // LD HL, nn
         case 0x21: {    
-            uint16_t nn = mmu_read(cpu.PC++);
-            nn |= mmu_read(cpu.PC++) << 8; // logical OR + right shift by 8 bits
-            cpu.H = (nn >> 8) & 0xFF;
-            cpu.L = nn & 0xFF;
+            uint16_t nn = fetch_d16();
+            SET_REG_HL(nn);
             break;
         } 
         
         // LD SP (Stack pointer), nn
         case 0x31:{
-            uint16_t nn = mmu_read(cpu.PC++);
-            nn |= mmu_read(cpu.PC++) << 8;
-            cpu.SP = nn; 
-            break;
+            cpu.SP = fetch_d16();
         }
 
 
@@ -647,13 +638,14 @@ bool execute_opcode(uint8_t opcode) {
 
         // signed offset arithmetic !!!
         case 0xF8: {
-            int16_t n = (int8_t)mmu_read(cpu.PC++); // cast to signed int8 first!
+            int16_t n = (int8_t)fetch_d8(); // cast to signed int8 first!
             uint16_t sp = cpu.SP;
             uint16_t result = sp + n;
 
             // set HL to result
-            cpu.H = (result >> 8) & 0xFF;
-            cpu.L = result & 0xFF;
+            // cpu.H = (result >> 8) & 0xFF;
+            // cpu.L = result & 0xFF;
+            SET_REG_HL(result);
 
             //clear Z and N flags
             cpu.F &= ~(FLAG_Z | FLAG_N);
@@ -690,8 +682,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x08: {
             // read immediate 16-bit address nn
             // it is a littl;e endian
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
 
             // store stack pointer val at addr nn
             // little endian -- low byte first
