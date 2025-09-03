@@ -2,6 +2,7 @@
 #include <stdbool.h> 
 #include "cpu.h"
 #include "mmu.h"
+#include "timer.h"
 #include "rom.h" // not required as main shouldnt know about the rom info
 
 // TODO ppu.h, interrupts.h and timer.h
@@ -51,9 +52,17 @@ int main(int argc, char *argv[]) {
          * cpu step handles the halted state internally
          * doesnt fetch an opcode for halting
         */
-        if (!cpu_step()) {
+        int cycles_this_step = cpu_step();
+
+        // check if the cpu has halted
+        if (cycles_this_step == 0) {
             break;
         }
+
+        timer_step(cycles_this_step);
+        // if (!cpu_step()) {
+        //     break;
+        // }
         // PLACEHOLDER: Future hardware steps will go here.
         // ppu_step(cycles_from_cpu);
         // timer_step(cycles_from_cpu);
