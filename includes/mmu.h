@@ -58,6 +58,12 @@ typedef struct mmu_t {
     int current_rom_bank;
     int current_ram_bank;
     int mbc1_mode;
+
+    // Timer registers and internal state
+    uint16_t internal_timer;    // 16-bit counter for DIV
+    uint8_t tima;               // 0xFF05 - TIMA register counter
+    uint8_t tma;                // 0xFF06 - Timer modulo
+    uint8_t tac;                // 0xFF07 - Timer control
 } mmu_t;
 
 /**
