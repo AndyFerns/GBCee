@@ -1371,8 +1371,7 @@ bool execute_opcode(uint8_t opcode) {
    
         // JP nn
         case 0xC3: {
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC = addr;
+            cpu.PC = fetch_d16(); // get the address and advance the PC correctly
             break;
         }
 
@@ -1392,8 +1391,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // JP NZ nn
         case 0xC2:{
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
             if ((cpu.F & FLAG_Z) == 0) {
                 cpu.PC = addr;
             }
@@ -1403,8 +1401,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // JP Z nn
         case 0xCA:{
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
             if ((cpu.F & FLAG_Z) != 0) {
                 cpu.PC = addr;
             } 
@@ -1414,8 +1411,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // JP NC nn
         case 0xD2:{
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
             if ((cpu.F & FLAG_C) == 0) {
                 cpu.PC = addr;
             } 
@@ -1425,8 +1421,7 @@ bool execute_opcode(uint8_t opcode) {
         
         // JP C nn
         case 0xDA:{
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
             if ((cpu.F & FLAG_C) != 0) {
                 cpu.PC = addr;
             }
@@ -1455,7 +1450,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // JR n (signed offset)
         case 0x18: {
-            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            int8_t offset = (int8_t)fetch_d8();
             cpu.PC += offset;
             break;
         }
@@ -1474,7 +1469,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // JR NZ, * opcode 0x20
         case 0x20: {
-            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            int8_t offset = (int8_t)fetch_d8();
             if ((cpu.F & FLAG_Z) == 0) {
                 cpu.PC += offset;
             }
@@ -1483,7 +1478,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // JR Z, * opcode 0x28
         case 0x28: {
-            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            int8_t offset = (int8_t)fetch_d8();
             if ((cpu.F & FLAG_Z) != 0) {
                 cpu.PC += offset;
             }
@@ -1492,7 +1487,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // JR NC, * opcode 0x30
         case 0x30: {
-            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            int8_t offset = (int8_t)fetch_d8();
             if ((cpu.F & FLAG_C) == 0) {
                 cpu.PC += offset;
             }
@@ -1501,7 +1496,7 @@ bool execute_opcode(uint8_t opcode) {
 
         // JR C, * opcode 0x38
         case 0x38: {
-            int8_t offset = (int8_t)mmu_read(cpu.PC++);
+            int8_t offset = (int8_t)fetch_d8();
             if ((cpu.F & FLAG_C) != 0) {
                 cpu.PC += offset;
             }
@@ -1520,10 +1515,11 @@ bool execute_opcode(uint8_t opcode) {
          */
         // CALL nn
         case 0xCD:{
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
-            mmu_write(--cpu.SP, (cpu.PC >> 8));
-            mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+            uint16_t addr = fetch_d16();
+            push16(cpu.PC);
+            // replaced the old code for the push16 implementation
+            // mmu_write(--cpu.SP, (cpu.PC >> 8));
+            // mmu_write(--cpu.SP, (cpu.PC & 0xFF));
             cpu.PC = addr;
             break;
         }
@@ -1542,11 +1538,9 @@ bool execute_opcode(uint8_t opcode) {
 
         // CALL NZ, nn
         case 0xC4: {
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
             if ((cpu.F & FLAG_Z) == 0) {
-                mmu_write(--cpu.SP, (cpu.PC >> 8));
-                mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+                push16(cpu.PC);
                 cpu.PC = addr;
             }
             break;
@@ -1554,11 +1548,9 @@ bool execute_opcode(uint8_t opcode) {
 
         // CALL Z, nn
         case 0xCC: {
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
             if ((cpu.F & FLAG_Z) != 0) {
-                mmu_write(--cpu.SP, (cpu.PC >> 8));
-                mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+                push16(cpu.PC);
                 cpu.PC = addr;
             }
             break;
@@ -1569,8 +1561,7 @@ bool execute_opcode(uint8_t opcode) {
             uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
             cpu.PC += 2;
             if ((cpu.F & FLAG_C) == 0) {
-                mmu_write(--cpu.SP, (cpu.PC >> 8));
-                mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+                push16(cpu.PC);
                 cpu.PC = addr;
             }
             break;
@@ -1578,11 +1569,9 @@ bool execute_opcode(uint8_t opcode) {
 
         // CALL C, nn
         case 0xDC: {
-            uint16_t addr = mmu_read(cpu.PC) | (mmu_read(cpu.PC + 1) << 8);
-            cpu.PC += 2;
+            uint16_t addr = fetch_d16();
             if ((cpu.F & FLAG_C) != 0) {
-                mmu_write(--cpu.SP, (cpu.PC >> 8));
-                mmu_write(--cpu.SP, (cpu.PC & 0xFF));
+                push16(cpu.PC);
                 cpu.PC = addr;
             }
             break;
