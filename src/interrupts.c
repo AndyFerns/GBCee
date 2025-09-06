@@ -58,5 +58,20 @@ static void service_interrupts(int interrupt_bit) {
  * @returns void
  */ 
 void handle_interrupts() {
+    // check if the cpu is in a halted state
+    if (cpu.halted && (mmu.interrupt_enable & mmu.interrupt_flag & 0x1F)) {
+        cpu.halted = false;     //WAKE THE CPU UPPPPP !!!s 
+    }
 
+    // check if master IME switch is on or off 
+    if (!cpu.ime) {
+        return;
+    }
+
+    // check for requested and enabled interrupts (priority based)
+    for (int i = 0; i < 5; i++) {
+        if ((mmu.interrupt_enable & (1 << i)) && (mmu.interrupt_flag & (1 << i))) {
+            service_interrupts(i);
+        }
+    }
 }
