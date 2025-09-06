@@ -51,17 +51,19 @@ int cpu_step() {
     // Halt if PC goes beyond 64KB or ROM loaded range
     if (cpu.PC == 0xFFFF) { // ((uint32_t)cpu.PC >= 0x10000)
         printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
-        cpu.halted = true;
-        return 4;
+        // cpu.halted = true;
+        return 0;
     }
 
     if (cpu.halted) {
         return 4;
     }
 
+    // standard fetch-decode-execute cycle
     uint16_t pc = cpu.PC;
     uint8_t opcode = mmu_read(cpu.PC++);
     
+    // print for debugging
     printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
            pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
     );
@@ -91,7 +93,13 @@ int cpu_step() {
         cpu.ime_disable = false;
     }
 
-    return success;
+    if (!success) {
+        // unimplemented instruction was hit.
+        printf("[FATAL] Unimplemented opcode 0x%02X at 0x%04X\n", opcode, pc);
+        return 0;
+    }
+    // placeholder value
+    return 4;
 }
 
 // helper functions for PC Incrementing
@@ -1703,7 +1711,7 @@ bool execute_opcode(uint8_t opcode) {
         case 0x76: {
             printf("[HALT] HALT instruction encountered at 0x%04X\n", cpu.PC);
             cpu.halted = true;
-            return false; // indicate that cpu is halted
+            break; // indicate that cpu is halted
         }
 
         // STOP Instruction
