@@ -40,7 +40,7 @@ void cpu_reset() {
 /**
  * @brief cpu_step - Executes a single CPU instruction.
  *
- * Fetches, decodes, and executes one instruction at PC.
+ * @details Fetches, decodes, and executes one instruction at PC.
  * 
  * May modify CPU registers and memory. 
  * 
@@ -131,7 +131,7 @@ static uint16_t fetch_d16() {
 
 
 /**
- * execute_opcode()-
+ * @brief execute_opcode()-
  * Decodes and executes given 8-bit opcode 
  * 
  * @param opcode 8-bit operation code to be executed
@@ -1727,7 +1727,8 @@ bool execute_opcode(uint8_t opcode) {
 }
 
 /**
- * Executes CB Opcodes
+ * @brief Executes CB Opcodes
+ * 
  * Separated from execute_opcode for logic
  *
  * @return  bool    
