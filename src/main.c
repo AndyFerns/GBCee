@@ -3,9 +3,9 @@
 #include "cpu.h"
 #include "mmu.h"
 #include "timer.h"
-#include "rom.h" // not required as main shouldnt know about the rom info
+#include "interrupts.h"
 
-// TODO ppu.h, interrupts.h and timer.h
+// TODO ppu.h, and timer.h
 
 
 /**
@@ -29,46 +29,43 @@ int main(int argc, char *argv[]) {
     // should follow emulator lifecycle:
     // initialize hardware -> load the game -> run main loop -> clean up resources 
 
+    // 1. Initialize hardware
     mmu_init();
     cpu_reset();
     // ppu_init();   // placeholder for initializing the Picture Processing Unit 
     // timer_init(); // placeholder for initializing the timer
 
+    // 2. Load the game rom
     // only call mmu_load_rom and not load_rom
     if (mmu_load_rom(argv[1]) != 0) {
         fprintf(stderr, "Error: Failed to load ROM '%s'.\n", argv[1]);
         return 1;
     }
 
-    
+    // Main emulation loop
     printf(" --- Starting Emulation --- \n");
     while (true) { 
-        // if (cpu.PC >= 0x8000) {  // Prevent out-of-ROM execution
-        //     printf("[HALT] PC out of ROM bounds: 0x%04X\n", cpu.PC);
-        //     break;
-        // }
-
         /** Execute one instruction per cycle 
          * cpu step handles the halted state internally
          * doesnt fetch an opcode for halting
         */
         int cycles_this_step = cpu_step();
 
-        // check if the cpu has halted
+        // check if the cpu has halted and has 0 cycless this step
         if (cycles_this_step == 0) {
             break;
         }
 
+        // update other hardware components with the elapsed cycles
         timer_step(cycles_this_step);
-        // if (!cpu_step()) {
-        //     break;
-        // }
         // PLACEHOLDER: Future hardware steps will go here.
         // ppu_step(cycles_from_cpu);
-        // timer_step(cycles_from_cpu);
-        // handle_interrupts();
+
+        // Check for interrupts after all hardware has been updated
+        handle_interrupts();
     }
     
+    // 4. cleanup  
     printf(" --- Emulation Halted --- ");
     mmu_free(); // prevent memory leaks from loaded roms
     return 0;
