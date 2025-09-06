@@ -200,10 +200,11 @@ void mmu_write(uint16_t addr, uint8_t value) {
     } 
     // Timer Suite
     if (addr <= 0xFF7F) {
-        if (addr == 0xFF01) { mmu.internal_timer = 0; return; }         // any write to DIV resets the timer
-        if (addr == 0xFF02) { mmu.tima = value; return; }               // TIMA
-        if (addr == 0xFF02) { mmu.tma = value; return; }               // TMA
-        if (addr == 0xFF02) { mmu.tac = value; return; }               // TAC
+        if (addr == 0xFF04) { mmu.internal_timer = 0; return; }         // any write to DIV resets the timer
+        if (addr == 0xFF05) { mmu.tima = value; return; }               // TIMA
+        if (addr == 0xFF06) { mmu.tma = value; return; }               // TMA
+        if (addr == 0xFF07) { mmu.tac = value; return; }               // TAC
+        
         if (addr == 0xFF0F) { mmu.interrupt_flag = value; return; }
 
         mmu.io[addr - 0xFF00] = value;
