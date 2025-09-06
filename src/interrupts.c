@@ -72,6 +72,7 @@ void handle_interrupts() {
     for (int i = 0; i < 5; i++) {
         if ((mmu.interrupt_enable & (1 << i)) && (mmu.interrupt_flag & (1 << i))) {
             service_interrupts(i);
+            break;
         }
     }
 }
