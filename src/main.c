@@ -51,6 +51,11 @@ int main(int argc, char *argv[]) {
         */
         int cycles_this_step = cpu_step();
 
+        // check if the STOP instruction has been executed
+        if (cpu.stopped) {
+            break;
+        }
+
         // check if the cpu has halted and has 0 cycless this step
         if (cycles_this_step == 0) {
             break;
