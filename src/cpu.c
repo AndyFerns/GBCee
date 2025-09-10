@@ -30,7 +30,9 @@ void cpu_reset() {
     cpu.SP = 0xFFFE; //int 65534
     // Program counter
     cpu.PC = 0x0100; // int 256
+
     cpu.halted = false;
+    cpu.stopped = false;
 
     cpu.ime = false;
     cpu.ime_enable = false;
