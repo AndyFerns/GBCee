@@ -219,3 +219,21 @@ void mmu_write(uint16_t addr, uint8_t value) {
     
     mmu.interrupt_enable = value; // 0xFFFF
 }
+
+/**
+ * @brief  Gets the current value of the Interrupt Enable (IE) register
+ * 
+ * @return the 8-bit value of the IE register
+ */
+uint8_t mmu_get_ie_register() {
+    return mmu.interrupt_enable;
+}
+
+/**
+ * @brief Gets the current value of the Interrupt Flag (IF) register 
+ * 
+ * @return The 8-bit value of the IF register.
+ */
+uint8_t mmu_get_if_register() {
+    return mmu.interrupt_flag;
+}
