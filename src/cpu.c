@@ -77,21 +77,21 @@ int cpu_step() {
     }
     
     // print for debugging
-    printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
-           pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
-    );
+    // printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
+    //        pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
+    // );
 
     // Instruction Execution Suite
     bool success;
 
     // CB - Prefixed Bit operations 
     if (opcode == 0xCB) {
-        uint8_t cb_opcode = fetch_d8();
+        uint8_t cb_opcode = mmu_read(cpu.PC++);
 
         // special logging for CB_opcodes
-        printf("[PC=0x%04X] Opcode 0xCB 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
-           pc, cb_opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
-        );
+        // printf("[PC=0x%04X] Opcode 0xCB 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
+        //    pc, cb_opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
+        // );
         success =  execute_cb_opcode(cb_opcode);
     } else {
         success = execute_opcode(opcode);
@@ -1733,7 +1733,7 @@ bool execute_opcode(uint8_t opcode) {
         // STOP Instruction
         // two-byte instruction which halts the CPU screen and puts it into a low power state
         case 0x10: {
-            printf("[STOP] instruction encountered at 0x%04X\n", cpu.PC);
+            printf("[STOP] instruction encountered at 0x%04X\n", cpu.PC++);
             // uint8_t next = mmu_read(cpu.PC++);
             // if (next != 0x00) {
             //     printf("[ERROR] 0x00 instruction expected after STOP");
