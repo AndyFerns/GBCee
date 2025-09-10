@@ -59,9 +59,22 @@ int cpu_step() {
         return 4;
     }
 
+    // simulating the interrupt bug on the DMG
+    uint8_t ie_reg = mmu_get_ie_register();
+    uint8_t if_reg = mmu_get_if_register();
+    bool halt_bug = (mmu_read(cpu.PC) == 0x76 && // is the next instruction HALT?
+                                cpu.ime == false &&            // IME disabled?
+                                (ie_reg & if_reg & 0x1F) != 0); // is there a pending & enabled interrupt?
+
+
     // standard fetch-decode-execute cycle
     uint16_t pc = cpu.PC;
     uint8_t opcode = mmu_read(cpu.PC++);
+
+    // if the halt bug would be triggered, then decrement the PC
+    if (halt_bug) {
+        cpu.PC--;
+    }
     
     // print for debugging
     printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
