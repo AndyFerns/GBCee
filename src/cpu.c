@@ -1728,13 +1728,16 @@ bool execute_opcode(uint8_t opcode) {
         }
 
         // STOP Instruction
+        // two-byte instruction which halts the CPU screen and puts it into a low power state
         case 0x10: {
-            uint8_t next = mmu_read(cpu.PC++);
-            if (next != 0x00) {
-                printf("[ERROR] 0x00 instruction expected after STOP");
-            }
-            cpu.halted = true;
-            break;
+            printf("[STOP] instruction encountered at 0x%04X\n", cpu.PC);
+            // uint8_t next = mmu_read(cpu.PC++);
+            // if (next != 0x00) {
+            //     printf("[ERROR] 0x00 instruction expected after STOP");
+            // }
+            // cpu.halted = true;
+            return false;
+            // break;
         }
 
         default:
