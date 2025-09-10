@@ -81,27 +81,30 @@ int cpu_step() {
            pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
     );
 
+    // Instruction Execution Suite
+    bool success;
+
     // CB - Prefixed Bit operations 
     if (opcode == 0xCB) {
-        uint8_t cb_opcode = mmu_read(cpu.PC++);
+        uint8_t cb_opcode = fetch_d8();
 
         // special logging for CB_opcodes
         printf("[PC=0x%04X] Opcode 0xCB 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
            pc, cb_opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
         );
-        return execute_cb_opcode(cb_opcode);
+        success =  execute_cb_opcode(cb_opcode);
+    } else {
+        success = execute_opcode(opcode);
     }
 
     // on succesfully executing an instruction, it returns a true value and continues on with the cpu step
-    bool success = execute_opcode(opcode); 
+    // bool success = execute_opcode(opcode); 
 
     // Apply delayed IME effects AFTER the instruction
     if (cpu.ime_enable) {
         cpu.ime = true;
         cpu.ime_enable = false;
-    }
-
-    if (cpu.ime_disable) {
+    } else if (cpu.ime_disable) {
         cpu.ime = false;
         cpu.ime_disable = false;
     }
