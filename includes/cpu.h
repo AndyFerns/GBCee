@@ -18,8 +18,9 @@ typedef struct CPU {
     uint8_t H, L;
     uint16_t PC; // Program Counter
     uint16_t SP; // Stack pointer
+    
     bool halted; // halted flag
-
+    bool stopped; // used for graceful stoppage
     bool ime;           // Master Interrupt enable flag
     bool ime_enable;    // EI (enable interrupts) sets this -> ime becomes true after next instruction 
     bool ime_disable;   // DI (disable interrupts) sets this -> ime becomes false after next instruction
