@@ -1740,9 +1740,9 @@ bool execute_opcode(uint8_t opcode) {
             // if (next != 0x00) {
             //     printf("[ERROR] 0x00 instruction expected after STOP");
             // }
-            // cpu.halted = true;
-            cpu.stopped = true;
-            return false;
+            cpu.halted = true;
+            // cpu.stopped = true;
+            return true;
             // break;
         }
 
