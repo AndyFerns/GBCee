@@ -1735,11 +1735,15 @@ bool execute_opcode(uint8_t opcode) {
         // STOP Instruction
         // two-byte instruction which halts the CPU screen and puts it into a low power state
         case 0x10: {
-            printf("[STOP] instruction encountered at 0x%04X\n", cpu.PC++);
-            // uint8_t next = mmu_read(cpu.PC++);
-            // if (next != 0x00) {
-            //     printf("[ERROR] 0x00 instruction expected after STOP");
-            // }
+            printf("[STOP] instruction encountered at 0x%04X\n", cpu.PC);
+            
+            fetch_d8(); // increment the PC past the 0x00
+
+            // simulating joypad press until actual joypad is implemented
+            // manually stub a joypad press in the 4th bit of the IF register 0xFF0F
+            uint8_t current_if = mmu_get_if_register();
+            mmu_write(0xFF0F, current_if | 0x10); // set bit 4
+
             cpu.halted = true;
             // cpu.stopped = true;
             return true;
