@@ -39,86 +39,6 @@ void cpu_reset() {
     cpu.ime_disable = false;
 }
 
-/**
- * @brief cpu_step - Executes a single CPU instruction.
- *
- * @details Fetches, decodes, and executes one instruction at PC.
- * 
- * May modify CPU registers and memory. 
- * 
- * @returns 
- * Returns cycle count
- */
-int cpu_step() {
-    // Halt if PC goes beyond 64KB or ROM loaded range
-    if (cpu.PC == 0xFFFF) { // ((uint32_t)cpu.PC >= 0x10000)
-        printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
-        // cpu.halted = true;
-        return 0;
-    }
-
-    if (cpu.halted) {
-        return 4;
-    }
-
-    // simulating the interrupt bug on the DMG
-    uint8_t ie_reg = mmu_get_ie_register();
-    uint8_t if_reg = mmu_get_if_register();
-    bool halt_bug = (mmu_read(cpu.PC) == 0x76 && // is the next instruction HALT?
-                                cpu.ime == false &&            // IME disabled?
-                                (ie_reg & if_reg & 0x1F) != 0); // is there a pending & enabled interrupt?
-
-
-    // standard fetch-decode-execute cycle
-    uint16_t pc = cpu.PC;
-    uint8_t opcode = mmu_read(cpu.PC++);
-
-    // if the halt bug would be triggered, then decrement the PC
-    if (halt_bug) {
-        cpu.PC--;
-    }
-    
-    // print for debugging
-    // printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
-    //        pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
-    // );
-
-    // Instruction Execution Suite
-    bool success;
-
-    // CB - Prefixed Bit operations 
-    if (opcode == 0xCB) {
-        uint8_t cb_opcode = mmu_read(cpu.PC++);
-
-        // special logging for CB_opcodes
-        // printf("[PC=0x%04X] Opcode 0xCB 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
-        //    pc, cb_opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
-        // );
-        success =  execute_cb_opcode(cb_opcode);
-    } else {
-        success = execute_opcode(opcode);
-    }
-
-    // on succesfully executing an instruction, it returns a true value and continues on with the cpu step
-    // bool success = execute_opcode(opcode); 
-
-    // Apply delayed IME effects AFTER the instruction
-    if (cpu.ime_enable) {
-        cpu.ime = true;
-        cpu.ime_enable = false;
-    } else if (cpu.ime_disable) {
-        cpu.ime = false;
-        cpu.ime_disable = false;
-    }
-
-    if (!success) {
-        // unimplemented instruction was hit.
-        printf("[FATAL] Unimplemented opcode 0x%02X at 0x%04X\n", opcode, pc);
-        return 0;
-    }
-    // placeholder value
-    return 4;
-}
 
 // helper functions for PC Incrementing
 
@@ -153,6 +73,88 @@ static uint16_t fetch_d16() {
     uint8_t low = mmu_read(cpu.PC++);
     uint8_t high = mmu_read(cpu.PC++);
     return (high << 8) | low;
+}
+
+
+/**
+ * @brief cpu_step - Executes a single CPU instruction.
+ *
+ * @details Fetches, decodes, and executes one instruction at PC.
+ * 
+ * May modify CPU registers and memory. 
+ * 
+ * @returns 
+ * Returns cycle count
+ */
+int cpu_step() {
+    // Halt if PC goes beyond 64KB or ROM loaded range
+    if (cpu.PC == 0xFFFF) { // ((uint32_t)cpu.PC >= 0x10000)
+        printf("[HALT] PC out of bounds: 0x%04X\n", cpu.PC);
+        // cpu.halted = true;
+        return 0;
+    }
+
+    if (cpu.halted) {
+        return 4;
+    }
+
+    // simulating the interrupt bug on the DMG
+    uint8_t ie_reg = mmu_get_ie_register();
+    uint8_t if_reg = mmu_get_if_register();
+    bool halt_bug = (mmu_read(cpu.PC) == 0x76 && // is the next instruction HALT?
+                                cpu.ime &&            // IME disabled?
+                                (ie_reg & if_reg & 0x1F) != 0); // is there a pending & enabled interrupt?
+
+
+    // standard fetch-decode-execute cycle
+    uint16_t pc = cpu.PC;
+    uint8_t opcode = fetch_d8();
+
+    // if the halt bug would be triggered, then decrement the PC
+    if (halt_bug) {
+        cpu.PC--;
+    }
+    
+    // print for debugging
+    // printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
+    //        pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
+    // );
+
+    // Instruction Execution Suite
+    bool success;
+
+    // CB - Prefixed Bit operations 
+    if (opcode == 0xCB) {
+        uint8_t cb_opcode = fetch_d8();
+
+        // special logging for CB_opcodes
+        // printf("[PC=0x%04X] Opcode 0xCB 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
+        //    pc, cb_opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
+        // );
+        success =  execute_cb_opcode(cb_opcode);
+    } else {
+        success = execute_opcode(opcode);
+    }
+
+    // on succesfully executing an instruction, it returns a true value and continues on with the cpu step
+    // bool success = execute_opcode(opcode); 
+
+    // Apply delayed IME effects AFTER the instruction
+    if (cpu.ime_enable) {
+        cpu.ime = true;
+        cpu.ime_enable = false;
+    } else if (cpu.ime_disable) {
+        cpu.ime = false;
+        cpu.ime_disable = false;
+    }
+
+    if (!success) {
+        // unimplemented instruction was hit.
+        printf("[FATAL] Unimplemented opcode 0x%02X at 0x%04X\n", opcode, pc);
+        return 0;
+    }
+    // placeholder value
+    return 4;
 }
 
 
