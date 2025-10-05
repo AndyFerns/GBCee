@@ -267,15 +267,23 @@ void DEC_16(uint16_t *regist) {
  */
 
 /**
- * @brief AND_R- applying logical AND between A and val
+ * @brief AND_A- applying logical AND between A and val
  * 
  * @param val:uint8_t 8-bit value to AND A with
  * 
  * @return void
+ * 
+ * @details The result is stored in A. Flags are set as follows:
+ * Z: Set if result is 0.
+ * N: Reset.
+ * H: Set.
+ * C: Reset.
  */
 void AND_A(uint8_t val) {
     cpu.A &= val; //apply logical AND
+
     cpu.F = FLAG_H; // half-carry is ALWAYS set
+
     if (cpu.A == 0) {
         cpu.F |= FLAG_Z;
     }
