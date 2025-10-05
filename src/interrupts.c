@@ -66,7 +66,7 @@ void handle_interrupts() {
     // --- Wake from HALT ---
     // If the CPU is in a HALT state and there are any active interrupts,
     // it should wake up on the next cycle.
-    if (cpu.halted && active_interrupts) {
+    if (cpu.halted && (requested_interrupts & 0x1F)) {
         cpu.halted = false;
     }
 
