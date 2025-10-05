@@ -1741,17 +1741,17 @@ bool execute_opcode(uint8_t opcode) {
             
             fetch_d8(); // increment the PC past the 0x00
 
-            // request the interrupt
-            uint8_t current_if = mmu_get_if_register();
-            // set bit 4 (joypad) in the IF
-            mmu_write(0xFF0F, current_if | 0x10); // set bit 4
+            // // request the interrupt
+            // uint8_t current_if = mmu_get_if_register();
+            // // set bit 4 (joypad) in the IF
+            // mmu_write(0xFF0F, current_if | 0x10); // set bit 4
 
-            // set bit 4 (joypad) in the IE
-            uint8_t current_ie = mmu_get_ie_register();
-            mmu_write(0xFFFF, current_ie | 0x10); // set bit 4
+            // // set bit 4 (joypad) in the IE
+            // uint8_t current_ie = mmu_get_ie_register();
+            // mmu_write(0xFFFF, current_ie | 0x10); // set bit 4
 
-            cpu.halted = true;
-            // cpu.stopped = true;
+            // cpu.halted = true;
+            // // cpu.stopped = true;
             return true;
             // break;
         }
