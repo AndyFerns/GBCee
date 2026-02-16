@@ -61,20 +61,22 @@ void handle_interrupts() {
     // Determine which interrupts are both requested (in IF) and enabled (in IE).
     uint8_t requested_interrupts = mmu_get_if_register();
     uint8_t enabled_interrupts = mmu_get_ie_register();
-    uint8_t active_interrupts = requested_interrupts & enabled_interrupts & 0x1F;
-
+    
     // --- Wake from HALT ---
     // If the CPU is in a HALT state and there are any active interrupts,
     // it should wake up on the next cycle.
     if (cpu.halted && (requested_interrupts & 0x1F)) {
         cpu.halted = false;
     }
-
+    
     // --- Service Interrupts ---
     // Interrupts can only be serviced if the master interrupt switch (IME) is enabled.
     if (!cpu.ime) {
         return;
     }
+
+    // Determine which interrupts are active (both requested and enabled)
+    uint8_t active_interrupts = requested_interrupts & enabled_interrupts & 0x1F;
 
     // If there are active interrupts to service, handle the one with the highest priority.
     if (active_interrupts) {

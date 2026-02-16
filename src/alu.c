@@ -448,12 +448,24 @@ void DAA() {
         }
     }
 
-    cpu.F &= ~(FLAG_Z | FLAG_H); // Clear Z and H
+    // Flag Logic:
 
+    // The H flag is always cleared
+    cpu.F &= ~FLAG_H; 
+
+    // the Z flag is set based on results   
     if ((a & 0xFF) == 0) {
         cpu.F |= FLAG_Z;
-    }
+    } else {
+        cpu.F &= ~FLAG_Z;
+    }   
     
+    // The C flag is set if the addition path caused a carry out 
+    if ((a & 0x100) != 0) {
+        cpu.F |= FLAG_C; // preserve the carry
+    }
+
+    //update the A register with the adjusted value
     cpu.A = a & 0xFF;
 }
 
