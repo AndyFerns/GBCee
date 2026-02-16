@@ -116,18 +116,18 @@ int mmu_load_rom(const char* filepath);
 
 // removed external loading for bound checks
 
-#endif
-
 /**
- * @brief Gets the current value of the Interrupt Enable (IE) register
- * 
- * @return The 8-bit value of the IE register.
- */
+* @brief Gets the current value of the Interrupt Enable (IE) register
+* 
+* @return The 8-bit value of the IE register.
+*/
 uint8_t mmu_get_ie_register();
 
 /**
- * @brief Gets the current value of the Interrupt Flag (IF) register 
- * 
- * @return The 8-bit value of the IF register.
- */
+* @brief Gets the current value of the Interrupt Flag (IF) register 
+* 
+* @return The 8-bit value of the IF register.
+*/
 uint8_t mmu_get_if_register();
+
+#endif
