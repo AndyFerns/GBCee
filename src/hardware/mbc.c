@@ -2,6 +2,7 @@
 #include "mmu.h"
 #include "rom.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>

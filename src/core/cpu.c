@@ -3,6 +3,8 @@
 #include "rom.h"
 #include "alu.h"
 
+#include "debug.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -119,6 +121,8 @@ int cpu_step() {
     // printf("[PC=0x%04X] Opcode 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
     //        pc, opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
     // );
+    // use new debug macro
+    LOG_CPU_STATE(pc, opcode, cpu);
 
     // Instruction Execution Suite
     bool success;
@@ -131,6 +135,9 @@ int cpu_step() {
         // printf("[PC=0x%04X] Opcode 0xCB 0x%02X | A=0x%02X F=0x%02X B=0x%02X C=0x%02X D=0x%02X E=0x%02X H=0x%02X L=0x%02X SP=0x%04X\n", 
         //    pc, cb_opcode, cpu.A, cpu.F, cpu.B, cpu.C, cpu.D, cpu.E, cpu.H, cpu.L, cpu.SP
         // );
+
+        LOG_CB_STATE(pc, cb_opcode, cpu);
+        
         success =  execute_cb_opcode(cb_opcode);
     } else {
         success = execute_opcode(opcode);
