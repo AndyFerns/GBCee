@@ -19,9 +19,35 @@ void mbc_init(mmu_t* mmu) {
     // The mbc_type is already set in mmu->mbc_type by the ROM loader.
     // We just need to initialize the banking registers.
     mmu->ram_enabled = false;
-    mmu->current_rom_bank = 1;
     mmu->current_ram_bank = 0;
-    mmu->mbc1_mode = 0;
+
+    
+    switch(mmu->mbc_type) {
+        case MBC_TYPE_NONE: {
+            mmu->current_rom_bank = 0;
+            break;
+        }
+        case MBC_TYPE_MBC1: {
+            mmu->current_rom_bank = 1;
+            mmu->mbc1_mode = 0;
+            break;
+        }
+        // TODO
+        // case MBC_TYPE_MBC3: {
+            //     mmu->current_rom_bank = 1;
+            //     break;
+            // }
+            
+        default: {
+            // fallback for undefined behaviour
+            mmu->current_rom_bank = 1;
+            break;
+        }
+    }
+    
+    // DEBUG
+    printf("[DEBUG] MBC initialized: type=%d, rom_bank=%d\n",
+        mmu->mbc_type, mmu->current_rom_bank);
 }
 
 uint8_t mbc_read_rom(mmu_t* mmu, uint16_t addr) {
