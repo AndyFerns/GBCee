@@ -44,6 +44,7 @@ build.bat
 *.i*86
 *.x86_64
 *.hex
+build/
 
 # Debug files
 *.dSYM/

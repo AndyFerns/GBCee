@@ -94,7 +94,7 @@ int mmu_load_rom(const char* filepath) {
     printf("Detected MBC Type: %d\n", mmu.mbc_type);
 
     // TODO: Initialize the MBC based on the detected type
-    // mbc_init(&mmu);
+    mbc_init(&mmu);
     
     return 0; // Success
 }
